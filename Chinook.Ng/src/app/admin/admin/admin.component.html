@@ -1,0 +1,28 @@
+<nav class="navbar navbar-light bg-light flex-nowrap p-1 border-bottom">
+    <div class="pl-1 pr-2">
+        <button class="navbar-toggler" type="button" (click)="menuShow()">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    </div>
+    <div class="w-100">
+        <a class="navbar-brand text-left" routerLink="/admin">Admin Paneli</a>
+    </div>
+    <div>
+        <dx-drop-down-button icon="user" stylingMode="text" [useSelectMode]="false" [text]="fullName" [items]="userMenu" displayExpr="name" (onItemClick)="selectUserMenu($event)">
+        </dx-drop-down-button>
+    </div>
+</nav>
+<div class="container-fluid h-100">
+    <div class="row">
+        <div *ngIf="isShowMenu" class="col-12 col-md-2 d-md-block pt-3 border-right" [ngStyle]="{ height: screen?.availHeight + 'px' }">
+            <dx-tree-view [items]="items" keyExpr="path" selectionMode="single" [focusStateEnabled]="false" expandEvent="click" width="100%">
+                <div class="border-bottom pb-1" *dxTemplate="let item of 'item'">
+                    <a class="text-secondary" [routerLink]="item.url"> {{ item.name }}</a>
+                </div>
+            </dx-tree-view>
+        </div>
+        <div class="mt-3" [hidden]="!isShowContent" [ngClass]="{ 'col-12 col-md-10': isShowMenu, 'col-12': !isShowMenu }">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>

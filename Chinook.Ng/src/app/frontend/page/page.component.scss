@@ -1,0 +1,21 @@
+:host ::ng-deep .p-tree .p-tree-container .p-treenode .p-treenode-content {
+    padding: 0 0 1px 0 !important;
+}
+
+:host ::ng-deep .p-tree {
+    padding: 10px 1px !important;
+    border: unset !important;
+}
+
+:host ::ng-deep a {
+    color: rgba(0, 0, 0, .9) !important;
+    text-decoration: none !important;
+}
+
+:host ::ng-deep .p-panel .p-panel-content {
+    padding: 0.5rem 0;
+}
+
+.pl-16 {
+    padding-left: 16px !important;
+}

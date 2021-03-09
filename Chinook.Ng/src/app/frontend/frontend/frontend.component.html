@@ -1,0 +1,23 @@
+<!-- <kendo-drawer-container>
+    <kendo-drawer #drawer mode="overlay" [expanded]="false">
+        <ng-template kendoDrawerTemplate>
+            <kendo-tabstrip class="p-1">
+                <kendo-tabstrip-tab title="Menü" [selected]="true">
+                    <ng-template kendoTabContent [selected="true">
+                        <kendo-treeview [nodes]="items" textField="name" kendoTreeViewExpandable kendoTreeViewSelectable kendoTreeViewHierarchyBinding childrenField="items">
+                            <ng-template kendoTreeViewNodeTemplate let-dataItem>
+                                <a class="text-decoration-none text-secondary" [routerLink]="dataItem.url">{{ dataItem.name }}</a>
+                            </ng-template>
+                        </kendo-treeview>
+                    </ng-template>
+                </kendo-tabstrip-tab>
+            </kendo-tabstrip>
+        </ng-template>
+    </kendo-drawer>
+</kendo-drawer-container> -->
+
+<app-nav-menu [items]="items"></app-nav-menu>
+
+<div class="container">
+    <router-outlet></router-outlet>
+</div>

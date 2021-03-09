@@ -1,0 +1,20 @@
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container">
+            <a class="navbar-brand" [routerLink]="['/']">Chinook</a>
+            <button class="navbar-toggler" type="button" (click)="toggle()">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse" [ngClass]="{ show: false }">
+                <dx-menu [items]="items" itemTemplate="items" showFirstSubmenuMode="onHover">
+                    <div *dxTemplate="let item of 'items'">
+                        <a class="text-secondary text-decoration-none p-2" [routerLink]="item.url">
+              {{item.name}}
+            </a>
+                    </div>
+                </dx-menu>
+
+            </div>
+        </div>
+    </nav>
+</header>

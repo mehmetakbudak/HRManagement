@@ -1,0 +1,75 @@
+<div class="row mb-2">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Hesabım</h5>
+            </div>
+            <div class="card-body">
+                <form (submit)="save($event)">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Email Adresi</label>
+                                <dx-text-box [readOnly]="true" [(value)]="user.emailAddress"></dx-text-box>
+                            </div>
+                            <div class="form-group">
+                                <label>Adınız</label>
+                                <dx-text-box [(value)]="user.firstName">
+                                    <dx-validator>
+                                        <dxi-validation-rule type="required" message="Adı gereklidir."></dxi-validation-rule>
+                                    </dx-validator>
+                                </dx-text-box>
+                            </div>
+                            <div class="form-group">
+                                <label>Soyadınız</label>
+                                <dx-text-box [(value)]="user.lastName">
+                                    <dx-validator>
+                                        <dxi-validation-rule type="required" message="Soyadı gereklidir."></dxi-validation-rule>
+                                    </dx-validator>
+                                </dx-text-box>
+                            </div>
+                            <div class="form-group">
+                                <label>Doğum Tarihi</label>
+                                <dx-date-box [(value)]="user.birthDate" displayFormat="dd.MM.yyyy"></dx-date-box>
+                            </div>
+                            <div class="form-group">
+                                <label>Ünvanı</label>
+                                <dx-select-box [readOnly]="true" [dataSource]="titles" displayExpr="name" valueExpr="id" [(value)]="user.titleId">
+                                </dx-select-box>
+                            </div>
+                            <div class="form-group">
+                                <label>İşe Başlama Tarihi</label>
+                                <dx-date-box [readOnly]="true" [(value)]="user.hireDate" displayFormat="dd.MM.yyyy"></dx-date-box>
+                            </div>
+                            <div class="form-group">
+                                <label>Telefonu</label>
+                                <dx-text-box [(value)]="user.phone" mask="(999) 999-9999"></dx-text-box>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>İl</label>
+                                <dx-select-box [dataSource]="provinces" displayExpr="name" valueExpr="id" [(value)]="user.provinceId" (onValueChanged)="selectProvince($event)">
+                                </dx-select-box>
+                            </div>
+                            <div class="form-group">
+                                <label>İlçe</label>
+                                <dx-select-box [dataSource]="cities" displayExpr="name" valueExpr="id" [(value)]="user.cityId">
+                                </dx-select-box>
+                            </div>
+                            <div class="form-group">
+                                <label>Adres</label>
+                                <dx-text-area [(value)]="user.address"></dx-text-area>
+                            </div>
+                            <div class="form-group">
+                                <label>Aktif</label>
+                                <dx-switch class="ml-3 shadow" switchedOnText="Aktif" switchedOffText="Pasif" [width]="60" [readOnly]="true" [(value)]="user.isActive"></dx-switch>
+                            </div>
+                        </div>
+                    </div>
+                    <dx-button text="Kaydet" type="default" [useSubmitBehavior]="true"></dx-button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

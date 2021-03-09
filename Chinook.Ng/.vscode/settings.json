@@ -1,0 +1,15 @@
+{
+    "sqltools.connections": [
+        {
+            "database": "C:\\Users\\mehmet.akbudak\\Documents\\Visual Studio 2019\\Projects\\Chinook\\Chinook\\chinook.db",
+            "dialect": "SQLite",
+            "name": "chinook"
+        },
+        {
+            "database": "C:\\Users\\mehmet.akbudak\\Documents\\Visual Studio 2019\\Projects\\Chinook\\Chinook\\chinook.db",
+            "dialect": "SQLite",
+            "name": "chinook"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

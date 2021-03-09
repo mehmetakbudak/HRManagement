@@ -1,0 +1,21 @@
+<div class="mt-2">
+    <div class="row">
+        <div class="col-md-3" *ngIf="page?.menuId">
+            <h5 class="pb-1">{{menuName}}</h5>
+            <div class="border pl-1 pt-2 pb-2">
+                <dx-tree-view [items]="items" keyExpr="path" selectionMode="single" [focusStateEnabled]="false" expandEvent="click" width="100%">
+                    <div class="border-bottom pb-1" *dxTemplate="let item of 'item'">
+                        <a class="text-secondary" [routerLink]="item.url"> {{ item.name }}</a>
+                    </div>
+                </dx-tree-view>
+            </div>
+        </div>
+        <div>
+            <!-- [ngClass]="{'col-md-9': page?.menuId != null, 'col-md-12': page?.menuId == null }"> -->
+            <h5>{{page?.title}}</h5>
+            <div class="text-justify">
+                {{page?.description}}
+            </div>
+        </div>
+    </div>
+</div>

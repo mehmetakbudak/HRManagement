@@ -1,0 +1,187 @@
+<div class="row mb-2">
+    <div class="col-md-6 col-6">
+        <h5>Menüler</h5>
+    </div>
+    <div class="col-md-6 col-6">
+        <button class="float-right btn btn-success btn-sm" (click)="addMenu()">
+      <i class="k-icon k-i-plus"></i> Yeni
+    </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <!-- <kendo-grid
+      [loading]="loading"
+      [kendoGridBinding]="data"
+      [pageSize]="5"
+      [pageable]="true"
+      [filterable]="true"
+      [navigable]="true"
+      [scrollable]="true"
+    >
+      <kendo-grid-command-column width="70">
+        <ng-template kendoGridCellTemplate let-item>
+          <kendo-dropdownbutton
+            class="border-dark"
+            (itemClick)="onMenuClick($event, item)"
+            [data]="menuSettings"
+            icon="more-vertical"
+          ></kendo-dropdownbutton>
+        </ng-template>
+      </kendo-grid-command-column>
+      <kendo-grid-column
+        field="name"
+        title="Adı"
+        width="250"
+      ></kendo-grid-column>
+      <kendo-grid-column
+        field="isDeletable"
+        title="Silinebilir mi?"
+        width="150"
+      >
+        <ng-template kendoGridCellTemplate let-dataItem>
+          <input type="checkbox" [checked]="dataItem.isDeletable" disabled />
+          <span class="pl-2">{{
+            dataItem.isDeletable ? "Evet" : "Hayır"
+          }}</span>
+        </ng-template>
+      </kendo-grid-column>
+      <kendo-grid-column field="isActive" title="Aktif mi?" width="150">
+        <ng-template kendoGridCellTemplate let-dataItem>
+          <input type="checkbox" [checked]="dataItem.isActive" disabled />
+          <span class="pl-2">{{ dataItem.isActive ? "Evet" : "Hayır" }}</span>
+        </ng-template>
+      </kendo-grid-column>
+      <div *kendoGridDetailTemplate="let dataItem">
+        <div class="bg-white border">
+          <div class="border-bottom p-1">
+            <div class="row">
+              <div class="col-8">
+                <h5 class="mt-1 mb-1 pl-1">{{ dataItem.name }} Elemanları</h5>
+              </div>
+              <div class="col-4">
+                <button
+                  type="button"
+                  class="btn btn-success btn-sm float-right mt-1 mb-1"
+                  (click)="addMenuItem()"
+                >
+                  <i class="k-icon k-i-plus"></i> Yeni
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="p-2">
+            <p *ngIf="dataItem.items.length == 0">
+              Kayıt bulunamadı.
+            </p>
+
+            <kendo-treeview
+              [nodes]="dataItem.items"
+              textField="name"
+              kendoTreeViewExpandable
+              kendoTreeViewSelectable
+              kendoTreeViewHierarchyBinding
+              childrenField="items"
+            >
+              <ng-template kendoTreeViewNodeTemplate let-dataItem>
+                <div>
+                  <kendo-dropdownbutton
+                    class="mr-0"
+                    (itemClick)="onMenuItemClick($event, dataItem)"
+                    [data]="menuItemSettings"
+                    icon="more-vertical"
+                  >
+                  </kendo-dropdownbutton>
+                  <span class="ml-2"> {{ dataItem.name }}</span>
+                </div>
+              </ng-template>
+            </kendo-treeview>
+          </div>
+        </div>
+      </div>
+    </kendo-grid> -->
+    </div>
+</div>
+<!--
+<kendo-dialog
+  [title]="titleMenu"
+  *ngIf="isMenuVisible"
+  (close)="isMenuVisible = false"
+  [width]="this.screenWidth < 768 ? this.screenWidth : 450"
+>
+  <div class="row">
+    <div class="col-12">
+      <form class="k-form" [formGroup]="formMenu">
+        <kendo-formfield>
+          <kendo-label text="Adı"></kendo-label>
+          <input formControlName="name" kendoTextBox required maxlength="100" />
+          <kendo-formerror>Menü adı zorunludur!</kendo-formerror>
+        </kendo-formfield>
+        <kendo-formfield>
+          <kendo-label text="Aktif"></kendo-label>
+          <kendo-switch formControlName="isActive"></kendo-switch>
+          <kendo-formerror>Menü adı zorunludur!</kendo-formerror>
+        </kendo-formfield>
+      </form>
+    </div>
+  </div>
+
+  <kendo-dialog-actions layout="normal">
+    <button kendoButton (click)="isMenuVisible = false">İptal</button>
+    <button kendoButton (click)="saveMenu()" primary="true">Kaydet</button>
+  </kendo-dialog-actions>
+</kendo-dialog>
+
+<kendo-dialog
+  [title]="titleMenuItem"
+  *ngIf="isMenuItemVisible"
+  (close)="isCategoryVisible = false"
+  [width]="this.screenWidth < 768 ? this.screenWidth : 450"
+>
+  <div class="row">
+    <div class="col-12">
+      <form class="k-form" [formGroup]="formMenuItem">
+        <button #anchor (click)="onToggle()" class="k-button">
+          {{ toggleText }} Popup
+        </button>
+        <kendo-popup
+          [anchor]="anchor"
+          (anchorViewportLeave)="show = false"
+          *ngIf="show"
+        >
+          <div class="content">
+            <kendo-treeview
+              [nodes]="dataItem.items"
+              textField="name"
+              kendoTreeViewExpandable
+              kendoTreeViewSelectable
+              kendoTreeViewHierarchyBinding
+              childrenField="items"
+            >
+            </kendo-treeview>
+          </div>
+        </kendo-popup>
+
+        <kendo-formfield>
+          <kendo-label text="Adı"></kendo-label>
+          <input formControlName="name" kendoTextBox required maxlength="100" />
+          <kendo-formerror>Menü adı zorunludur!</kendo-formerror>
+        </kendo-formfield>
+        <kendo-formfield>
+          <kendo-label text="Url"></kendo-label>
+          <input formControlName="url" kendoTextBox maxlength="500" />
+        </kendo-formfield>
+        <kendo-formfield>
+          <kendo-label text="Aktif"></kendo-label>
+          <kendo-switch formControlName="isActive"></kendo-switch>
+          <kendo-formerror>Menü adı zorunludur!</kendo-formerror>
+        </kendo-formfield>
+      </form>
+    </div>
+  </div>
+  <kendo-dialog-actions layout="normal">
+    <button kendoButton (click)="isMenuItemVisible = false">İptal</button>
+    <button kendoButton (click)="saveMenuItem()" primary="true">Kaydet</button>
+  </kendo-dialog-actions>
+</kendo-dialog> -->

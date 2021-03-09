@@ -1,0 +1,9 @@
+.leftMenu {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+:host ::ng-deep .p-menubar {
+    background-color: unset !important;
+}

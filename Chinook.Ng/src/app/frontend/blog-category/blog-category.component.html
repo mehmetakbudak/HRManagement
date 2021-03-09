@@ -1,0 +1,34 @@
+<h4>
+    {{blogCategory?.name}}
+</h4>
+<div class="row">
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-12 col-md-6" *ngFor="let blog of blogs | paginate: { itemsPerPage: pageSize, currentPage: page, totalItems:total }">
+                <div class=" card mt-2 mb-2 w-100">
+                    <img class="card-img-top" src="{{blog?.imageUrl}}">
+                    <div class="card-body">
+                        <h5 class="card-title text-wrap">{{blog?.title}}</h5>
+                        <p class="card-text text-wrap">{{blog?.shortDefinition}}</p>
+                        <a routerLink="/blog/{{blogCategory?.url}}/{{blog?.id}}" class="btn btn-primary float-right">Detaylar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-2 mb-2" *ngIf="blogs.length>0">
+            <pagination-controls nextLabel="Sonraki" previousLabel="Önceki" [responsive]="true" (pageChange)="onPageChange($event)" (pageBoundsCorrection)="onPageChange($event)">
+            </pagination-controls>
+        </div>
+    </div>
+    <div class="col-md-4">
+
+    </div>
+</div>
+
+<div class="row mt-2" *ngIf="blogs.length==0">
+    <div class="col-md-8">
+        <div class="alert alert-info">
+            Kayıt bulunamadı.
+        </div>
+    </div>
+</div>
