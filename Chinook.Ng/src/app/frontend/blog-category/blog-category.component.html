@@ -1,9 +1,10 @@
-<h4>
-    {{blogCategory?.name}}
-</h4>
+
 <div class="row">
-    <div class="col-md-8">
-        <div class="row">
+    <div class="col-md-8 shadow">
+        <h4 class="mt-3 mb-3">
+            {{blogCategory?.name}}
+        </h4>
+        <div class="row p-2">
             <div class="col-12 col-md-6" *ngFor="let blog of blogs | paginate: { itemsPerPage: pageSize, currentPage: page, totalItems:total }">
                 <div class=" card mt-2 mb-2 w-100">
                     <img class="card-img-top" src="{{blog?.imageUrl}}">

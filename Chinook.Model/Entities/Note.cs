@@ -2,7 +2,6 @@
 
 namespace Chinook.Model.Entities
 {
-    [Table("notes")]
     public class Note : BaseInfoModel
     {
         public int NoteCategoryId { get; set; }

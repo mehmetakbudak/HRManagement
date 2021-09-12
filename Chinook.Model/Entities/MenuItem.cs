@@ -2,7 +2,6 @@
 
 namespace Chinook.Model.Entities
 {
-    [Table("menu_items")]
     public class MenuItem : BaseModel
     {
         public int MenuId { get; set; }

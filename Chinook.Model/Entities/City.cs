@@ -2,7 +2,6 @@
 
 namespace Chinook.Model.Entities
 {
-    [Table("cities")]
     public class City : BaseModel
     {
         public int ProvinceId { get; set; }

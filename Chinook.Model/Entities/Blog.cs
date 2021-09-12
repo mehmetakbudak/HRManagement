@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chinook.Model.Entities
 {
-    [Table("blogs")]
     public class Blog : BaseInfoModel
     {
         [ForeignKey("BlogCategory")]

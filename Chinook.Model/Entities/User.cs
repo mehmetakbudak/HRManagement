@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chinook.Model.Entities
 {
-    [Table("users")]
     public class User : BaseModel
     {
         public string LastName { get; set; }

@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chinook.Model.Entities
 {
-    [Table("menus")]
     public class Menu : BaseModel
     {
         public string Name { get; set; }
