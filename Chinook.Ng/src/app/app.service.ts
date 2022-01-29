@@ -1,29 +1,30 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
-import { AuthenticationService } from './services/authentication.service';
-import ODataStore from 'devextreme/data/odata/store';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { environment } from "src/environments/environment";
+import { AuthenticationService } from "./services/authentication.service";
+import ODataStore from "devextreme/data/odata/store";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class AppService {
-
-  public blogCategory = "blogCategory";
-  public noteCategory = "notecategory";
-  public note = "note";
-  public user = "user";
-  public lookup = "lookup";
-  public profile = "profile";
-  public menu = "menu";
-  public blog = "blog";
+  public blogCategory = "BlogCategory";
+  public noteCategory = "NoteCategory";
+  public note = "Note";
+  public user = "User";
+  public lookup = "Lookup";
+  public profile = "Profile";
+  public menu = "Menu";
+  public blog = "Blog";
   public feBlogCategory = "feBlogCategory";
   public feBlog = "feBlog";
   public fePage = "fePage";
   public feMenu = "feMenu";
 
-  constructor(private http: HttpClient,
-    private authenticationService: AuthenticationService) { }
+  constructor(
+    private http: HttpClient,
+    private authenticationService: AuthenticationService
+  ) {}
 
   getToken(): string {
     let currentUser = this.authenticationService.currentUserValue;
@@ -48,9 +49,9 @@ export class AppService {
       version: 4,
       beforeSend: (e) => {
         e.headers = {
-          "Authorization": "Bearer " + this.getToken()
+          Authorization: "Bearer " + this.getToken(),
         };
-      }
+      },
     });
   }
 
@@ -64,5 +65,12 @@ export class AppService {
 
   delete(url, id) {
     return this.http.delete(environment.apiUrl + url + "/" + id).toPromise();
+  }
+
+  settingEditDelete() {
+    return [
+      { text: "Düzenle", value: "edit" },
+      { text: "Sil", value: "delete" },
+    ];
   }
 }

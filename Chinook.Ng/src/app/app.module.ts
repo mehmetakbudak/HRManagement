@@ -9,15 +9,22 @@ import { JwtInterceptor } from "./helpers/jwt.interceptor";
 import { ErrorInterceptor } from "./helpers/error.interceptor";
 
 import { AppComponent } from "./app.component";
-import { DxButtonModule, DxDataGridModule, DxDropDownButtonModule, DxFormModule, DxLoadIndicatorModule, DxMenuModule, DxToolbarModule, DxTreeViewModule } from 'devextreme-angular';
-import { NgxPaginationModule } from 'ngx-pagination';
-import { registerLocaleData } from '@angular/common';
-import localeTr from '@angular/common/locales/tr';
+import {
+  DxButtonModule,
+  DxDataGridModule,
+  DxDropDownButtonModule,
+  DxFormModule,
+  DxLoadIndicatorModule,
+  DxMenuModule,
+  DxToolbarModule,
+  DxTreeViewModule,
+} from "devextreme-angular";
+import { NgxPaginationModule } from "ngx-pagination";
+import { registerLocaleData } from "@angular/common";
+import localeTr from "@angular/common/locales/tr";
 registerLocaleData(localeTr);
 @NgModule({
-  declarations: [
-    AppComponent,
-  ],
+  declarations: [AppComponent],
   imports: [
     BrowserModule.withServerTransition({ appId: "ng-cli-universal" }),
     HttpClientModule,
@@ -33,15 +40,13 @@ registerLocaleData(localeTr);
     DxButtonModule,
     DxDropDownButtonModule,
     NgxPaginationModule,
-    RouterModule.forRoot(AppRoutes, { relativeLinkResolution: 'legacy' })
+    RouterModule.forRoot(AppRoutes, { relativeLinkResolution: "legacy" }),
   ],
   providers: [
-    { provide: LOCALE_ID, useValue: 'tr-TR' },
+    { provide: LOCALE_ID, useValue: "tr-TR" },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
-  bootstrap: [
-    AppComponent
-  ]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

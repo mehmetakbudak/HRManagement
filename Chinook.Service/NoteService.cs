@@ -11,6 +11,7 @@ namespace Chinook.Service
     public interface INoteService
     {
         IQueryable<NoteModel> GetAll();
+        IQueryable<NoteModel> GetByCategoryId(int categoryId);
         ServiceResult Post(NoteModel model);
         ServiceResult Put(NoteModel model);
         ServiceResult Move(NoteModel model);
@@ -30,6 +31,24 @@ namespace Chinook.Service
         {
             var list = unitOfWork.Repository<Note>()
                 .GetAll(x => !x.Deleted && x.NoteCategory.UserId == AuthTokenContent.Current.UserId,
+                x => x.Include(b => b.NoteCategory))
+                .OrderByDescending(x => x.UpdateDate)
+                .AsEnumerable()
+                .Select(x => new NoteModel
+                {
+                    Description = x.Description,
+                    Id = x.Id,
+                    NoteCategoryId = x.NoteCategoryId,
+                    Title = x.Title
+                }).AsQueryable();
+
+            return list;
+        }
+
+        public IQueryable<NoteModel> GetByCategoryId(int categoryId)
+        {
+            var list = unitOfWork.Repository<Note>()
+                .GetAll(x => !x.Deleted && x.NoteCategoryId == categoryId && x.NoteCategory.UserId == AuthTokenContent.Current.UserId,
                 x => x.Include(b => b.NoteCategory))
                 .OrderByDescending(x => x.UpdateDate)
                 .AsEnumerable()

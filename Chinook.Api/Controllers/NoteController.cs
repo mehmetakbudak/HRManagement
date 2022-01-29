@@ -2,7 +2,6 @@
 using Chinook.Model.Models;
 using Chinook.Service;
 using Chinook.Service.Attributes;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -20,14 +19,21 @@ namespace Chinook.Controllers
         }
 
         [HttpGet]
-        [EnableQuery]
         public IActionResult Get()
         {
-            return Ok(noteService.GetAll());
+            var list = noteService.GetAll();
+            return Ok(list);
+        }
+
+        [HttpGet("GetByCategoryId/{categoryId:int}")]
+        public IActionResult GetByCategoryId(int categoryId)
+        {
+            var list = noteService.GetByCategoryId(categoryId);
+            return Ok(list);
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]NoteModel model)
+        public IActionResult Post([FromBody] NoteModel model)
         {
             try
             {
@@ -41,7 +47,7 @@ namespace Chinook.Controllers
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody]NoteModel model)
+        public IActionResult Put([FromBody] NoteModel model)
         {
             try
             {
@@ -69,7 +75,7 @@ namespace Chinook.Controllers
         }
 
         [HttpPut("move")]
-        public IActionResult Move([FromBody]NoteModel model)
+        public IActionResult Move([FromBody] NoteModel model)
         {
             try
             {

@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { AppService } from '../../app.service';
-import { defaultMessageType, AlertService, alertType } from 'src/app/services/alert.service';
-import { ConfirmService } from 'src/app/services/confirm.service';
-import 'devextreme/data/odata/store';
-import { environment } from 'src/environments/environment';
-import ODataStore from 'devextreme/data/odata/store';
-import DataSource from 'devextreme/data/data_source';
+import { Component, OnInit } from "@angular/core";
+import { AppService } from "../../app.service";
+import {
+  defaultMessageType,
+  AlertService,
+  alertType,
+} from "src/app/services/alert.service";
+import { ConfirmService } from "src/app/services/confirm.service";
 
 export class NoteCategory {
   id: number;
@@ -19,14 +19,19 @@ export class Note {
 }
 
 @Component({
-  selector: 'app-notes',
-  templateUrl: './notes.component.html',
-  styleUrls: ['./notes.component.css']
+  selector: "app-notes",
+  templateUrl: "./notes.component.html",
+  styleUrls: ["./notes.component.css"],
 })
-
 export class NotesComponent implements OnInit {
-  noteCategorySettings = [{ text: 'Düzenle', value: 'edit' }, { text: 'Sil', value: 'delete' }];
-  noteSettings = [{ text: 'Taşı', value: 'move' }, { text: 'Sil', value: 'delete' }];
+  noteCategorySettings = [
+    { text: "Düzenle", value: "edit" },
+    { text: "Sil", value: "delete" },
+  ];
+  noteSettings = [
+    { text: "Taşı", value: "move" },
+    { text: "Sil", value: "delete" },
+  ];
 
   noteCategory: NoteCategory = new NoteCategory();
   note: Note = new Note();
@@ -34,9 +39,10 @@ export class NotesComponent implements OnInit {
 
   screenWidth = "40vw";
   noteCategoryId;
+  selectNoteCategoryId;
   noteId;
 
-  categories: DataSource;
+  categories;
   moveCategories;
   selectMoveNoteId;
   countCategory;
@@ -52,32 +58,28 @@ export class NotesComponent implements OnInit {
 
   isMoveNoteVisible = false;
 
-  dsNoteCategory = new DataSource({
-    store: this.appService.getOdataStore(this.appService.noteCategory),
-    // paginate: true,
-    key: 'id',
-    requireTotalCount: true
-  });
-
-  constructor(private alertService: AlertService,
+  constructor(
+    private alertService: AlertService,
     private confirmService: ConfirmService,
-    private appService: AppService) { }
+    private appService: AppService
+  ) {}
 
   ngOnInit() {
     this.categoryBind();
     if (screen.width < 768) {
-      this.screenWidth = '90vw';
+      this.screenWidth = "90vw";
     }
   }
 
   categoryBind() {
-    this.dsNoteCategory.load().then((data: any, extra: any) => {
-      this.categories = data;
-      this.countCategory = extra.totalCount;
+    this.appService.getApi(this.appService.noteCategory).then((res: any) => {
+      this.categories = res;
+      this.countCategory = res.length;
     });
   }
 
   onSelectRowNoteCategory(e) {
+    this.selectNoteCategoryId = e.row.data.id;
     this.noteBind();
     this.visibleNoteDetail = false;
   }
@@ -97,17 +99,14 @@ export class NotesComponent implements OnInit {
   }
 
   noteBind() {
-    const dsNote = new DataSource({
-      store: this.appService.getOdataStore(this.appService.note),
-      paginate: true,
-      requireTotalCount: true,
-      pageSize: 5,
-      filter: ['noteCategoryId', '=', this.noteCategoryId]
-    });
-    dsNote.load().then((data: any, extra: any) => {
-      this.notes = data;
-      this.countNote = extra.totalCount;
-    });
+    this.appService
+      .getApi(
+        `${this.appService.note}/GetByCategoryId/${this.selectNoteCategoryId}`
+      )
+      .then((res: any) => {
+        this.notes = res;
+        this.countNote = res.length;
+      });
   }
 
   addNote() {
@@ -120,21 +119,25 @@ export class NotesComponent implements OnInit {
     const result = e.validationGroup.validate();
     if (result.isValid) {
       if (this.note.id) {
-        this.appService.put(this.appService.note, this.note)
-          .then(res => {
-            this.noteBind();
-            this.noteClear();
-            this.alertService.showDefaultMessage(defaultMessageType.update, alertType.success);
-          });
+        this.appService.put(this.appService.note, this.note).then((res) => {
+          this.noteBind();
+          this.noteClear();
+          this.alertService.showDefaultMessage(
+            defaultMessageType.update,
+            alertType.success
+          );
+        });
       } else {
         this.note.id = 0;
         this.note.noteCategoryId = this.noteCategoryId;
-        this.appService.post(this.appService.note, this.note)
-          .then(res => {
-            this.noteBind();
-            this.noteClear();
-            this.alertService.showDefaultMessage(defaultMessageType.save, alertType.success);
-          });
+        this.appService.post(this.appService.note, this.note).then((res) => {
+          this.noteBind();
+          this.noteClear();
+          this.alertService.showDefaultMessage(
+            defaultMessageType.save,
+            alertType.success
+          );
+        });
       }
     }
   }
@@ -142,36 +145,48 @@ export class NotesComponent implements OnInit {
     const result = e.validationGroup.validate();
     if (result.isValid) {
       if (this.noteCategory.id) {
-        this.appService.put(this.appService.noteCategory, this.noteCategory)
-          .then(res => {
+        this.appService
+          .put(this.appService.noteCategory, this.noteCategory)
+          .then((res) => {
             this.categoryBind();
             this.isCategoryVisible = false;
-            this.alertService.showDefaultMessage(defaultMessageType.update, alertType.success);
+            this.alertService.showDefaultMessage(
+              defaultMessageType.update,
+              alertType.success
+            );
           });
       } else {
         this.noteCategory.id = 0;
-        this.appService.post(this.appService.noteCategory, this.noteCategory)
-          .then(res => {
+        this.appService
+          .post(this.appService.noteCategory, this.noteCategory)
+          .then((res) => {
             this.isCategoryVisible = false;
             this.categoryBind();
-            this.alertService.showDefaultMessage(defaultMessageType.save, alertType.success);
+            this.alertService.showDefaultMessage(
+              defaultMessageType.save,
+              alertType.success
+            );
           });
       }
     }
   }
 
   onSelectNoteCategory(e, c) {
-    if (e.item.value === 'edit') {
+    if (e.item.value === "edit") {
       this.isCategoryVisible = true;
-      this.titleCategory = 'Kategori Düzenle';
+      this.titleCategory = "Kategori Düzenle";
       this.noteCategory = c.data;
-    } else if (e.item.value === 'delete') {
+    } else if (e.item.value === "delete") {
       this.confirmService.delete().then((isAccept: boolean) => {
         if (isAccept) {
-          this.appService.delete(this.appService.noteCategory, c.data.id)
-            .then(res => {
+          this.appService
+            .delete(this.appService.noteCategory, c.data.id)
+            .then((res) => {
               this.categoryBind();
-              this.alertService.showDefaultMessage(defaultMessageType.delete, alertType.success);
+              this.alertService.showDefaultMessage(
+                defaultMessageType.delete,
+                alertType.success
+              );
             });
         }
       });
@@ -179,18 +194,21 @@ export class NotesComponent implements OnInit {
   }
 
   onSelectNote(e, c) {
-    if (e.item.value === 'move') {
+    if (e.item.value === "move") {
       this.isMoveNoteVisible = true;
-      this.moveCategories = this.dsNoteCategory;
       this.moveNote = c.data;
-    } else if (e.item.value === 'delete') {
+    } else if (e.item.value === "delete") {
       this.confirmService.delete().then((isDelete: boolean) => {
         if (isDelete) {
-          this.appService.delete(this.appService.note, c.data.id)
-            .then(res => {
+          this.appService
+            .delete(this.appService.note, c.data.id)
+            .then((res) => {
               this.noteBind();
               this.visibleNoteDetail = false;
-              this.alertService.showDefaultMessage(defaultMessageType.delete, alertType.success);
+              this.alertService.showDefaultMessage(
+                defaultMessageType.delete,
+                alertType.success
+              );
             });
         }
       });
@@ -201,12 +219,16 @@ export class NotesComponent implements OnInit {
     const result = e.validationGroup.validate();
     if (result.isValid) {
       this.moveNote.noteCategoryId = this.selectMoveNoteId;
-      this.appService.put(this.appService.note + "/move", this.moveNote)
-        .then(res => {
+      this.appService
+        .put(this.appService.note + "/move", this.moveNote)
+        .then((res) => {
           this.isMoveNoteVisible = false;
           this.visibleNoteDetail = false;
           this.noteBind();
-          this.alertService.showMessage("Taşıma işlemi başarıyla gerçekleşti.", alertType.info);
+          this.alertService.showMessage(
+            "Taşıma işlemi başarıyla gerçekleşti.",
+            alertType.info
+          );
         });
     }
   }

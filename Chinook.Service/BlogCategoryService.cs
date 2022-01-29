@@ -20,20 +20,17 @@ namespace Chinook.Service
     public class BlogCategoryService : IBlogCategoryService
     {
         private readonly IUnitOfWork unitOfWork;
-        private readonly ChinookContext chinookContext;
-        public BlogCategoryService(IUnitOfWork unitOfWork,
-            ChinookContext chinookContext)
+        public BlogCategoryService(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
-            this.chinookContext = chinookContext;
         }
 
         public IQueryable<BlogCategory> GetAll()
         {
             try
             {
-                var result = chinookContext.BlogCategories
-                    .Where(x => !x.Deleted)
+                var result = unitOfWork.Repository<BlogCategory>()
+                    .GetAll(x => !x.Deleted)
                     .OrderByDescending(x => x.Id)
                     .AsQueryable();
                 return result;

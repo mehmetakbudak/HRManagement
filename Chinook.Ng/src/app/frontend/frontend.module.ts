@@ -9,13 +9,22 @@ import { LoginComponent } from "./login/login.component";
 import { NavMenuComponent } from "./nav-menu/nav-menu.component";
 import { FrontendComponent } from "./frontend/frontend.component";
 
-
 import { AlertService } from "../services/alert.service";
 import { BlogSingleComponent } from "./blog-single/blog-single.component";
 import { BlogCategoryComponent } from "./blog-category/blog-category.component";
-import { PageComponent } from './page/page.component';
-import { DxDataGridModule, DxFormModule, DxLoadIndicatorModule, DxMenuModule, DxTreeViewModule } from 'devextreme-angular';
-import { NgxPaginationModule } from 'ngx-pagination';
+import { PageComponent } from "./page/page.component";
+import {
+  DxTextBoxModule,
+  DxButtonModule,
+  DxDataGridModule,
+  DxFormModule,
+  DxLoadIndicatorModule,
+  DxMenuModule,
+  DxTreeViewModule,
+  DxValidationGroupModule,
+  DxValidatorModule
+} from "devextreme-angular";
+import { NgxPaginationModule } from "ngx-pagination";
 
 @NgModule({
   imports: [
@@ -27,8 +36,12 @@ import { NgxPaginationModule } from 'ngx-pagination';
     DxTreeViewModule,
     DxFormModule,
     DxLoadIndicatorModule,
+    DxTextBoxModule,
+    DxButtonModule,
     NgxPaginationModule,
-    RouterModule.forChild(FrontendRoutes)
+    DxValidationGroupModule,
+    DxValidatorModule,
+    RouterModule.forChild(FrontendRoutes),
   ],
   declarations: [
     FrontendComponent,
@@ -37,10 +50,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
     NavMenuComponent,
     BlogSingleComponent,
     BlogCategoryComponent,
-    PageComponent
+    PageComponent,
   ],
-  providers: [
-    AlertService,
-  ]
+  providers: [AlertService],
 })
-export class FrontendModule { }
+export class FrontendModule {}

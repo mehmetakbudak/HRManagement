@@ -1,12 +1,9 @@
-﻿using Chinook.Data.Repository;
-using Chinook.Model.Helpers;
+﻿using Chinook.Model.Helpers;
 using Chinook.Model.Models;
 using Chinook.Service;
 using Chinook.Service.Attributes;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Net;
 
 namespace Chinook.Controllers
 {
@@ -17,14 +14,12 @@ namespace Chinook.Controllers
     {
         private readonly INoteCategoryService noteCategoryService;
         public NoteCategoryController(
-            INoteCategoryService noteCategoryService,
-            IUnitOfWork unitOfWork)
+            INoteCategoryService noteCategoryService)
         {
             this.noteCategoryService = noteCategoryService;
         }
 
         [HttpGet]
-        [EnableQuery]
         public IActionResult Get()
         {
             var list = noteCategoryService.GetAll();

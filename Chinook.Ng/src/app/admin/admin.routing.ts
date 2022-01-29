@@ -43,6 +43,10 @@ export const AdminRoutes: Routes = [
         component: MenusComponent,
         canActivate: [AuthGuard]
       },
+      {
+        path: "blogs",
+        loadChildren: () => import('./blogs/blog.module').then(m => m.BlogModule)
+      },
       // {
       //   path: '**',
       //   redirectTo: ""

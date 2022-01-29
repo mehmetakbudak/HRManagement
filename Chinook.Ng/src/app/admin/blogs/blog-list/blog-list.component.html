@@ -1,0 +1,48 @@
+<div class="row mb-2">
+  <div class="col-md-6 col-6">
+    <h5>Bloglar</h5>
+  </div>
+  <div class="col-md-6 col-6">
+    <a routerLink="/admin/blogs/add" class="float-end btn btn-success btn-sm">
+      <i class="dx-icon-plus"></i>
+    </a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <dx-data-grid
+      id="gridContainer"
+      [dataSource]="blogs"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showRowLines]="true"
+    >
+      <dxo-paging [pageSize]="5"></dxo-paging>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxi-column
+        dataField="id"
+        [width]="60"
+        [allowFiltering]="false"
+        [allowSorting]="false"
+        cellTemplate="cellTemplate"
+        caption=""
+      ></dxi-column>
+      <dxi-column dataField="blogCategory.name" caption="Kategori"></dxi-column>
+      <dxi-column dataField="title" caption="Başlık"></dxi-column>
+      <dxi-column dataField="url" caption="Url"></dxi-column>
+      <dxi-column dataField="isActive" caption="Aktif"></dxi-column>
+      <div *dxTemplate="let data of 'cellTemplate'">
+        <dx-drop-down-button
+          (onSelectionChanged)="onSelectBlog($event, data)"
+          stylingMode="text"
+          [items]="settings"
+          icon="preferences"
+          displayExpr="text"
+          keyExpr="value"
+          [dropDownOptions]="{ width: '100px' }"
+        ></dx-drop-down-button>
+      </div>
+    </dx-data-grid>
+  </div>
+</div>

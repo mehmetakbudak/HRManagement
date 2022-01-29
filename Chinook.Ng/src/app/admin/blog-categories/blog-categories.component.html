@@ -1,60 +1,104 @@
 <div class="row mb-2">
-    <div class="col-md-6 col-6">
-        <h5>Blog Kategorileri</h5>
-    </div>
-    <div class="col-md-6 col-6">
-        <button class="float-right btn btn-success btn-sm" (click)="add()">
-      <i class="k-icon k-i-plus"></i> Yeni
+  <div class="col-md-6 col-6">
+    <h5>Blog Kategorileri</h5>
+  </div>
+  <div class="col-md-6 col-6">
+    <button class="float-end btn btn-success btn-sm" (click)="add()">
+      <i class="dx-icon-plus"></i>
     </button>
-    </div>
+  </div>
 </div>
 
 <div class="row">
-    <div class="col-12">
-        <dx-data-grid id="gridContainer" [dataSource]="blogCategories" [showBorders]="true" [showRowLines]="true" [showRowLines]="true">
-            <dxo-paging [pageSize]="5"></dxo-paging>
+  <div class="col-12">
+    <dx-data-grid
+      id="gridContainer"
+      [dataSource]="blogCategories"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showRowLines]="true"
+    >
+      <dxo-paging [pageSize]="5"></dxo-paging>
 
-            <dxi-column dataField="id" [width]="100" [allowFiltering]="false" [allowSorting]="false" cellTemplate="cellTemplate" caption=""></dxi-column>
-
-            <dxi-column dataField="name" caption="Adı"></dxi-column>
-
-            <div *dxTemplate="let data of 'cellTemplate'">
-                <dx-button type="default" icon="edit" (onClick)="edit(data)"></dx-button>
-                <dx-button type="danger" icon="trash" class="ml-2" (onClick)="delete(data)"></dx-button>
-            </div>
-        </dx-data-grid>
-    </div>
+      <dxi-column
+        dataField="id"
+        [width]="60"
+        [allowFiltering]="false"
+        [allowSorting]="false"
+        cellTemplate="cellTemplate"
+        caption=""
+      ></dxi-column>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxi-column dataField="name" caption="Adı"></dxi-column>
+      <dxi-column dataField="url" caption="Url"></dxi-column>
+      <dxi-column dataField="isActive" caption="Aktif"></dxi-column>
+      <div *dxTemplate="let data of 'cellTemplate'">
+        <dx-drop-down-button
+          (onSelectionChanged)="onSelectBlogCategory($event, data)"
+          stylingMode="text"
+          [items]="settings"
+          icon="preferences"
+          displayExpr="text"
+          keyExpr="value"
+          [dropDownOptions]="{ width: '100px' }"
+        ></dx-drop-down-button>
+      </div>
+    </dx-data-grid>
+  </div>
 </div>
 
-<dx-popup [(visible)]="isVisible" [(title)]="title" [(width)]="screenWidth" height="auto">
-    <div class="row">
-        <div class="col-12">
-            <form (submit)="save($event)">
-                <div class="form-group">
-                    <label>Kategori Adı</label>
-                    <dx-text-box [(value)]="blogCategory.name">
-                        <dx-validator>
-                            <dxi-validation-rule type="required" message="Kategori Adı giriniz."></dxi-validation-rule>
-                        </dx-validator>
-                    </dx-text-box>
-                </div>
-                <div class="form-group">
-                    <label>Url</label>
-                    <dx-text-box [(value)]="blogCategory.url">
-                        <dx-validator>
-                            <dxi-validation-rule type="required" message="Url giriniz."></dxi-validation-rule>
-                        </dx-validator>
-                    </dx-text-box>
-                </div>
-                <div class="form-group">
-                    <label>Aktif</label>
-                    <dx-switch class="ml-2" switchedOnText="Aktif" switchedOffText="Pasif" [(value)]="blogCategory.isActive"></dx-switch>
-                </div>
-                <div class="form-group">
-                    <dx-button class="float-right ml-2" [useSubmitBehavior]="true" text="Kaydet" type="default"></dx-button>
-                    <dx-button class="float-right" (click)="isVisible=false" text="Kapat"></dx-button>
-                </div>
-            </form>
-        </div>
+<dx-popup
+  [(visible)]="isVisible"
+  [(title)]="title"
+  [(width)]="screenWidth"
+  height="auto"
+>
+  <div class="row">
+    <div class="col-12">
+      <div class="mb-3">
+        <label class="form-label">Kategori Adı</label>
+        <dx-text-box [(value)]="blogCategory.name">
+          <dx-validator>
+            <dxi-validation-rule
+              type="required"
+              message="Kategori Adı giriniz."
+            ></dxi-validation-rule>
+          </dx-validator>
+        </dx-text-box>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Url</label>
+        <dx-text-box [(value)]="blogCategory.url">
+          <dx-validator>
+            <dxi-validation-rule
+              type="required"
+              message="Url giriniz."
+            ></dxi-validation-rule>
+          </dx-validator>
+        </dx-text-box>
+      </div>
+      <div class="mb-3">
+        <label class="form-label w-100">Aktif</label>
+        <dx-switch
+          switchedOnText="Aktif"
+          switchedOffText="Pasif"
+          [(value)]="blogCategory.isActive"
+        ></dx-switch>
+      </div>
+      <div class="mb-3">
+        <dx-button
+          class="float-end ms-2"
+          [useSubmitBehavior]="true"
+          text="Kaydet"
+          type="default"
+          (onClick)="save($event)"
+        ></dx-button>
+        <dx-button
+          class="float-end"
+          (click)="isVisible = false"
+          text="Kapat"
+        ></dx-button>
+      </div>
     </div>
+  </div>
 </dx-popup>
