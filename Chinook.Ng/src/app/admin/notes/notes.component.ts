@@ -6,6 +6,7 @@ import {
   alertType,
 } from "src/app/services/alert.service";
 import { ConfirmService } from "src/app/services/confirm.service";
+import { Urls } from "src/app/models/consts";
 
 export class NoteCategory {
   id: number;
@@ -72,7 +73,7 @@ export class NotesComponent implements OnInit {
   }
 
   categoryBind() {
-    this.appService.getApi(this.appService.noteCategory).then((res: any) => {
+    this.appService.getApi(Urls.NoteCategory).then((res: any) => {
       this.categories = res;
       this.countCategory = res.length;
     });
@@ -100,9 +101,7 @@ export class NotesComponent implements OnInit {
 
   noteBind() {
     this.appService
-      .getApi(
-        `${this.appService.note}/GetByCategoryId/${this.selectNoteCategoryId}`
-      )
+      .getApi(`${Urls.Note}/GetByCategoryId/${this.selectNoteCategoryId}`)
       .then((res: any) => {
         this.notes = res;
         this.countNote = res.length;
@@ -119,7 +118,7 @@ export class NotesComponent implements OnInit {
     const result = e.validationGroup.validate();
     if (result.isValid) {
       if (this.note.id) {
-        this.appService.put(this.appService.note, this.note).then((res) => {
+        this.appService.put(Urls.Note, this.note).then((res) => {
           this.noteBind();
           this.noteClear();
           this.alertService.showDefaultMessage(
@@ -130,7 +129,7 @@ export class NotesComponent implements OnInit {
       } else {
         this.note.id = 0;
         this.note.noteCategoryId = this.noteCategoryId;
-        this.appService.post(this.appService.note, this.note).then((res) => {
+        this.appService.post(Urls.Note, this.note).then((res) => {
           this.noteBind();
           this.noteClear();
           this.alertService.showDefaultMessage(
@@ -146,7 +145,7 @@ export class NotesComponent implements OnInit {
     if (result.isValid) {
       if (this.noteCategory.id) {
         this.appService
-          .put(this.appService.noteCategory, this.noteCategory)
+          .put(Urls.NoteCategory, this.noteCategory)
           .then((res) => {
             this.categoryBind();
             this.isCategoryVisible = false;
@@ -158,7 +157,7 @@ export class NotesComponent implements OnInit {
       } else {
         this.noteCategory.id = 0;
         this.appService
-          .post(this.appService.noteCategory, this.noteCategory)
+          .post(Urls.NoteCategory, this.noteCategory)
           .then((res) => {
             this.isCategoryVisible = false;
             this.categoryBind();
@@ -179,15 +178,13 @@ export class NotesComponent implements OnInit {
     } else if (e.item.value === "delete") {
       this.confirmService.delete().then((isAccept: boolean) => {
         if (isAccept) {
-          this.appService
-            .delete(this.appService.noteCategory, c.data.id)
-            .then((res) => {
-              this.categoryBind();
-              this.alertService.showDefaultMessage(
-                defaultMessageType.delete,
-                alertType.success
-              );
-            });
+          this.appService.delete(Urls.NoteCategory, c.data.id).then((res) => {
+            this.categoryBind();
+            this.alertService.showDefaultMessage(
+              defaultMessageType.delete,
+              alertType.success
+            );
+          });
         }
       });
     }
@@ -200,16 +197,14 @@ export class NotesComponent implements OnInit {
     } else if (e.item.value === "delete") {
       this.confirmService.delete().then((isDelete: boolean) => {
         if (isDelete) {
-          this.appService
-            .delete(this.appService.note, c.data.id)
-            .then((res) => {
-              this.noteBind();
-              this.visibleNoteDetail = false;
-              this.alertService.showDefaultMessage(
-                defaultMessageType.delete,
-                alertType.success
-              );
-            });
+          this.appService.delete(Urls.Note, c.data.id).then((res) => {
+            this.noteBind();
+            this.visibleNoteDetail = false;
+            this.alertService.showDefaultMessage(
+              defaultMessageType.delete,
+              alertType.success
+            );
+          });
         }
       });
     }
@@ -219,17 +214,15 @@ export class NotesComponent implements OnInit {
     const result = e.validationGroup.validate();
     if (result.isValid) {
       this.moveNote.noteCategoryId = this.selectMoveNoteId;
-      this.appService
-        .put(this.appService.note + "/move", this.moveNote)
-        .then((res) => {
-          this.isMoveNoteVisible = false;
-          this.visibleNoteDetail = false;
-          this.noteBind();
-          this.alertService.showMessage(
-            "Taşıma işlemi başarıyla gerçekleşti.",
-            alertType.info
-          );
-        });
+      this.appService.put(`${Urls.Note}/move`, this.moveNote).then((res) => {
+        this.isMoveNoteVisible = false;
+        this.visibleNoteDetail = false;
+        this.noteBind();
+        this.alertService.showMessage(
+          "Taşıma işlemi başarıyla gerçekleşti.",
+          alertType.info
+        );
+      });
     }
   }
 

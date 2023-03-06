@@ -9,16 +9,17 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Chinook.Service
 {
     public interface IUserService
     {
-        ServiceResult Authenticate(LoginModel model);
+        Task<ServiceResult> Authenticate(LoginModel model);
         string NewToken(string userId);
-        User GetById(int id);
-        ServiceResult ChangePassword(PasswordModel model);
-        ServiceResult UpdateProfile(UserModel model);
+        Task<User> GetById(int id);
+        Task<ServiceResult> ChangePassword(PasswordModel model);
+        Task<ServiceResult> UpdateProfile(UserModel model);
     }
 
     public class UserService : IUserService
@@ -43,7 +44,7 @@ namespace Chinook.Service
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                            new Claim("UserId", userId)
+                    new Claim("UserId", userId)
                 }),
                 Expires = DateTime.UtcNow.AddDays(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -54,23 +55,21 @@ namespace Chinook.Service
             return tokenString;
         }
 
-        public ServiceResult Authenticate(LoginModel model)
+        public async Task<ServiceResult> Authenticate(LoginModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             try
             {
                 var loginUser = new UserTokenModel();
-                var user = unitOfWork.Repository<User>()
-                    .Get(x =>
-                    x.IsActive && !x.Deleted &&
-                    x.Email == model.EmailAddress &&
-                    x.Password == model.Password);
+                var user = await unitOfWork.Repository<User>()
+                    .Get(x => x.IsActive && !x.Deleted && x.Email == model.EmailAddress && x.Password == model.Password);
 
                 if (user != null)
                 {
                     bool isCreateToken = false;
                     var token = user.Token;
+
                     if (user.TokenExpireDate.HasValue)
                     {
                         if (!(user.TokenExpireDate >= DateTime.Now))
@@ -87,7 +86,8 @@ namespace Chinook.Service
                         token = NewToken(user.Id.ToString());
                         user.Token = token;
                         user.TokenExpireDate = DateTime.Now.AddHours(2);
-                        unitOfWork.Save();
+
+                        await unitOfWork.SaveChanges();
                     }
 
                     loginUser = new UserTokenModel
@@ -113,24 +113,29 @@ namespace Chinook.Service
             return serviceResult;
         }
 
-        public User GetById(int id)
+        public async Task<User> GetById(int id)
         {
-            var user = unitOfWork.Repository<User>().Get(x => x.Id == id && !x.Deleted,
-                x => x.Include(a => a.City));
+            var user = await unitOfWork.Repository<User>()
+                .GetAll(x => x.Id == id && !x.Deleted)
+                .Include(a => a.City)
+                .FirstOrDefaultAsync();
+
             return user;
         }
 
-        public ServiceResult ChangePassword(PasswordModel model)
+        public async Task<ServiceResult> ChangePassword(PasswordModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var user = unitOfWork.Repository<User>().Get(x => x.Id == AuthTokenContent.Current.UserId && x.Password == model.OldPassword);
+                var user = await unitOfWork.Repository<User>()
+                    .Get(x => x.Id == AuthTokenContent.Current.UserId && x.Password == model.OldPassword);
 
                 if (user != null && (model.NewPassword == model.ReNewPassword))
                 {
                     user.Password = model.NewPassword;
-                    unitOfWork.Save();
+
+                    await unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -145,12 +150,13 @@ namespace Chinook.Service
             return serviceResult;
         }
 
-        public ServiceResult UpdateProfile(UserModel model)
+        public async Task<ServiceResult> UpdateProfile(UserModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var user = unitOfWork.Repository<User>().Get(x => x.Id == AuthTokenContent.Current.UserId && x.IsActive && !x.Deleted);
+                var user = await unitOfWork.Repository<User>()
+                    .Get(x => x.Id == AuthTokenContent.Current.UserId && x.IsActive && !x.Deleted);
 
                 if (user != null)
                 {
@@ -160,7 +166,8 @@ namespace Chinook.Service
                     user.FirstName = model.FirstName;
                     user.LastName = model.LastName;
                     user.Phone = model.Phone;
-                    unitOfWork.Save();
+
+                    await unitOfWork.SaveChanges();
                 }
                 else
                 {

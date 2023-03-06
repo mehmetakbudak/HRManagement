@@ -1,20 +1,19 @@
-﻿using System;
-using System.Net;
-using System.Linq;
-using Chinook.Model.Models;
+﻿using Chinook.Data.Repository;
 using Chinook.Model.Entities;
-using Chinook.Data.Repository;
-using Chinook.Data;
-using Microsoft.EntityFrameworkCore;
+using Chinook.Model.Models;
+using System;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Chinook.Service
 {
     public interface IBlogCategoryService
     {
         IQueryable<BlogCategory> GetAll();
-        ServiceResult Post(BlogCategoryModel model);
-        ServiceResult Put(BlogCategoryModel model);
-        ServiceResult Delete(int id);
+        Task<ServiceResult> Post(BlogCategoryModel model);
+        Task<ServiceResult> Put(BlogCategoryModel model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class BlogCategoryService : IBlogCategoryService
@@ -41,7 +40,7 @@ namespace Chinook.Service
             }
         }
 
-        public ServiceResult Post(BlogCategoryModel model)
+        public async Task<ServiceResult> Post(BlogCategoryModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
@@ -53,8 +52,8 @@ namespace Chinook.Service
                     IsActive = model.IsActive,
                     Deleted = false
                 };
-                unitOfWork.Repository<BlogCategory>().Add(category);
-                unitOfWork.Save();
+                await unitOfWork.Repository<BlogCategory>().Add(category);
+                await unitOfWork.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -64,18 +63,18 @@ namespace Chinook.Service
             return serviceResult;
         }
 
-        public ServiceResult Put(BlogCategoryModel model)
+        public async Task<ServiceResult> Put(BlogCategoryModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var category = unitOfWork.Repository<BlogCategory>().Get(x => x.Id == model.Id);
+                var category = await unitOfWork.Repository<BlogCategory>().Get(x => x.Id == model.Id);
                 if (category != null)
                 {
                     category.Name = model.Name;
                     category.Url = model.Url;
                     category.IsActive = model.IsActive;
-                    unitOfWork.Save();
+                    await unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -91,16 +90,16 @@ namespace Chinook.Service
             return serviceResult;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var category = unitOfWork.Repository<BlogCategory>().Get(x => x.Id == id);
+                var category = await unitOfWork.Repository<BlogCategory>().Get(x => x.Id == id);
                 if (category != null)
                 {
                     category.Deleted = true;
-                    unitOfWork.Save();
+                    await unitOfWork.SaveChanges();
                 }
                 else
                 {

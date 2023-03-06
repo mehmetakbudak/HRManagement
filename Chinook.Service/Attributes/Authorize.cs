@@ -13,7 +13,7 @@ namespace Chinook.Service.Attributes
 {
     public class Authorize : Attribute, IAuthorizationFilter
     {
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public async void OnAuthorization(AuthorizationFilterContext context)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace Chinook.Service.Attributes
                         throw new Exception("Token doğrulanamadı.");
                     }
 
-                    var user = userService.GetById(userId);
+                    var user = await userService.GetById(userId);
 
                     if (user != null)
                     {

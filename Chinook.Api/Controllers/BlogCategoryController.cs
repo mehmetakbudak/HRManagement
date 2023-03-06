@@ -2,10 +2,9 @@
 using Chinook.Model.Models;
 using Chinook.Service;
 using Chinook.Service.Attributes;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Net;
+using System.Threading.Tasks;
 
 namespace Chinook.Controllers
 {
@@ -36,11 +35,11 @@ namespace Chinook.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult Post([FromBody]BlogCategoryModel model)
+        public async Task<IActionResult> Post([FromBody] BlogCategoryModel model)
         {
             try
             {
-                var result = blogCategoryService.Post(model);
+                var result = await blogCategoryService.Post(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)
@@ -51,11 +50,11 @@ namespace Chinook.Controllers
 
         [HttpPut]
         [Authorize]
-        public IActionResult Put([FromBody]BlogCategoryModel model)
+        public async Task<IActionResult> Put([FromBody] BlogCategoryModel model)
         {
             try
             {
-                var result = blogCategoryService.Put(model);
+                var result = await blogCategoryService.Put(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)
@@ -66,11 +65,11 @@ namespace Chinook.Controllers
 
         [HttpDelete("{id:int}")]
         [Authorize]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var result = blogCategoryService.Delete(id);
+                var result = await blogCategoryService.Delete(id);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)

@@ -4,6 +4,7 @@ using Chinook.Service;
 using Chinook.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace Chinook.Controllers
 {
@@ -18,11 +19,11 @@ namespace Chinook.Controllers
         }
 
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]LoginModel model)
+        public async Task<IActionResult> Authenticate([FromBody]LoginModel model)
         {
             try
             {
-                var result = userService.Authenticate(model);
+                var result = await userService.Authenticate(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)
@@ -33,11 +34,11 @@ namespace Chinook.Controllers
 
         [Authorize]
         [HttpPost("changePassword")]
-        public IActionResult ChangePassword([FromBody]PasswordModel model)
+        public async Task<IActionResult> ChangePassword([FromBody]PasswordModel model)
         {
             try
             {
-                var result = userService.ChangePassword(model);
+                var result = await userService.ChangePassword(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)

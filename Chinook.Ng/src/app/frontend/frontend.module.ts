@@ -22,9 +22,11 @@ import {
   DxMenuModule,
   DxTreeViewModule,
   DxValidationGroupModule,
-  DxValidatorModule
+  DxValidatorModule,
 } from "devextreme-angular";
-import { NgxPaginationModule } from "ngx-pagination";
+
+import { ModalModule } from 'ngx-bootstrap/modal';
+
 
 @NgModule({
   imports: [
@@ -38,9 +40,9 @@ import { NgxPaginationModule } from "ngx-pagination";
     DxLoadIndicatorModule,
     DxTextBoxModule,
     DxButtonModule,
-    NgxPaginationModule,
     DxValidationGroupModule,
     DxValidatorModule,
+    ModalModule,
     RouterModule.forChild(FrontendRoutes),
   ],
   declarations: [

@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { AppService } from "src/app/app.service";
 import { AlertService, alertType } from "src/app/services/alert.service";
 import notify from "devextreme/ui/notify";
+import { Urls } from "src/app/models/consts";
 
 export class ChangePassword {
   oldPassword: string;
@@ -38,7 +39,7 @@ export class ChangePasswordComponent implements OnInit {
         return;
       }
       this.appService
-        .post(this.appService.user + "/changePassword", this.changePassword)
+        .post(`${Urls.User}/changePassword`, this.changePassword)
         .then(
           (res) => {
             notify(

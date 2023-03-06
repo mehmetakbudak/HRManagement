@@ -13,6 +13,7 @@ import { ConfirmService } from '../services/confirm.service';
 import { ChangePasswordComponent } from './change-password/change-password.component';
 import { ProfileComponent } from './profile/profile.component';
 import { MenusComponent } from './menus/menus.component';
+import { UsersComponent } from './users/users.component';
 import {
   DxButtonModule, DxDateBoxModule, DxDropDownButtonModule, DxFormModule,
   DxSelectBoxModule, DxTextBoxModule, DxToolbarModule, DxTreeViewModule,
@@ -51,7 +52,8 @@ import {
     BlogCategoriesComponent,
     ChangePasswordComponent,
     ProfileComponent,
-    MenusComponent
+    MenusComponent,
+    UsersComponent
   ],
   providers: [
     AlertService,

@@ -3,10 +3,10 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { LOCALE_ID, NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
-import { RouterModule } from "@angular/router";
 import { AppRoutes } from "./app.routing";
 import { JwtInterceptor } from "./helpers/jwt.interceptor";
 import { ErrorInterceptor } from "./helpers/error.interceptor";
+import { ModalModule } from "ngx-bootstrap/modal";
 
 import { AppComponent } from "./app.component";
 import {
@@ -19,9 +19,10 @@ import {
   DxToolbarModule,
   DxTreeViewModule,
 } from "devextreme-angular";
-import { NgxPaginationModule } from "ngx-pagination";
+
 import { registerLocaleData } from "@angular/common";
 import localeTr from "@angular/common/locales/tr";
+import { RouterModule } from "@angular/router";
 registerLocaleData(localeTr);
 @NgModule({
   declarations: [AppComponent],
@@ -39,7 +40,7 @@ registerLocaleData(localeTr);
     DxToolbarModule,
     DxButtonModule,
     DxDropDownButtonModule,
-    NgxPaginationModule,
+    ModalModule.forRoot(),
     RouterModule.forRoot(AppRoutes, { relativeLinkResolution: "legacy" }),
   ],
   providers: [

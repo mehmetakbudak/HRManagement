@@ -1,17 +1,19 @@
 ﻿using Chinook.Data.Repository;
 using Chinook.Model.Entities;
 using Chinook.Model.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Chinook.Service
 {
     public interface IMenuItemService
     {
-        ServiceResult Post(MenuItemModel model);
-        ServiceResult Put(MenuItemModel model);
+        Task<ServiceResult> Post(MenuItemModel model);
+        Task<ServiceResult> Put(MenuItemModel model);
         ServiceResult Up(int id);
         ServiceResult Down(int id);
         ServiceResult Delete(int id);
@@ -26,15 +28,15 @@ namespace Chinook.Service
             this.unitOfWork = unitOfWork;
         }
 
-        public ServiceResult Post(MenuItemModel model)
+        public async Task<ServiceResult> Post(MenuItemModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var lastMenuItem = unitOfWork.Repository<MenuItem>()
+                var lastMenuItem = await unitOfWork.Repository<MenuItem>()
                     .GetAll(x => x.ParentId == model.ParentId && x.IsActive && !x.Deleted)
                     .OrderByDescending(x => x.Order)
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync();
 
                 var entity = new MenuItem
                 {
@@ -46,8 +48,8 @@ namespace Chinook.Service
                     ParentId = model.ParentId,
                     Order = lastMenuItem == null ? 1 : (lastMenuItem.Order + 1)
                 };
-                unitOfWork.Repository<MenuItem>().Add(entity);
-                unitOfWork.Save();
+                await unitOfWork.Repository<MenuItem>().Add(entity);
+                await unitOfWork.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -57,12 +59,12 @@ namespace Chinook.Service
             return serviceResult;
         }
 
-        public ServiceResult Put(MenuItemModel model)
+        public async Task<ServiceResult> Put(MenuItemModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var menuItem = unitOfWork.Repository<MenuItem>()
+                var menuItem = await unitOfWork.Repository<MenuItem>()
                     .Get(x => x.Id == model.Id && !x.Deleted && x.IsActive);
 
                 if (menuItem != null)
@@ -72,7 +74,8 @@ namespace Chinook.Service
                     menuItem.Order = model.Order;
                     menuItem.Url = model.Url;
                     menuItem.MenuId = model.MenuId;
-                    unitOfWork.Save();
+
+                    await unitOfWork.SaveChanges();
                 }
                 else
                 {

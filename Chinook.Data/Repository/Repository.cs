@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
-using Chinook.Model.Entities;
-using System.Linq.Expressions;
-using System.Collections.Generic;
+﻿using Chinook.Model.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace Chinook.Data.Repository
 {
@@ -14,10 +14,8 @@ namespace Chinook.Data.Repository
         private readonly DbSet<TEntity> _dbSet;
         private bool _isDisposed;
 
-        public Repository(IUnitOfWork unitOfWork) : this(unitOfWork.Context)
-        {
+        public Repository(IUnitOfWork unitOfWork) : this(unitOfWork.Context) { }
 
-        }
         public Repository(ChinookContext context)
         {
             _isDisposed = false;
@@ -25,113 +23,81 @@ namespace Chinook.Data.Repository
             _dbSet = _context.Set<TEntity>();
         }
 
-        public virtual void Add(TEntity entity)
+        public virtual async Task Add(TEntity entity)
         {
-            if (entity == null)
-                throw new ArgumentNullException("Entity is null");
-
-            _dbSet.Add(entity);
+            await _dbSet.AddAsync(entity);
         }
 
-        public virtual void AddRange(List<TEntity> entity)
+        public async Task AddRange(List<TEntity> entity)
         {
-            _dbSet.AddRange(entity);
+            await _dbSet.AddRangeAsync(entity);
         }
 
-        /// <summary>
-        /// Verilen Generic Entity' i siler.
-        /// </summary>
-        /// <param name="entity"></param>
-        public virtual void Delete(TEntity entity)
+        public async Task Delete(TEntity entity)
         {
-            entity = Get(x => x.Id == entity.Id);
-
+            entity = await Get(x => x.Id == entity.Id);
             if (entity != null)
+            {
                 _dbSet.Remove(entity);
+            }
         }
 
-        /// <summary>
-        /// Verilen Id yi bulup Entity ' i siler.
-        /// </summary>
-        /// <param name="id"></param>
-        public virtual void Delete(int id)
+        public async Task Delete(int id)
         {
-            var entity = Get(x => x.Id == id);
-
+            var entity = await Get(x => x.Id == id);
             if (entity != null)
+            {
                 _dbSet.Remove(entity);
+            }
         }
 
-        public virtual IQueryable<TEntity> GetAll()
+        public IQueryable<TEntity> GetAll()
         {
             return _dbSet.OrderByDescending(x => x.Id).AsQueryable();
         }
 
-        public virtual IQueryable<TEntity> GetAllNoTracking()
+        public IQueryable<TEntity> GetAllNoTracking()
         {
             return _dbSet.AsQueryable().AsNoTracking();
         }
 
-        public virtual TEntity Get(Expression<Func<TEntity, bool>> predicate = null,
-            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null)
+        public async Task<TEntity> Get(Expression<Func<TEntity, bool>> predicate = null)
         {
             IQueryable<TEntity> query = _dbSet;
-
-            if (include != null)
-                query = include(query);
-
             if (predicate != null)
-                return query.FirstOrDefault(predicate);
-
-            return query.FirstOrDefault();
+            {
+                return await query.FirstOrDefaultAsync(predicate);
+            }
+            return await query.FirstOrDefaultAsync();
         }
 
-        public virtual TEntity Get(Expression<Func<TEntity, bool>> predicate = null)
+        public void Update(TEntity entity)
         {
-            IQueryable<TEntity> query = _dbSet;
-
-            if (predicate != null)
-                return query.FirstOrDefault(predicate);
-
-            return query.FirstOrDefault();
-        }
-
-        public virtual void Update(TEntity entity)
-        {
-            if (entity == null)
-                throw new ArgumentNullException("entity is null");
-
             _dbSet.Update(entity);
         }
 
+        public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> predicate = null)
+        {
+            IQueryable<TEntity> query = _dbSet;
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+            return query;
+        }
+
+        public async Task<bool> Any(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
+        }
+
+        #region disposed
         public void Dispose()
         {
             if (_context != null)
                 _context.Dispose();
             _isDisposed = true;
-
         }
-
-        public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> predicate = null,
-            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null)
-        {
-            IQueryable<TEntity> query = _dbSet;
-
-            if (include != null)
-                query = include(query);
-
-            if (predicate != null)
-                query = query.Where(predicate);
-
-            return query;
-        }
-
-        public virtual bool IsExist(Expression<Func<TEntity, bool>> predicate)
-        {
-            if (predicate == null)
-                throw new ArgumentNullException("entity is null");
-
-            return _dbSet.Any(predicate);
-        }
+        #endregion
     }
 }

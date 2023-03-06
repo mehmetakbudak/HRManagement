@@ -4,15 +4,16 @@ using Chinook.Model.Models;
 using System;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Chinook.Service
 {
     public interface INoteCategoryService
     {
         IQueryable<NoteCategoryModel> GetAll();
-        ServiceResult Post(NoteCategoryModel model);
-        ServiceResult Put(NoteCategoryModel model);
-        ServiceResult Delete(int id);
+        Task<ServiceResult> Post(NoteCategoryModel model);
+        Task<ServiceResult> Put(NoteCategoryModel model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class NoteCategoryService : INoteCategoryService
@@ -27,18 +28,16 @@ namespace Chinook.Service
         {
             var list = unitOfWork.Repository<NoteCategory>()
                 .GetAll(x => !x.Deleted && x.UserId == AuthTokenContent.Current.UserId)
-                .AsEnumerable()
                 .OrderByDescending(x => x.UpdateDate)
                 .Select(x => new NoteCategoryModel
                 {
                     Id = x.Id,
                     Name = x.Name
-                })
-                .AsQueryable();
+                }).AsQueryable();
             return list;
         }
 
-        public ServiceResult Post(NoteCategoryModel model)
+        public async Task<ServiceResult> Post(NoteCategoryModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
@@ -51,8 +50,8 @@ namespace Chinook.Service
                     UpdateDate = DateTime.Now,
                     Deleted = false
                 };
-                unitOfWork.Repository<NoteCategory>().Add(noteCategory);
-                unitOfWork.Save();
+                await unitOfWork.Repository<NoteCategory>().Add(noteCategory);
+                await unitOfWork.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -62,19 +61,19 @@ namespace Chinook.Service
             return serviceResult;
         }
 
-        public ServiceResult Put(NoteCategoryModel model)
+        public async Task<ServiceResult> Put(NoteCategoryModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var category = unitOfWork.Repository<NoteCategory>()
+                var category = await unitOfWork.Repository<NoteCategory>()
                     .Get(x => x.Id == model.Id && x.UserId == AuthTokenContent.Current.UserId);
 
                 if (category != null)
                 {
                     category.Name = model.Name;
                     category.UpdateDate = DateTime.Now;
-                    unitOfWork.Save();
+                    await unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -90,17 +89,19 @@ namespace Chinook.Service
             return serviceResult;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var category = unitOfWork.Repository<NoteCategory>().Get(x => x.Id == id && x.UserId == AuthTokenContent.Current.UserId);
+                var category = await unitOfWork.Repository<NoteCategory>()
+                    .Get(x => x.Id == id && x.UserId == AuthTokenContent.Current.UserId);
 
                 if (category != null)
                 {
                     category.Deleted = true;
-                    unitOfWork.Save();
+
+                    await unitOfWork.SaveChanges();
                 }
                 else
                 {

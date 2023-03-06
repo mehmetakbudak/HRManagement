@@ -1,16 +1,16 @@
 ﻿using Chinook.Model.Entities;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Threading.Tasks;
 
 namespace Chinook.Data.Repository
 {
     public interface IUnitOfWork
     {
-        //bakılacak
         ChinookContext Context { get; }
         IRepository<T> Repository<T>() where T : BaseModel;
-        void CreateTransaction();
-        void Commit();
-        void Rollback();
-        void Save();
+        Task<IDbContextTransaction> CreateTransaction();
+        Task Commit();
+        Task Rollback();
+        Task<int> SaveChanges();
     }
 }

@@ -3,6 +3,7 @@ using Chinook.Service;
 using Chinook.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace Chinook.Api.Controllers
 {
@@ -45,6 +46,14 @@ namespace Chinook.Api.Controllers
             {
                 return StatusCode(500, new ServiceResult { Message = ex.Message });
             }
+        }
+
+
+        [HttpGet("GetBlogsByCategoryUrl/{categoryUrl}")]
+        public async Task<IActionResult> GetBlogsByCategoryUrl(string categoryUrl)
+        {
+            var list = await _blogService.GetBlogsByCategoryUrl(categoryUrl);
+            return Ok(list);
         }
 
         [HttpPost]

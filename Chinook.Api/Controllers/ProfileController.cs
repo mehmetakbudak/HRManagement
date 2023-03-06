@@ -4,6 +4,7 @@ using Chinook.Service;
 using Chinook.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace Chinook.Api.Controllers
 {
@@ -20,9 +21,10 @@ namespace Chinook.Api.Controllers
 
         [HttpGet]
         [Authorize]
-        public IActionResult Get()
-        {
-            var user = userService.GetById(AuthTokenContent.Current.UserId);
+        public async Task<IActionResult> Get()
+        { 
+            var user = await userService.GetById(AuthTokenContent.Current.UserId);
+            
             if (user != null)
             {
                 var model = new UserModel
@@ -47,11 +49,11 @@ namespace Chinook.Api.Controllers
 
         [HttpPut]
         [Authorize]
-        public IActionResult Put([FromBody]UserModel model)
+        public async Task<IActionResult> Put([FromBody]UserModel model)
         {
             try
             {
-                var result = userService.UpdateProfile(model);
+                var result = await userService.UpdateProfile(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)

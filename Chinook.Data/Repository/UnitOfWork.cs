@@ -1,6 +1,7 @@
 ﻿using Chinook.Model.Entities;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
+using System.Threading.Tasks;
 
 namespace Chinook.Data.Repository
 {
@@ -9,7 +10,6 @@ namespace Chinook.Data.Repository
 
         private readonly ChinookContext _context;
         private bool _disposed;
-        private string _errorMessage = string.Empty;
         private IDbContextTransaction _objTran;
 
         public ChinookContext Context
@@ -19,46 +19,45 @@ namespace Chinook.Data.Repository
 
         public UnitOfWork(ChinookContext context)
         {
-            // dispose edildiği için  NEW TContext() kullanılabilir;
             _context = context;
         }
 
-        public void Commit()
+        public async Task Commit()
         {
-            _objTran.Commit();
+            await _objTran.CommitAsync();
         }
 
-        public void CreateTransaction()
+        public async Task<IDbContextTransaction> CreateTransaction()
         {
-            _context.Database.BeginTransaction();
+            return await _context.Database.BeginTransactionAsync();
         }
 
-        public void Rollback()
+        public async Task Rollback()
         {
-            _objTran.Rollback();
-            _objTran.Dispose();
+            await _objTran.RollbackAsync();
+            await _objTran.DisposeAsync();
         }
 
-        public void Save()
+        public async Task<int> SaveChanges()
         {
             try
             {
-                _context.SaveChanges();
-
+                return await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-
                 throw new Exception(ex.Message);
             }
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!_disposed)
             {
                 if (disposing)
+                {
                     _context.Dispose();
+                }
             }
             this._disposed = true;
         }

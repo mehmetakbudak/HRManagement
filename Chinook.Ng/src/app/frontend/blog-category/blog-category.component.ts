@@ -1,14 +1,16 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { AppService } from 'src/app/app.service';
+import { Component, Input, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { AppService } from "src/app/app.service";
+import { Urls } from "src/app/models/consts";
 
 @Component({
-  selector: 'app-blog-category',
-  templateUrl: './blog-category.component.html',
-  styleUrls: ['./blog-category.component.scss']
+  selector: "app-blog-category",
+  templateUrl: "./blog-category.component.html",
+  styleUrls: ["./blog-category.component.scss"],
 })
 export class BlogCategoryComponent implements OnInit {
   blogs = [];
+  blogCategories: [];
   pageSize = 5;
   page = 1;
 
@@ -18,37 +20,33 @@ export class BlogCategoryComponent implements OnInit {
   total;
   skip = 0;
 
-  constructor(private route: ActivatedRoute,
-    private appService: AppService) {
-  }
+  constructor(private route: ActivatedRoute, private appService: AppService) {}
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
-      this.url = params['url'];
-      this.appService.getOdata(this.appService.feBlogCategory + "?$filter=url eq '" + this.url + "'")
-        .then((resBlogCategory: any) => {
-          this.blogCategory = resBlogCategory.value[0];
-
-          if (this.blogCategory) {
-            this.loadBlog();
-          }
-        });
+    this.route.params.subscribe((params) => {
+      this.url = params["url"];
+      this.getBlog();
     });
+    this.getBlogCategories();
   }
 
-  loadBlog() {
-    this.appService.getOdata(this.appService.feBlog + "?$filter=blogCategoryId eq " +
-      this.blogCategory.id + "&$skip=" + this.skip + "&$top=" + this.pageSize + "&$count=true")
-      .then((resBlog: any) => {
-        this.total = resBlog['@odata.count'];
-        this.blogs = resBlog.value;
+  getBlog() {
+    this.appService
+      .getApi(`${Urls.Blog}/GetBlogsByCategoryUrl/${this.url}`)
+      .then((res: any) => {
+        this.blogs = res.value;
       });
+  }
+
+  getBlogCategories() {
+    this.appService.getApi(`${Urls.Lookup}/BlogCategories`).then((res: any) => {
+      this.blogCategories = res;
+    });
   }
 
   onPageChange(e: number) {
     this.page = e;
     this.skip = (e - 1) * this.pageSize;
-    this.loadBlog();
+    // this.loadBlog();
   }
-
 }

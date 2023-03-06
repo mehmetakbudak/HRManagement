@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Chinook.Service
 {
@@ -12,10 +13,10 @@ namespace Chinook.Service
     {
         IQueryable<NoteModel> GetAll();
         IQueryable<NoteModel> GetByCategoryId(int categoryId);
-        ServiceResult Post(NoteModel model);
-        ServiceResult Put(NoteModel model);
-        ServiceResult Move(NoteModel model);
-        ServiceResult Delete(int id);
+        Task<ServiceResult> Post(NoteModel model);
+        Task<ServiceResult> Put(NoteModel model);
+        Task<ServiceResult> Move(NoteModel model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class NoteService : INoteService
@@ -30,10 +31,8 @@ namespace Chinook.Service
         public IQueryable<NoteModel> GetAll()
         {
             var list = unitOfWork.Repository<Note>()
-                .GetAll(x => !x.Deleted && x.NoteCategory.UserId == AuthTokenContent.Current.UserId,
-                x => x.Include(b => b.NoteCategory))
+                .GetAll(x => !x.Deleted && x.NoteCategory.UserId == AuthTokenContent.Current.UserId)
                 .OrderByDescending(x => x.UpdateDate)
-                .AsEnumerable()
                 .Select(x => new NoteModel
                 {
                     Description = x.Description,
@@ -48,10 +47,8 @@ namespace Chinook.Service
         public IQueryable<NoteModel> GetByCategoryId(int categoryId)
         {
             var list = unitOfWork.Repository<Note>()
-                .GetAll(x => !x.Deleted && x.NoteCategoryId == categoryId && x.NoteCategory.UserId == AuthTokenContent.Current.UserId,
-                x => x.Include(b => b.NoteCategory))
+                .GetAll(x => !x.Deleted && x.NoteCategoryId == categoryId && x.NoteCategory.UserId == AuthTokenContent.Current.UserId)
                 .OrderByDescending(x => x.UpdateDate)
-                .AsEnumerable()
                 .Select(x => new NoteModel
                 {
                     Description = x.Description,
@@ -63,7 +60,7 @@ namespace Chinook.Service
             return list;
         }
 
-        public ServiceResult Post(NoteModel model)
+        public async Task<ServiceResult> Post(NoteModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
@@ -81,8 +78,8 @@ namespace Chinook.Service
                         InsertDate = DateTime.Now,
                         Deleted = false
                     };
-                    unitOfWork.Repository<Note>().Add(note);
-                    unitOfWork.Save();
+                    await unitOfWork.Repository<Note>().Add(note);
+                    await unitOfWork.SaveChanges();
                 }
             }
             catch (Exception ex)
@@ -93,13 +90,13 @@ namespace Chinook.Service
             return serviceResult;
         }
 
-        public ServiceResult Put(NoteModel model)
+        public async Task<ServiceResult> Put(NoteModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var note = unitOfWork.Repository<Note>().Get(x => x.Id == model.Id && x.NoteCategory.UserId == AuthTokenContent.Current.UserId,
-                  x => x.Include(a => a.NoteCategory));
+                var note = await unitOfWork.Repository<Note>()
+                    .Get(x => x.Id == model.Id && x.NoteCategory.UserId == AuthTokenContent.Current.UserId);
 
                 if (note != null)
                 {
@@ -108,7 +105,8 @@ namespace Chinook.Service
                     note.NoteCategoryId = model.NoteCategoryId;
                     note.UpdateDate = DateTime.Now;
                     note.Deleted = false;
-                    unitOfWork.Save();
+
+                    await unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -124,18 +122,19 @@ namespace Chinook.Service
             return serviceResult;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var note = unitOfWork.Repository<Note>().Get(x => x.Id == id && x.NoteCategory.UserId == AuthTokenContent.Current.UserId,
-                    x => x.Include(a => a.NoteCategory));
+                var note = await unitOfWork.Repository<Note>()
+                    .Get(x => x.Id == id && x.NoteCategory.UserId == AuthTokenContent.Current.UserId);
 
                 if (note != null)
                 {
                     note.Deleted = true;
-                    unitOfWork.Save();
+
+                    await unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -151,19 +150,20 @@ namespace Chinook.Service
             return serviceResult;
         }
 
-        public ServiceResult Move(NoteModel model)
+        public async Task<ServiceResult> Move(NoteModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var note = unitOfWork.Repository<Note>().Get(x => x.Id == model.Id && x.NoteCategory.UserId == AuthTokenContent.Current.UserId,
-                  x => x.Include(a => a.NoteCategory));
+                var note = await unitOfWork.Repository<Note>()
+                    .Get(x => x.Id == model.Id && x.NoteCategory.UserId == AuthTokenContent.Current.UserId);
 
                 if (note != null)
                 {
                     note.NoteCategoryId = model.NoteCategoryId;
                     note.UpdateDate = DateTime.Now;
-                    unitOfWork.Save();
+
+                    await unitOfWork.SaveChanges();
                 }
                 else
                 {

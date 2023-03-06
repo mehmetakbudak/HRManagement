@@ -1,5 +1,4 @@
-﻿using Chinook.Data;
-using Chinook.Data.Repository;
+﻿using Chinook.Data.Repository;
 using Chinook.Model.Entities;
 using Chinook.Model.Models;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Chinook.Service
 {
@@ -14,10 +14,11 @@ namespace Chinook.Service
     {
         IQueryable<Blog> GetAll();
         List<Blog> GetAllByCategoryUrl(string categoryUrl);
-        Blog GetById(int id);
-        ServiceResult Post(BlogModel model);
-        ServiceResult Put(BlogModel model);
-        ServiceResult Delete(int id);
+        Task<Blog> GetById(int id);
+        Task<ServiceResult> Post(BlogModel model);
+        Task<ServiceResult> Put(BlogModel model);
+        Task<ServiceResult> Delete(int id);
+        Task<List<Blog>> GetBlogsByCategoryUrl(string categoryUrl);
     }
     public class BlogService : IBlogService
     {
@@ -32,21 +33,24 @@ namespace Chinook.Service
         {
             return _unitOfWork.Repository<Blog>()
                 .GetAll(x => !x.Deleted)
-                .Include(x => x.BlogCategory);
+                .Include(x => x.BlogCategory)
+                .AsQueryable();
         }
 
         public List<Blog> GetAllByCategoryUrl(string categoryUrl)
         {
-            var list = _unitOfWork.Repository<Blog>().GetAll(x => !x.Deleted && x.Published && x.BlogCategory.Url == categoryUrl).ToList();
+            var list = _unitOfWork.Repository<Blog>()
+                .GetAll(x => !x.Deleted && x.Published && x.BlogCategory.Url == categoryUrl).ToList();
             return list;
         }
 
-        public Blog GetById(int id)
+        public async Task<Blog> GetById(int id)
         {
-            return _unitOfWork.Repository<Blog>().Get(x => x.Id == id && !x.Deleted);
+            return await _unitOfWork.Repository<Blog>()
+                .Get(x => x.Id == id && !x.Deleted);
         }
 
-        public ServiceResult Post(BlogModel model)
+        public async Task<ServiceResult> Post(BlogModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
@@ -67,9 +71,8 @@ namespace Chinook.Service
                     Title = model.Title,
                     Url = model.Url
                 };
-                _unitOfWork.Repository<Blog>().Add(entity);
-                _unitOfWork.Save();
-
+                await _unitOfWork.Repository<Blog>().Add(entity);
+                await _unitOfWork.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -79,12 +82,12 @@ namespace Chinook.Service
             return result;
         }
 
-        public ServiceResult Put(BlogModel model)
+        public async Task<ServiceResult> Put(BlogModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var blog = GetById(model.Id);
+                var blog = await GetById(model.Id);
                 if (blog != null)
                 {
                     blog.Title = model.Title;
@@ -98,9 +101,8 @@ namespace Chinook.Service
                     blog.UpdateDate = DateTime.Now;
                     blog.UpdatedBy = AuthTokenContent.Current.UserId;
 
-                    _unitOfWork.Save();
+                    await _unitOfWork.SaveChanges();
                 }
-
             }
             catch (Exception ex)
             {
@@ -110,12 +112,12 @@ namespace Chinook.Service
             return result;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var blog = GetById(id);
+                var blog = await GetById(id);
                 if (blog != null)
                 {
                     blog.Deleted = true;
@@ -133,6 +135,14 @@ namespace Chinook.Service
                 result.Message = ex.Message;
             }
             return result;
+        }
+
+        public async Task<List<Blog>> GetBlogsByCategoryUrl(string categoryUrl)
+        {
+            var list = await _unitOfWork.Repository<Blog>()
+                .GetAll(x => !x.Deleted && x.IsActive && x.Published && x.BlogCategory.Url == categoryUrl).ToListAsync();
+
+            return list;
         }
     }
 }

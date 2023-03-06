@@ -1,41 +1,50 @@
 ﻿using Chinook.Service;
 using Chinook.Service.Attributes;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Chinook.Api.Controllers
 {
-    public class LookupController : ODataController
+    [Route("api/[controller]")]
+    [ApiController]
+    public class LookupController : ControllerBase
     {
-        private readonly ILookupService lookupService;
+        private readonly ILookupService _lookupService;
 
         public LookupController(ILookupService lookupService)
         {
-            this.lookupService = lookupService;
+            _lookupService = lookupService;
         }
 
         [Authorize]
-        [EnableQuery]
         [HttpGet("Get")]
         public IActionResult Get()
         {
-            return Ok(lookupService.Get());
+            var list = _lookupService.Get();
+            return Ok(list);
         }
 
         [Authorize]
-        [EnableQuery]
         [HttpGet("Provinces")]
         public IActionResult Provinces()
         {
-            return Ok(lookupService.GetProvinces());
+            var list = _lookupService.GetProvinces();
+            return Ok(list);
         }
 
         [Authorize]
-        [EnableQuery]
-        [HttpGet("Cities")]
-        public IActionResult Cities()
+        [HttpGet("Cities/{provinceId}")]
+        public IActionResult Cities(int provinceId)
         {
-            return Ok(lookupService.GetCities());
+            var list = _lookupService.GetCitiesByProvinceId(provinceId);
+            return Ok(list);
+        }
+
+        [HttpGet("BlogCategories")]
+        public async Task<IActionResult> GetBlogCategories()
+        {
+            var list = await _lookupService.GetBlogCategories();
+            return Ok(list);
         }
     }
 }

@@ -1,25 +1,29 @@
-import { Injectable } from '@angular/core';
-import { AppService } from '../app.service';
+import { Injectable } from "@angular/core";
+import { AppService } from "../app.service";
+import { Urls } from "../models/consts";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
-
 export class LookupService {
-  constructor(private appService: AppService) { }
+  constructor(private appService: AppService) {}
 
-  get(code: Lookup, name = ''): Promise<any> {
-    let filterName = '';
+  get(code: Lookup, name = ""): Promise<any> {
+    let filterName = "";
     if (name) {
       filterName = "contains(name,'" + name + "')&";
     }
-    return this.appService.getOdata(this.appService.lookup + "?$filter=type eq '" + Lookup[code] + "'&" + filterName + '$orderby=name');
+    return this.appService.getApi(
+      Urls.Lookup +
+        "?$filter=type eq '" +
+        Lookup[code] +
+        "'&" +
+        filterName +
+        "$orderby=name"
+    );
   }
 }
 
-
 export enum Lookup {
-  Title = 1
+  Title = 1,
 }
-
-

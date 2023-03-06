@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { AlertService, alertType } from 'src/app/services/alert.service';
-import { AppService } from 'src/app/app.service';
-import { LookupService, Lookup } from 'src/app/services/lookup.service';
-import notify from 'devextreme/ui/notify';
+import { Component, OnInit } from "@angular/core";
+import { AlertService, alertType } from "src/app/services/alert.service";
+import { AppService } from "src/app/app.service";
+import { LookupService, Lookup } from "src/app/services/lookup.service";
+import notify from "devextreme/ui/notify";
+import { Urls } from "src/app/models/consts";
 export class User {
   id: number;
   emailAddress: string;
@@ -19,22 +20,23 @@ export class User {
 }
 
 @Component({
-  selector: 'app-profile',
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css']
+  selector: "app-profile",
+  templateUrl: "./profile.component.html",
+  styleUrls: ["./profile.component.css"],
 })
-
 export class ProfileComponent implements OnInit {
   user: User;
   provinces: [];
   cities;
   titles;
   selectProvinceId;
-  selectCityName = '';
+  selectCityName = "";
 
-  constructor(private alertService: AlertService,
+  constructor(
+    private alertService: AlertService,
     private lookupService: LookupService,
-    private appService: AppService) { }
+    private appService: AppService
+  ) {}
 
   ngOnInit() {
     this.user = new User();
@@ -44,43 +46,40 @@ export class ProfileComponent implements OnInit {
   }
 
   getProfile() {
-    this.appService.getApi(this.appService.profile).then((res: any) => {
+    this.appService.getApi(Urls.Profile).then((res: any) => {
       this.getCities(res.provinceId);
       this.user = res;
     });
   }
 
   getProvinces(name?) {
-    let filterName = '';
+    let filterName = "";
     if (name) {
       filterName = "$filter=contains(label,'" + name + "')&";
     }
-    this.appService.getOdata(this.appService.lookup + '/provinces?' + filterName + '$orderby=id')
-      .then((res: any) => {
-        this.provinces = res.value;
-      });
+    this.appService.getApi(`${Urls.Lookup}/provinces`).then((res: any) => {
+      this.provinces = res.value;
+    });
   }
 
   getCities(id, name?) {
-    let filterProvinceId = '';
-    let filterName = '';
+    let filterProvinceId = "";
+    let filterName = "";
     if (id) {
       filterProvinceId = "$filter=provinceId eq " + id + "";
     }
     if (name) {
-      filterName = " and contains(label,'" + name + "')&"
+      filterName = " and contains(label,'" + name + "')&";
     }
-    this.appService.getOdata(this.appService.lookup + '/cities?' +
-      filterProvinceId + filterName + '&$orderby=name')
-      .then((res: any) => {
-        this.cities = res.value;
-      });
+    this.appService.getApi(`${Urls.Lookup}/cities`).then((res: any) => {
+      this.cities = res.value;
+    });
   }
 
   getTitle() {
-    this.lookupService.get(Lookup.Title).then(res => {
+    this.lookupService.get(Lookup.Title).then((res) => {
       this.titles = res.value;
-    })
+    });
   }
 
   selectProvince(e) {
@@ -99,8 +98,12 @@ export class ProfileComponent implements OnInit {
 
   save(e) {
     e.preventDefault();
-    this.appService.put(this.appService.profile, this.user).then(() => {
-      notify("Kullanıcı bilgileri başarıyla güncellendi.", alertType[alertType.success], 1000);
+    this.appService.put(Urls.Profile, this.user).then(() => {
+      notify(
+        "Kullanıcı bilgileri başarıyla güncellendi.",
+        alertType[alertType.success],
+        1000
+      );
     });
   }
 }

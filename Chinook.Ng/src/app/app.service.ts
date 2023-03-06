@@ -8,18 +8,6 @@ import ODataStore from "devextreme/data/odata/store";
   providedIn: "root",
 })
 export class AppService {
-  public blogCategory = "BlogCategory";
-  public noteCategory = "NoteCategory";
-  public note = "Note";
-  public user = "User";
-  public lookup = "Lookup";
-  public profile = "Profile";
-  public menu = "Menu";
-  public blog = "Blog";
-  public feBlogCategory = "feBlogCategory";
-  public feBlog = "feBlog";
-  public fePage = "fePage";
-  public feMenu = "feMenu";
 
   constructor(
     private http: HttpClient,
@@ -37,22 +25,6 @@ export class AppService {
 
   getApiWithAut(url) {
     return this.http.get(environment.apiUrl + url).toPromise();
-  }
-
-  getOdata(url) {
-    return this.http.get(environment.oDataUrl + url).toPromise();
-  }
-
-  getOdataStore(url) {
-    return new ODataStore({
-      url: environment.oDataUrl + url,
-      version: 4,
-      beforeSend: (e) => {
-        e.headers = {
-          Authorization: "Bearer " + this.getToken(),
-        };
-      },
-    });
   }
 
   post(url, data) {

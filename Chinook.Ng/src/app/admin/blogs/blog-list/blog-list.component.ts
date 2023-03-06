@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { AppService } from "src/app/app.service";
+import { Urls } from "src/app/models/consts";
 
 @Component({
   selector: "app-blog",
@@ -19,7 +20,7 @@ export class BlogListComponent implements OnInit {
   }
 
   getBlogs() {
-    this.appService.getApi(this.appService.blog).then((res: any) => {
+    this.appService.getApi(Urls.Blog).then((res: any) => {
       this.blogs = res;
     });
   }

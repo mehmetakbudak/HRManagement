@@ -4,6 +4,7 @@ using Chinook.Service;
 using Chinook.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace Chinook.Controllers
 {
@@ -27,11 +28,11 @@ namespace Chinook.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]NoteCategoryModel model)
+        public async Task<IActionResult> Post([FromBody]NoteCategoryModel model)
         {
             try
             {
-                var result = noteCategoryService.Post(model);
+                var result = await noteCategoryService.Post(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)
@@ -41,11 +42,11 @@ namespace Chinook.Controllers
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody]NoteCategoryModel model)
+        public async Task<IActionResult> Put([FromBody]NoteCategoryModel model)
         {
             try
             {
-                var result = noteCategoryService.Put(model);
+                var result = await noteCategoryService.Put(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)
@@ -55,11 +56,11 @@ namespace Chinook.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var result = noteCategoryService.Delete(id);
+                var result = await noteCategoryService.Delete(id);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)

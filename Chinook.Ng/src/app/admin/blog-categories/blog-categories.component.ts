@@ -6,6 +6,7 @@ import {
 } from "../../services/alert.service";
 import { ConfirmService } from "../../services/confirm.service";
 import { AppService } from "../../app.service";
+import { Urls } from "src/app/models/consts";
 
 export class BlogCategory {
   deleted: boolean;
@@ -44,7 +45,7 @@ export class BlogCategoriesComponent implements OnInit {
   }
 
   bindGrid() {
-    this.appService.getApi(this.appService.blogCategory).then((res) => {
+    this.appService.getApi(Urls.BlogCategory).then((res) => {
       this.blogCategories = res;
     });
   }
@@ -64,15 +65,13 @@ export class BlogCategoriesComponent implements OnInit {
     } else if (e.item.value === "delete") {
       this.confirmService.delete().then((res: boolean) => {
         if (res) {
-          this.appService
-            .delete(this.appService.blogCategory, c.data.id)
-            .then(() => {
-              this.alertService.showDefaultMessage(
-                defaultMessageType.delete,
-                alertType.success
-              );
-              this.bindGrid();
-            });
+          this.appService.delete(Urls.BlogCategory, c.data.id).then(() => {
+            this.alertService.showDefaultMessage(
+              defaultMessageType.delete,
+              alertType.success
+            );
+            this.bindGrid();
+          });
         }
       });
     }
@@ -83,7 +82,7 @@ export class BlogCategoriesComponent implements OnInit {
     if (result.isValid) {
       if (this.blogCategory.id) {
         this.appService
-          .put(this.appService.blogCategory, this.blogCategory)
+          .put(Urls.BlogCategory, this.blogCategory)
           .then((res) => {
             this.isVisible = false;
             this.bindGrid();
@@ -95,7 +94,7 @@ export class BlogCategoriesComponent implements OnInit {
       } else {
         this.blogCategory.id = 0;
         this.appService
-          .post(this.appService.blogCategory, this.blogCategory)
+          .post(Urls.BlogCategory, this.blogCategory)
           .then((res) => {
             this.isVisible = false;
             this.bindGrid();

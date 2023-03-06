@@ -1,12 +1,12 @@
 <div class="row mt-5">
   <div class="col-12 col-md-4 offset-md-4">
-    <div class="card">
-      <div class="card-header">
-        <h5 class="py-2">Giriş Yap</h5>
+    <div class="card shadow">
+      <div class="card-header bg-white py-3">
+        <h5>Giriş Yap</h5>
       </div>
       <div class="card-body">
         <dx-validation-group>
-          <div class="mb-3">
+          <div class="mb-4">
             <label>Email Adresi</label>
             <dx-text-box mode="email" [(value)]="login.emailAddress">
               <dx-validator>
@@ -17,7 +17,7 @@
               </dx-validator>
             </dx-text-box>
           </div>
-          <div class="mb-3">
+          <div class="mb-4">
             <label>Şifre</label>
             <dx-text-box mode="password" [(value)]="login.password">
               <dx-validator>
@@ -28,12 +28,12 @@
               </dx-validator>
             </dx-text-box>
           </div>
-          <div class="mb-3">
-            <a class="float-start text-decoration-none cursor-pointer" (click)="goTo()">Şifremi Unuttum</a>
+          <div class="mb-4">
+            <!-- <a class="float-start text-decoration-none cursor-pointer" (click)="goTo()">Şifremi Unuttum</a> -->
             <dx-button
               class="float-end ms-2"
               [useSubmitBehavior]="true"
-              text="Kaydet"
+              text="Giriş Yap"
               type="default"
               (onClick)="save($event)"
             ></dx-button>

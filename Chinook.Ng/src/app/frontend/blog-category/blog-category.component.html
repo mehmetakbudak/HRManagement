@@ -1,35 +1,48 @@
-
-<div class="row">
-    <div class="col-md-8 shadow">
-        <h4 class="mt-3 mb-3">
-            {{blogCategory?.name}}
-        </h4>
+<div class="row my-4">
+  <div class="col-md-9">
+    <div class="card shadow">
+      <div class="card-header bg-white py-3">
+        <h4>{{ blogCategory?.name }}</h4>
+      </div>
+      <div class="card-body">
         <div class="row p-2">
-            <div class="col-12 col-md-6" *ngFor="let blog of blogs | paginate: { itemsPerPage: pageSize, currentPage: page, totalItems:total }">
-                <div class=" card mt-2 mb-2 w-100">
-                    <img class="card-img-top" src="{{blog?.imageUrl}}">
-                    <div class="card-body">
-                        <h5 class="card-title text-wrap">{{blog?.title}}</h5>
-                        <p class="card-text text-wrap">{{blog?.shortDefinition}}</p>
-                        <a routerLink="/blog/{{blogCategory?.url}}/{{blog?.id}}" class="btn btn-primary float-right">Detaylar</a>
-                    </div>
-                </div>
+          <div class="col-12 col-md-6" *ngFor="let blog of blogs">
+            <div class="card mt-2 mb-2 w-100">
+              <img class="card-img-top" src="{{ blog?.imageUrl }}" />
+              <div class="card-body">
+                <h5 class="card-title text-wrap">{{ blog?.title }}</h5>
+                <p class="card-text text-wrap">{{ blog?.shortDefinition }}</p>
+                <a
+                  routerLink="/blog/{{ blogCategory?.url }}/{{ blog?.id }}"
+                  class="btn btn-outline-primary"
+                  >Detaylar <i class="dx-icon dx-icon-arrowright"></i></a
+                >
+              </div>
             </div>
+          </div>
         </div>
-        <div class="mt-2 mb-2" *ngIf="blogs.length>0">
-            <pagination-controls nextLabel="Sonraki" previousLabel="Önceki" [responsive]="true" (pageChange)="onPageChange($event)" (pageBoundsCorrection)="onPageChange($event)">
-            </pagination-controls>
-        </div>
+      </div>
     </div>
-    <div class="col-md-4">
 
-    </div>
+    <div class="mt-2 mb-2" *ngIf="blogs?.length > 0"></div>
+  </div>
+  <div class="col-md-3">
+    <ul class="list-group shadow">
+      <li class="list-group-item py-3"><h4>Blog Kategorileri</h4></li>
+      <li class="list-group-item" *ngFor="let item of blogCategories">
+        <i class="dx-icon dx-icon-chevronright"></i>
+        <a
+          class="text-decoration-none text-dark"
+          routerLink="/blog/{{ item.url }}"
+          >{{ item.name }}</a
+        >
+      </li>
+    </ul>
+  </div>
 </div>
 
-<div class="row mt-2" *ngIf="blogs.length==0">
-    <div class="col-md-8">
-        <div class="alert alert-info">
-            Kayıt bulunamadı.
-        </div>
-    </div>
+<div class="row mt-2" *ngIf="blogs?.length == 0">
+  <div class="col-md-8">
+    <div class="alert alert-info">Kayıt bulunamadı.</div>
+  </div>
 </div>

@@ -1,9 +1,11 @@
-﻿using Chinook.Model.Helpers;
+﻿using Chinook.Model.Enums;
+using Chinook.Model.Helpers;
 using Chinook.Model.Models;
 using Chinook.Service;
 using Chinook.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace Chinook.Api.Controllers
 {
@@ -26,13 +28,27 @@ namespace Chinook.Api.Controllers
             return Ok(list);
         }
 
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            var menu = await menuService.GetById(id);
+            return Ok(menu);
+        }
+
+        [HttpGet("GetType/{type}")]
+        public async Task<IActionResult> GetType(MenuType type)
+        {
+            var menu = await menuService.GetByType(type);
+            return Ok(menu);
+        }
+
         [HttpPost]
         [Authorize]
-        public IActionResult Post([FromBody]MenuModel model)
+        public async Task<IActionResult> Post([FromBody] MenuModel model)
         {
             try
             {
-                var result = menuService.Post(model);
+                var result = await menuService.Post(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)
@@ -43,11 +59,11 @@ namespace Chinook.Api.Controllers
 
         [HttpPut]
         [Authorize]
-        public IActionResult Put([FromBody]MenuModel model)
+        public async Task<IActionResult> Put([FromBody] MenuModel model)
         {
             try
             {
-                var result = menuService.Put(model);
+                var result = await menuService.Put(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)
@@ -58,11 +74,11 @@ namespace Chinook.Api.Controllers
 
         [Authorize]
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var result = menuService.Delete(id);
+                var result = await menuService.Delete(id);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)

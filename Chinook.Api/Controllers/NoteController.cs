@@ -4,6 +4,7 @@ using Chinook.Service;
 using Chinook.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace Chinook.Controllers
 {
@@ -12,32 +13,33 @@ namespace Chinook.Controllers
     [Route("api/[controller]")]
     public class NoteController : ControllerBase
     {
-        public readonly INoteService noteService;
+        public readonly INoteService _noteService;
+
         public NoteController(INoteService noteService)
         {
-            this.noteService = noteService;
+            _noteService = noteService;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
-            var list = noteService.GetAll();
+            var list = _noteService.GetAll();
             return Ok(list);
         }
 
         [HttpGet("GetByCategoryId/{categoryId:int}")]
         public IActionResult GetByCategoryId(int categoryId)
         {
-            var list = noteService.GetByCategoryId(categoryId);
+            var list = _noteService.GetByCategoryId(categoryId);
             return Ok(list);
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] NoteModel model)
+        public async Task<IActionResult> Post([FromBody] NoteModel model)
         {
             try
             {
-                var result = noteService.Post(model);
+                var result = await _noteService.Post(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)
@@ -47,11 +49,11 @@ namespace Chinook.Controllers
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] NoteModel model)
+        public async Task<IActionResult> Put([FromBody] NoteModel model)
         {
             try
             {
-                var result = noteService.Put(model);
+                var result = await _noteService.Put(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)
@@ -61,11 +63,11 @@ namespace Chinook.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var result = noteService.Delete(id);
+                var result = await _noteService.Delete(id);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)
@@ -75,11 +77,11 @@ namespace Chinook.Controllers
         }
 
         [HttpPut("move")]
-        public IActionResult Move([FromBody] NoteModel model)
+        public async Task<IActionResult> Move([FromBody] NoteModel model)
         {
             try
             {
-                var result = noteService.Move(model);
+                var result = await _noteService.Move(model);
                 return StatusCode((int)result.StatusCode, result.CreateReturnModel());
             }
             catch (Exception ex)
