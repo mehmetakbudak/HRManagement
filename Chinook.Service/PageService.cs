@@ -6,7 +6,7 @@ namespace Chinook.Service
 {
     public interface IPageService
     {
-        IQueryable<Page> GetAll();
+        IQueryable<Page> Get();
     }
 
     public class PageService : IPageService
@@ -17,7 +17,7 @@ namespace Chinook.Service
             this.context = context;
         }
 
-        public IQueryable<Page> GetAll()
+        public IQueryable<Page> Get()
         {
             return context.Pages.Where(x => !x.Deleted);
         }

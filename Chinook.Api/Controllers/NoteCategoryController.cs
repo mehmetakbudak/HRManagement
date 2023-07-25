@@ -1,10 +1,10 @@
-﻿using Chinook.Model.Helpers;
+﻿using System;
+using System.Threading.Tasks;
+using Chinook.Model.Helpers;
 using Chinook.Model.Models;
 using Chinook.Service;
 using Chinook.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace Chinook.Controllers
 {
@@ -14,6 +14,7 @@ namespace Chinook.Controllers
     public class NoteCategoryController : ControllerBase
     {
         private readonly INoteCategoryService noteCategoryService;
+
         public NoteCategoryController(
             INoteCategoryService noteCategoryService)
         {
@@ -23,12 +24,12 @@ namespace Chinook.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var list = noteCategoryService.GetAll();
+            var list = noteCategoryService.Get();
             return Ok(list);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]NoteCategoryModel model)
+        public async Task<IActionResult> Post([FromBody] NoteCategoryModel model)
         {
             try
             {
@@ -42,7 +43,7 @@ namespace Chinook.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody]NoteCategoryModel model)
+        public async Task<IActionResult> Put([FromBody] NoteCategoryModel model)
         {
             try
             {

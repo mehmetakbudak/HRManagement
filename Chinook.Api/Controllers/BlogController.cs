@@ -18,13 +18,13 @@ namespace Chinook.Api.Controllers
             _blogService = blogService;
         }
 
-        [HttpGet]
+        [HttpPost("GetByFilter")]
         [Authorize]
-        public IActionResult Get()
+        public IActionResult Get([FromBody] BlogFilterModel model)
         {
             try
             {
-                var result = _blogService.GetAll();
+                var result = _blogService.GetByFilter(model);
                 return Ok(result);
             }
             catch (Exception ex)

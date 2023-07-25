@@ -9,18 +9,28 @@ namespace Chinook.Api.Controllers
     [ApiController]
     public class LookupController : ControllerBase
     {
-        private readonly ILookupService _lookupService;
+        private readonly IProvinceService _provinceService;
+        private readonly ICityService _cityService;
+        private readonly IBlogCategoryService _blogCategoryService;
+        private readonly ITitleService _titleService;
 
-        public LookupController(ILookupService lookupService)
+        public LookupController(
+            IProvinceService provinceService,
+            ICityService cityService,
+            IBlogCategoryService blogCategoryService,
+            ITitleService titleService)
         {
-            _lookupService = lookupService;
+            _provinceService = provinceService;
+            _cityService = cityService;
+            _blogCategoryService = blogCategoryService;
+            _titleService = titleService;
         }
 
         [Authorize]
-        [HttpGet("Get")]
+        [HttpGet("Titles")]
         public IActionResult Get()
         {
-            var list = _lookupService.Get();
+            var list = _titleService.Get();
             return Ok(list);
         }
 
@@ -28,7 +38,7 @@ namespace Chinook.Api.Controllers
         [HttpGet("Provinces")]
         public IActionResult Provinces()
         {
-            var list = _lookupService.GetProvinces();
+            var list = _provinceService.Get();
             return Ok(list);
         }
 
@@ -36,14 +46,14 @@ namespace Chinook.Api.Controllers
         [HttpGet("Cities/{provinceId}")]
         public IActionResult Cities(int provinceId)
         {
-            var list = _lookupService.GetCitiesByProvinceId(provinceId);
+            var list = _cityService.GetByProvinceId(provinceId);
             return Ok(list);
         }
 
         [HttpGet("BlogCategories")]
         public async Task<IActionResult> GetBlogCategories()
         {
-            var list = await _lookupService.GetBlogCategories();
+            var list = await _blogCategoryService.GetByLookup();
             return Ok(list);
         }
     }

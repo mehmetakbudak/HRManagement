@@ -1,7 +1,6 @@
 <nav class="navbar navbar-light bg-light flex-nowrap p-1 border-bottom">
   <div class="ps-1 pe-3">
-    <dx-button type="default" icon="menu" (onClick)="menuShow()">
-    </dx-button>
+    <dx-button type="default" icon="menu" (onClick)="menuShow()"> </dx-button>
   </div>
   <div class="w-100">
     <a class="navbar-brand text-left" routerLink="/admin">Admin Paneli</a>
@@ -48,7 +47,9 @@
       [hidden]="!isShowContent"
       [ngClass]="{ 'col-12 col-md-10': isShowMenu, 'col-12': !isShowMenu }"
     >
-      <router-outlet></router-outlet>
+      <div class="p-2">
+        <router-outlet></router-outlet>
+      </div>
     </div>
   </div>
 </div>

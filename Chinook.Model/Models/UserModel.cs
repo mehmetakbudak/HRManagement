@@ -39,17 +39,4 @@ namespace Chinook.Model.Models
         public string NewPassword { get; set; }
         public string ReNewPassword { get; set; }
     }
-
-    public class AuthTokenContent
-    {
-        public int UserId { get; set; }
-
-        private static readonly AsyncLocal<AuthTokenContent> _current = new AsyncLocal<AuthTokenContent>();
-
-        public static AuthTokenContent Current
-        {
-            get => _current.Value;
-            set => _current.Value = value;
-        }
-    }
 }

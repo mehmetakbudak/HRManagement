@@ -25,9 +25,6 @@ import {
   DxValidatorModule,
 } from "devextreme-angular";
 
-import { ModalModule } from 'ngx-bootstrap/modal';
-
-
 @NgModule({
   imports: [
     FormsModule,
@@ -42,7 +39,6 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     DxButtonModule,
     DxValidationGroupModule,
     DxValidatorModule,
-    ModalModule,
     RouterModule.forChild(FrontendRoutes),
   ],
   declarations: [

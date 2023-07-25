@@ -7,6 +7,9 @@ import {
 import { ConfirmService } from "../../services/confirm.service";
 import { AppService } from "../../app.service";
 import { Urls } from "src/app/models/consts";
+import { createStore } from 'devextreme-aspnet-data-nojquery';
+import CustomStore from 'devextreme/data/custom_store';
+import { environment } from "src/environments/environment";
 
 export class BlogCategory {
   deleted: boolean;
@@ -22,7 +25,7 @@ export class BlogCategory {
 })
 export class BlogCategoriesComponent implements OnInit {
   screenWidth = "40vw";
-  blogCategories;
+  dataSource: CustomStore;
   isVisible = false;
   showErrorPopup = false;
   title;
@@ -45,8 +48,12 @@ export class BlogCategoriesComponent implements OnInit {
   }
 
   bindGrid() {
-    this.appService.getApi(Urls.BlogCategory).then((res) => {
-      this.blogCategories = res;
+    this.dataSource = createStore({
+      key: "id",
+      loadUrl: `${environment.apiUrl}${Urls.BlogCategory}`,
+      onBeforeSend(method, ajaxOptions) {
+        ajaxOptions.xhrFields = { withCredentials: true };
+      },
     });
   }
 

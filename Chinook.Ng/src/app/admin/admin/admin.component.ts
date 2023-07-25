@@ -41,7 +41,7 @@ export class AdminComponent implements OnInit {
     this.fullName =
       this.currentUser.firstName + " " + this.currentUser.lastName;
 
-    this.appService.getApi(`${Urls.Menu}/MenuType.Admin`).then((res: any) => {
+    this.appService.get(`${Urls.Menu}/gettype/${MenuType.Admin}`).then((res: any) => {
       this.items = res.items;
     });
 

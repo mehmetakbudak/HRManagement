@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chinook.Model.Entities
 {
-    public class Lookup : BaseModel
+    public class Title : BaseModel
     {
         public string Name { get; set; }
-        public LookupType Type { get; set; }
+        public bool IsActive { get; set; }
         public bool Deleted { get; set; }
     }
 }

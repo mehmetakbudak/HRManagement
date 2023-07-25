@@ -73,13 +73,14 @@ export class NotesComponent implements OnInit {
   }
 
   categoryBind() {
-    this.appService.getApi(Urls.NoteCategory).then((res: any) => {
+    this.appService.get(Urls.NoteCategory).then((res: any) => {
       this.categories = res;
       this.countCategory = res.length;
     });
   }
 
   onSelectRowNoteCategory(e) {
+    console.log('not seç');
     this.selectNoteCategoryId = e.row.data.id;
     this.noteBind();
     this.visibleNoteDetail = false;
@@ -101,7 +102,7 @@ export class NotesComponent implements OnInit {
 
   noteBind() {
     this.appService
-      .getApi(`${Urls.Note}/GetByCategoryId/${this.selectNoteCategoryId}`)
+      .get(`${Urls.Note}/GetByCategoryId/${this.selectNoteCategoryId}`)
       .then((res: any) => {
         this.notes = res;
         this.countNote = res.length;

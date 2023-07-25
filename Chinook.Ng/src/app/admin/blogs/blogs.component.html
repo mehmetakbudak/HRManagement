@@ -1,0 +1,247 @@
+<div class="row">
+  <div class="col-md-6 col-6">
+    <h3>Bloglar</h3>
+  </div>
+  <div class="col-md-6 col-6">
+    <a (click)="add(content)" class="float-end btn btn-success btn-sm">
+      <i class="dx-icon-plus"></i>
+    </a>
+  </div>
+</div>
+
+<div class="row mb-3">
+  <div class="col-md-12">
+    <ngb-accordion #acc="ngbAccordion" activeIds="config-panel-one">
+      <ngb-panel title="Filtrele" id="config-panel-one">
+        <ng-template ngbPanelContent>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label class="form-label">Blog Kategori</label>
+                <dx-select-box
+                  [(value)]="filter.blogCategoryId"
+                  valueExprr="id"
+                  displayExpr="name"
+                  placeholder="Kategori seçiniz."
+                  [dataSource]="blogCategories"
+                ></dx-select-box>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label class="form-label">Başlığı</label>
+                <dx-text-box [(value)]="filter.title"></dx-text-box>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" (click)="filterForm()">
+            Filtrele
+          </button>
+        </ng-template>
+      </ngb-panel>
+    </ngb-accordion>
+  </div>
+</div>
+
+<div class="row mb-2">
+  <div class="col-12">
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th scope="col" [width]="60"></th>
+            <th scope="col">Kategorisi</th>
+            <th scope="col" [width]="300">Başlığı</th>
+            <th scope="col" [width]="120">Okunma Sayısı</th>
+            <th scope="col">Aktif</th>
+            <th scope="col">Yayında mı?</th>
+            <th scope="col">Kayıt Tarihi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let blog of blogs">
+            <td class="overflow-hidden">
+              <div ngbDropdown container="body">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-sm"
+                  ngbDropdownToggle
+                >
+                  <i class="dx-icon-preferences"></i>
+                </button>
+                <div ngbDropdownMenu>
+                  <button ngbDropdownItem (click)="edit(blog, content)">
+                    Düzenle
+                  </button>
+                  <button ngbDropdownItem>Sil</button>
+                </div>
+              </div>
+            </td>
+            <td>{{ blog.blogCategory.name }}</td>
+            <td>{{ blog.title }}</td>
+            <td>{{ blog.readCount }}</td>
+            <td>
+              <dx-check-box
+                [value]="blog.isActive"
+                [disabled]="true"
+              ></dx-check-box>
+            </td>
+            <td>
+              <dx-check-box
+                [value]="blog.published"
+                [disabled]="true"
+              ></dx-check-box>
+            </td>
+            <td>
+              {{ blog.insertDate | date : "dd.MM.yyyy HH:mm" }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <ngb-pagination
+        [collectionSize]="total"
+        [(page)]="filter.page"
+        [pageSize]="filter.pageSize"
+        (pageChange)="pageChange()"
+      >
+      </ngb-pagination>
+
+      <select
+        class="form-select form-select-sm"
+        style="width: auto"
+        [(ngModel)]="filter.pageSize"
+        (ngModelChange)="pageChange()"
+      >
+        <option [ngValue]="5">5</option>
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="20">20</option>
+        <option [ngValue]="50">50</option>
+        <option [ngValue]="100">100</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{ modalTitle }}</h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="mb-3">
+        <label class="form-label">Blog Kategori</label>
+        <dx-select-box
+          [(value)]="blog.blogCategoryId"
+          valueExprr="id"
+          displayExpr="name"
+          placeholder="Kategori seçiniz."
+          [dataSource]="blogCategories"
+        ></dx-select-box>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Başlık</label>
+        <dx-text-box [(value)]="blog.title"></dx-text-box>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Kısa Açıklama</label>
+        <dx-text-area [(value)]="blog.shortDefinition"></dx-text-area>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Açıklama</label>
+        <dx-html-editor [(value)]="blog.description">
+          <dxo-toolbar [multiline]="isMultiline">
+            <dxi-item name="undo"></dxi-item>
+            <dxi-item name="redo"></dxi-item>
+            <dxi-item name="separator"></dxi-item>
+            <dxi-item
+              name="size"
+              [acceptedValues]="[
+                '8pt',
+                '10pt',
+                '12pt',
+                '14pt',
+                '18pt',
+                '24pt',
+                '36pt'
+              ]"
+            ></dxi-item>
+            <dxi-item
+              name="font"
+              [acceptedValues]="[
+                'Arial',
+                'Courier New',
+                'Georgia',
+                'Impact',
+                'Lucida Console',
+                'Tahoma',
+                'Times New Roman',
+                'Verdana'
+              ]"
+            ></dxi-item>
+            <dxi-item name="separator"></dxi-item>
+            <dxi-item name="bold"></dxi-item>
+            <dxi-item name="italic"></dxi-item>
+            <dxi-item name="strike"></dxi-item>
+            <dxi-item name="underline"></dxi-item>
+            <dxi-item name="separator"></dxi-item>
+            <dxi-item name="alignLeft"></dxi-item>
+            <dxi-item name="alignCenter"></dxi-item>
+            <dxi-item name="alignRight"></dxi-item>
+            <dxi-item name="alignJustify"></dxi-item>
+            <dxi-item name="separator"></dxi-item>
+            <dxi-item name="orderedList"></dxi-item>
+            <dxi-item name="bulletList"></dxi-item>
+            <dxi-item name="separator"></dxi-item>
+            <dxi-item
+              name="header"
+              [acceptedValues]="[false, 1, 2, 3, 4, 5]"
+            ></dxi-item>
+            <dxi-item name="separator"></dxi-item>
+            <dxi-item name="color"></dxi-item>
+            <dxi-item name="background"></dxi-item>
+            <dxi-item name="separator"></dxi-item>
+            <dxi-item name="link"></dxi-item>
+            <dxi-item name="image"></dxi-item>
+            <dxi-item name="separator"></dxi-item>
+            <dxi-item name="clear"></dxi-item>
+            <dxi-item name="codeBlock"></dxi-item>
+            <dxi-item name="blockquote"></dxi-item>
+            <dxi-item name="separator"></dxi-item>
+            <dxi-item name="insertTable"></dxi-item>
+            <dxi-item name="deleteTable"></dxi-item>
+            <dxi-item name="insertRowAbove"></dxi-item>
+            <dxi-item name="insertRowBelow"></dxi-item>
+            <dxi-item name="deleteRow"></dxi-item>
+            <dxi-item name="insertColumnLeft"></dxi-item>
+            <dxi-item name="insertColumnRight"></dxi-item>
+            <dxi-item name="deleteColumn"></dxi-item>
+          </dxo-toolbar>
+          <dxo-media-resizing [enabled]="true"> </dxo-media-resizing>
+          <dxo-image-upload [tabs]="['file', 'url']" fileUploadMode="base64">
+          </dxo-image-upload>
+        </dx-html-editor>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="modal.close('Save click')"
+    >
+      Kapat
+    </button>
+    <button type="button" class="btn btn-primary" (click)="save()">
+      Kaydet
+    </button>
+  </div>
+</ng-template>

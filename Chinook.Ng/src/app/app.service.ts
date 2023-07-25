@@ -19,7 +19,7 @@ export class AppService {
     return currentUser.token;
   }
 
-  getApi(url) {
+  get(url) {
     return this.http.get(environment.apiUrl + url).toPromise();
   }
 

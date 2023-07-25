@@ -63,7 +63,7 @@ export class MenusComponent implements OnInit {
   }
 
   bindGrid() {
-    this.appService.getApi(Urls.Menu).then((res: any) => {
+    this.appService.get(Urls.Menu).then((res: any) => {
       this.data = res;
     });
   }

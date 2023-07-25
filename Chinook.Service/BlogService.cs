@@ -1,6 +1,8 @@
 ﻿using Chinook.Data.Repository;
 using Chinook.Model.Entities;
 using Chinook.Model.Models;
+using Chinook.Service.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,7 +14,8 @@ namespace Chinook.Service
 {
     public interface IBlogService
     {
-        IQueryable<Blog> GetAll();
+        IQueryable<Blog> Get();
+        PaginationModel<Blog> GetByFilter(BlogFilterModel model);
         List<Blog> GetAllByCategoryUrl(string categoryUrl);
         Task<Blog> GetById(int id);
         Task<ServiceResult> Post(BlogModel model);
@@ -23,13 +26,17 @@ namespace Chinook.Service
     public class BlogService : IBlogService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public BlogService(IUnitOfWork unitOfWork)
+        public BlogService(
+            IUnitOfWork unitOfWork,
+            IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public IQueryable<Blog> GetAll()
+        public IQueryable<Blog> Get()
         {
             return _unitOfWork.Repository<Blog>()
                 .GetAll(x => !x.Deleted)
@@ -50,11 +57,25 @@ namespace Chinook.Service
                 .Get(x => x.Id == id && !x.Deleted);
         }
 
+        public PaginationModel<Blog> GetByFilter(BlogFilterModel model)
+        {
+            var list = Get();
+
+            var result = new PaginationModel<Blog>
+            {
+                Count = list.Count(),
+                List = list.Skip((model.Page - 1) * model.PageSize).Take(model.PageSize).ToList()
+            };
+
+            return result;
+        }
+
         public async Task<ServiceResult> Post(BlogModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
+                var userId = _httpContextAccessor.HttpContext.User.UserId();
                 var entity = new Blog()
                 {
                     BlogCategoryId = model.BlogCategoryId,
@@ -62,7 +83,7 @@ namespace Chinook.Service
                     Description = model.Description,
                     ImageUrl = model.ImageUrl,
                     InsertDate = DateTime.Now,
-                    InsertedBy = AuthTokenContent.Current.UserId,
+                    InsertedBy = userId,
                     Published = model.Published,
                     IsActive = model.IsActive,
                     ReadCount = 0,
@@ -87,7 +108,10 @@ namespace Chinook.Service
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
+                var userId = _httpContextAccessor.HttpContext.User.UserId();
+
                 var blog = await GetById(model.Id);
+
                 if (blog != null)
                 {
                     blog.Title = model.Title;
@@ -99,7 +123,7 @@ namespace Chinook.Service
                     blog.Sequence = model.Sequence;
                     blog.ShortDefinition = model.ShortDefinition;
                     blog.UpdateDate = DateTime.Now;
-                    blog.UpdatedBy = AuthTokenContent.Current.UserId;
+                    blog.UpdatedBy = userId;
 
                     await _unitOfWork.SaveChanges();
                 }

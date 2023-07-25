@@ -16,4 +16,10 @@
     <ProjectReference Include="..\Chinook.Data\Chinook.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Extensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
 </Project>

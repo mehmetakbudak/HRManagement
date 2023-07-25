@@ -32,14 +32,14 @@ export class BlogCategoryComponent implements OnInit {
 
   getBlog() {
     this.appService
-      .getApi(`${Urls.Blog}/GetBlogsByCategoryUrl/${this.url}`)
+      .get(`${Urls.Blog}/GetBlogsByCategoryUrl/${this.url}`)
       .then((res: any) => {
         this.blogs = res.value;
       });
   }
 
   getBlogCategories() {
-    this.appService.getApi(`${Urls.Lookup}/BlogCategories`).then((res: any) => {
+    this.appService.get(`${Urls.Lookup}/BlogCategories`).then((res: any) => {
       this.blogCategories = res;
     });
   }

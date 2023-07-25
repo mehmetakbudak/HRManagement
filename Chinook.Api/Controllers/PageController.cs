@@ -16,7 +16,7 @@ namespace Chinook.Api.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var list = pageService.GetAll();
+            var list = pageService.Get();
             return Ok(list);
         }
     }

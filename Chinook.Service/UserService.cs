@@ -10,11 +10,14 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Chinook.Service.Extensions;
 
 namespace Chinook.Service
 {
     public interface IUserService
     {
+
         Task<ServiceResult> Authenticate(LoginModel model);
         string NewToken(string userId);
         Task<User> GetById(int id);
@@ -24,16 +27,18 @@ namespace Chinook.Service
 
     public class UserService : IUserService
     {
-        readonly IUnitOfWork unitOfWork;
-        readonly JwtModel jwt;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly JwtModel jwt;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UserService(
             IUnitOfWork unitOfWork,
-            IOptions<JwtModel> jwt)
+            IOptions<JwtModel> jwt,
+            IHttpContextAccessor httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
             this.jwt = jwt.Value;
-
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public string NewToken(string userId)
@@ -128,8 +133,10 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
+                var userId = _httpContextAccessor.HttpContext.User.UserId();
+
                 var user = await unitOfWork.Repository<User>()
-                    .Get(x => x.Id == AuthTokenContent.Current.UserId && x.Password == model.OldPassword);
+                    .Get(x => x.Id == userId && x.Password == model.OldPassword);
 
                 if (user != null && (model.NewPassword == model.ReNewPassword))
                 {
@@ -155,8 +162,10 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
+                var userId = _httpContextAccessor.HttpContext.User.UserId();
+
                 var user = await unitOfWork.Repository<User>()
-                    .Get(x => x.Id == AuthTokenContent.Current.UserId && x.IsActive && !x.Deleted);
+                    .Get(x => x.Id == userId && x.IsActive && !x.Deleted);
 
                 if (user != null)
                 {

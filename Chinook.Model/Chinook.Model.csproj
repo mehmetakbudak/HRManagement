@@ -4,4 +4,13 @@
     <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Consts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Consts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DevExtreme.AspNet.Data" Version="2.9.3" />
+  </ItemGroup>
 </Project>

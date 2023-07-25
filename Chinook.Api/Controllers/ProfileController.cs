@@ -2,6 +2,7 @@
 using Chinook.Model.Models;
 using Chinook.Service;
 using Chinook.Service.Attributes;
+using Chinook.Service.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -22,9 +23,9 @@ namespace Chinook.Api.Controllers
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> Get()
-        { 
-            var user = await userService.GetById(AuthTokenContent.Current.UserId);
-            
+        {
+            var user = await userService.GetById(User.UserId());
+
             if (user != null)
             {
                 var model = new UserModel
@@ -49,7 +50,7 @@ namespace Chinook.Api.Controllers
 
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> Put([FromBody]UserModel model)
+        public async Task<IActionResult> Put([FromBody] UserModel model)
         {
             try
             {

@@ -15,7 +15,7 @@ export class FrontendComponent implements OnInit {
 
   ngOnInit() {
     this.appService
-      .getApi(`${Urls.Menu}/GetType/${MenuType.FrontEnd}`)
+      .get(`${Urls.Menu}/GetType/${MenuType.FrontEnd}`)
       .then((res: any) => {
         this.items = res.items;
       });

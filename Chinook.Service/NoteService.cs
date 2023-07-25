@@ -1,6 +1,8 @@
 ﻿using Chinook.Data.Repository;
 using Chinook.Model.Entities;
 using Chinook.Model.Models;
+using Chinook.Service.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -11,7 +13,7 @@ namespace Chinook.Service
 {
     public interface INoteService
     {
-        IQueryable<NoteModel> GetAll();
+        IQueryable<NoteModel> Get();
         IQueryable<NoteModel> GetByCategoryId(int categoryId);
         Task<ServiceResult> Post(NoteModel model);
         Task<ServiceResult> Put(NoteModel model);
@@ -21,17 +23,23 @@ namespace Chinook.Service
 
     public class NoteService : INoteService
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public NoteService(IUnitOfWork unitOfWork)
+        public NoteService(
+            IUnitOfWork unitOfWork,
+            IHttpContextAccessor httpContextAccessor)
         {
-            this.unitOfWork = unitOfWork;
+            this._unitOfWork = unitOfWork;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public IQueryable<NoteModel> GetAll()
+        public IQueryable<NoteModel> Get()
         {
-            var list = unitOfWork.Repository<Note>()
-                .GetAll(x => !x.Deleted && x.NoteCategory.UserId == AuthTokenContent.Current.UserId)
+            var userId = _httpContextAccessor.HttpContext.User.UserId();
+
+            var list = _unitOfWork.Repository<Note>()
+                .GetAll(x => !x.Deleted && x.NoteCategory.UserId == userId)
                 .OrderByDescending(x => x.UpdateDate)
                 .Select(x => new NoteModel
                 {
@@ -46,8 +54,10 @@ namespace Chinook.Service
 
         public IQueryable<NoteModel> GetByCategoryId(int categoryId)
         {
-            var list = unitOfWork.Repository<Note>()
-                .GetAll(x => !x.Deleted && x.NoteCategoryId == categoryId && x.NoteCategory.UserId == AuthTokenContent.Current.UserId)
+            var userId = _httpContextAccessor.HttpContext.User.UserId();
+
+            var list = _unitOfWork.Repository<Note>()
+                .GetAll(x => !x.Deleted && x.NoteCategoryId == categoryId && x.NoteCategory.UserId == userId)
                 .OrderByDescending(x => x.UpdateDate)
                 .Select(x => new NoteModel
                 {
@@ -65,7 +75,10 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var category = unitOfWork.Repository<NoteCategory>().Get(x => x.Id == model.NoteCategoryId && x.UserId == AuthTokenContent.Current.UserId);
+                var userId = _httpContextAccessor.HttpContext.User.UserId();
+
+                var category = _unitOfWork.Repository<NoteCategory>()
+                    .Get(x => x.Id == model.NoteCategoryId && x.UserId == userId);
 
                 if (category != null)
                 {
@@ -78,8 +91,8 @@ namespace Chinook.Service
                         InsertDate = DateTime.Now,
                         Deleted = false
                     };
-                    await unitOfWork.Repository<Note>().Add(note);
-                    await unitOfWork.SaveChanges();
+                    await _unitOfWork.Repository<Note>().Add(note);
+                    await _unitOfWork.SaveChanges();
                 }
             }
             catch (Exception ex)
@@ -95,8 +108,10 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var note = await unitOfWork.Repository<Note>()
-                    .Get(x => x.Id == model.Id && x.NoteCategory.UserId == AuthTokenContent.Current.UserId);
+                var userId = _httpContextAccessor.HttpContext.User.UserId();
+
+                var note = await _unitOfWork.Repository<Note>()
+                    .Get(x => x.Id == model.Id && x.NoteCategory.UserId == userId);
 
                 if (note != null)
                 {
@@ -106,7 +121,7 @@ namespace Chinook.Service
                     note.UpdateDate = DateTime.Now;
                     note.Deleted = false;
 
-                    await unitOfWork.SaveChanges();
+                    await _unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -127,14 +142,16 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var note = await unitOfWork.Repository<Note>()
-                    .Get(x => x.Id == id && x.NoteCategory.UserId == AuthTokenContent.Current.UserId);
+                var userId = _httpContextAccessor.HttpContext.User.UserId();
+
+                var note = await _unitOfWork.Repository<Note>()
+                    .Get(x => x.Id == id && x.NoteCategory.UserId == userId);
 
                 if (note != null)
                 {
                     note.Deleted = true;
 
-                    await unitOfWork.SaveChanges();
+                    await _unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -155,15 +172,17 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var note = await unitOfWork.Repository<Note>()
-                    .Get(x => x.Id == model.Id && x.NoteCategory.UserId == AuthTokenContent.Current.UserId);
+                var userId = _httpContextAccessor.HttpContext.User.UserId();
+
+                var note = await _unitOfWork.Repository<Note>()
+                    .Get(x => x.Id == model.Id && x.NoteCategory.UserId == userId);
 
                 if (note != null)
                 {
                     note.NoteCategoryId = model.NoteCategoryId;
                     note.UpdateDate = DateTime.Now;
 
-                    await unitOfWork.SaveChanges();
+                    await _unitOfWork.SaveChanges();
                 }
                 else
                 {

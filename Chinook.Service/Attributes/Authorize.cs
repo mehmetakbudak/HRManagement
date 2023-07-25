@@ -71,13 +71,8 @@ namespace Chinook.Service.Attributes
                         }
                         if (user.TokenExpireDate.HasValue)
                         {
-                            AuthTokenContent authTokenContent = new AuthTokenContent();
-                            AuthTokenContent.Current = authTokenContent;
-
                             var tokenStartDate = user.TokenExpireDate.Value.AddHours(-2);
                             var tokenEndDate = user.TokenExpireDate.Value;
-
-                            AuthTokenContent.Current.UserId = user.Id;
 
                             if (!((tokenStartDate <= DateTime.Now) && (tokenEndDate >= DateTime.Now)))
                             {

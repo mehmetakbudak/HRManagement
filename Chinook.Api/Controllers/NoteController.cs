@@ -23,7 +23,7 @@ namespace Chinook.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var list = _noteService.GetAll();
+            var list = _noteService.Get();
             return Ok(list);
         }
 

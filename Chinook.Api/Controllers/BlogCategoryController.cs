@@ -1,16 +1,20 @@
-﻿using Chinook.Model.Helpers;
+﻿using Chinook.Api;
+using Chinook.Model.Helpers;
 using Chinook.Model.Models;
 using Chinook.Service;
 using Chinook.Service.Attributes;
+using DevExtreme.AspNet.Data;
+using Elfie.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Chinook.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BlogCategoryController : ControllerBase
+    public class BlogCategoryController : Controller
     {
         IBlogCategoryService blogCategoryService;
         public BlogCategoryController(IBlogCategoryService blogCategoryService)
@@ -19,18 +23,11 @@ namespace Chinook.Controllers
         }
 
         [HttpGet]
-        [Authorize]
-        public IActionResult Get()
+        //[Authorize]
+        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions)
         {
-            try
-            {
-                var result = blogCategoryService.GetAll();
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ServiceResult { Message = ex.Message });
-            }
+            var list = blogCategoryService.Get();
+            return Json(await DataSourceLoader.LoadAsync(list, loadOptions));
         }
 
         [HttpPost]

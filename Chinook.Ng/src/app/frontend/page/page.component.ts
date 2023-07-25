@@ -18,14 +18,14 @@ export class PageComponent implements OnInit {
   ngOnInit() {
     this.router.params.subscribe((params) => {
       const url = params["url"];
-      this.appService.getApi(Urls.Page).then((res: any) => {
+      this.appService.get(Urls.Page).then((res: any) => {
         const data = res.value[0];
         if (data) {
           this.page = data;
         }
         if (data.menuId) {
           this.appService
-            .getApi(`${Urls.Menu}/${data.menuId}`)
+            .get(`${Urls.Menu}/${data.menuId}`)
             .then((resMenu: any) => {
               this.menuName = resMenu.label;
               this.items = resMenu.items;

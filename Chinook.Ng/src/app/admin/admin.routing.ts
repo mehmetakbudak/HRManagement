@@ -8,6 +8,7 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
 import { ProfileComponent } from './profile/profile.component';
 import { MenusComponent } from './menus/menus.component';
 import { UsersComponent } from './users/users.component';
+import { BlogsComponent } from './blogs/blogs.component';
 
 export const AdminRoutes: Routes = [
   {
@@ -51,7 +52,8 @@ export const AdminRoutes: Routes = [
       },
       {
         path: "blogs",
-        loadChildren: () => import('./blogs/blog.module').then(m => m.BlogModule)
+        component: BlogsComponent,
+        canActivate: [AuthGuard]
       },
 
       // {

@@ -13,7 +13,7 @@ export class LookupService {
     if (name) {
       filterName = "contains(name,'" + name + "')&";
     }
-    return this.appService.getApi(
+    return this.appService.get(
       Urls.Lookup +
         "?$filter=type eq '" +
         Lookup[code] +

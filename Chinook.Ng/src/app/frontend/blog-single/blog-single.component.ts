@@ -17,7 +17,7 @@ export class BlogSingleComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe((params) => {
       this.id = params["id"];
-      this.appService.getApi(Urls.Blog).then((res: any) => {
+      this.appService.get(Urls.Blog).then((res: any) => {
         this.blog = res.value[0];
       });
     });

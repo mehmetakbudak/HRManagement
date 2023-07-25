@@ -24,7 +24,7 @@ namespace Chinook.Api.Controllers
         [Authorize]
         public IActionResult Get()
         {
-            var list = menuService.GetAll();
+            var list = menuService.Get();
             return Ok(list);
         }
 

@@ -46,58 +46,36 @@ export class ProfileComponent implements OnInit {
   }
 
   getProfile() {
-    this.appService.getApi(Urls.Profile).then((res: any) => {
+    this.appService.get(Urls.Profile).then((res: any) => {
       this.getCities(res.provinceId);
       this.user = res;
     });
   }
 
-  getProvinces(name?) {
-    let filterName = "";
-    if (name) {
-      filterName = "$filter=contains(label,'" + name + "')&";
-    }
-    this.appService.getApi(`${Urls.Lookup}/provinces`).then((res: any) => {
-      this.provinces = res.value;
+  getProvinces() {
+    this.appService.get(`${Urls.Lookup}/Provinces`).then((res: any) => {
+      this.provinces = res;
     });
   }
 
-  getCities(id, name?) {
-    let filterProvinceId = "";
-    let filterName = "";
-    if (id) {
-      filterProvinceId = "$filter=provinceId eq " + id + "";
-    }
-    if (name) {
-      filterName = " and contains(label,'" + name + "')&";
-    }
-    this.appService.getApi(`${Urls.Lookup}/cities`).then((res: any) => {
-      this.cities = res.value;
+  getCities(id) {
+    this.appService.get(`${Urls.Lookup}/Cities/${id}`).then((res: any) => {
+      this.cities = res;
     });
   }
 
   getTitle() {
-    this.lookupService.get(Lookup.Title).then((res) => {
-      this.titles = res.value;
+    this.appService.get(`${Urls.Lookup}/Titles`).then((res: any) => {
+      this.titles = res;
     });
   }
 
   selectProvince(e) {
     this.selectProvinceId = e.value;
-    this.getCities(e.value, this.selectCityName);
-  }
-
-  filterProvince(e) {
-    this.getProvinces(e);
-  }
-
-  filterCity(e) {
-    this.selectCityName = e;
-    this.getCities(this.selectProvinceId, e);
+    this.getCities(e.value);
   }
 
   save(e) {
-    e.preventDefault();
     this.appService.put(Urls.Profile, this.user).then(() => {
       notify(
         "Kullanıcı bilgileri başarıyla güncellendi.",

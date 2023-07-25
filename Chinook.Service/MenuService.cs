@@ -13,7 +13,7 @@ namespace Chinook.Service
 {
     public interface IMenuService
     {
-        List<MenuModel> GetAll();
+        List<MenuModel> Get();
         Task<MenuModel> GetById(int id);
         Task<MenuModel> GetByType(MenuType type);
         Task<ServiceResult> Post(MenuModel model);
@@ -23,18 +23,19 @@ namespace Chinook.Service
 
     public class MenuService : IMenuService
     {
-        readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
         public MenuService(IUnitOfWork unitOfWork)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
-        public List<MenuModel> GetAll()
+        public List<MenuModel> Get()
         {
-            var list = unitOfWork.Repository<Menu>()
+            var list = _unitOfWork.Repository<Menu>()
                 .GetAll(x => !x.Deleted)
                 .Include(a => a.MenuItems)
+                .AsEnumerable()
                 .Select(x => new MenuModel
                 {
                     Id = x.Id,
@@ -50,7 +51,7 @@ namespace Chinook.Service
 
         public async Task<MenuModel> GetById(int id)
         {
-            var menu = await unitOfWork.Repository<Menu>()
+            var menu = await _unitOfWork.Repository<Menu>()
                   .GetAll(x => !x.Deleted && x.Id == id)
                   .Include(a => a.MenuItems)
                   .Select(x => new MenuModel
@@ -69,7 +70,7 @@ namespace Chinook.Service
         {
             var model = new MenuModel();
 
-            var menu = await unitOfWork.Repository<Menu>()
+            var menu = await _unitOfWork.Repository<Menu>()
                   .GetAll(x => !x.Deleted && x.Type == type)
                   .Include(a => a.MenuItems)
                   .FirstOrDefaultAsync();
@@ -138,8 +139,8 @@ namespace Chinook.Service
                     Name = model.Label,
                     Type = MenuType.Other
                 };
-                await unitOfWork.Repository<Menu>().Add(entity);
-                await unitOfWork.SaveChanges();
+                await _unitOfWork.Repository<Menu>().Add(entity);
+                await _unitOfWork.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -154,7 +155,7 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var menu = await unitOfWork.Repository<Menu>().Get(x => x.Id == model.Id);
+                var menu = await _unitOfWork.Repository<Menu>().Get(x => x.Id == model.Id);
                 if (menu == null)
                 {
                     serviceResult.StatusCode = HttpStatusCode.NotFound;
@@ -165,7 +166,7 @@ namespace Chinook.Service
                 {
                     menu.Name = model.Label;
                     menu.IsActive = model.IsActive;
-                    await unitOfWork.SaveChanges();
+                    await _unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -187,7 +188,7 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var menu = await unitOfWork.Repository<Menu>()
+                var menu = await _unitOfWork.Repository<Menu>()
                     .GetAll(x => x.Id == id)
                     .Include(a => a.MenuItems)
                     .FirstOrDefaultAsync();
@@ -205,7 +206,7 @@ namespace Chinook.Service
                     {
                         menuItem.Deleted = true;
                     }
-                    await unitOfWork.SaveChanges();
+                    await _unitOfWork.SaveChanges();
                 }
                 else
                 {
