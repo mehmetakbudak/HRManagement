@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { AppService } from "src/app/app.service";
 import { Blog } from "src/app/models/blog";
 import { Urls } from "src/app/models/consts";
@@ -28,7 +27,7 @@ export class BlogsComponent implements OnInit {
 
   constructor(
     private appService: AppService,
-    private modalService: NgbModal,
+    // private modalService,
     private router: Router
   ) {}
 
@@ -70,12 +69,12 @@ export class BlogsComponent implements OnInit {
   add(content) {
     this.blog = new Blog();
     this.modalTitle = "Blog Ekle";
-    this.modalService.open(content, { size: "lg" });
+    // this.modalService.open(content, { size: "lg" });
   }
 
   edit(e, content) {
     this.modalTitle = "Blog Düzenle";
-    this.modalService.open(content, { size: "lg" });
+    // this.modalService.open(content, { size: "lg" });
   }
 
   save() {}

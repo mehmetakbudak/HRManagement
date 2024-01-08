@@ -6,6 +6,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 import { AppRoutes } from "./app.routing";
 import { JwtInterceptor } from "./helpers/jwt.interceptor";
 import { ErrorInterceptor } from "./helpers/error.interceptor";
+import { RouterModule } from '@angular/router';
 
 import { AppComponent } from "./app.component";
 import {
@@ -21,16 +22,14 @@ import {
 
 import { registerLocaleData } from "@angular/common";
 import localeTr from "@angular/common/locales/tr";
-import { RouterModule } from "@angular/router";
-import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
 registerLocaleData(localeTr);
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
-    BrowserModule.withServerTransition({ appId: "ng-cli-universal" }),
     HttpClientModule,
     FormsModule,
+    RouterModule.forRoot(AppRoutes),
     ReactiveFormsModule,
     BrowserAnimationsModule,
     DxMenuModule,
@@ -40,9 +39,7 @@ registerLocaleData(localeTr);
     DxLoadIndicatorModule,
     DxToolbarModule,
     DxButtonModule,
-    DxDropDownButtonModule,
-    NgbModule,
-    RouterModule.forRoot(AppRoutes, { relativeLinkResolution: "legacy" }),
+    DxDropDownButtonModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: "tr-TR" },
