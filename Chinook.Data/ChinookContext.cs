@@ -1,4 +1,4 @@
-﻿using Chinook.Model.Entities;
+﻿using Chinook.Storage.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.Data
@@ -25,6 +25,7 @@ namespace Chinook.Data
         public DbSet<AccessRightEndpoint> AccessRightEndpoints { get; set; }
         public DbSet<UserAccessRight> UserAccessRights { get; set; }
 
+        public DbSet<MenuItemAccessRight> MenuItemAccessRights { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Chinook.Model\Chinook.Model.csproj" />
+    <ProjectReference Include="..\Chinook.Storage\Chinook.Storage.csproj" />
   </ItemGroup>
 
 </Project>

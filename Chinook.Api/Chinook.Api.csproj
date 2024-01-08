@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Chinook.Service\Chinook.Service.csproj" />
+    <ProjectReference Include="..\Chinook.Storage\Chinook.Storage.csproj" />
   </ItemGroup>
 
 </Project>

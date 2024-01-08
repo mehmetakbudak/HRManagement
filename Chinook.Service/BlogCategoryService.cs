@@ -1,6 +1,6 @@
 ﻿using Chinook.Data.Repository;
-using Chinook.Model.Entities;
-using Chinook.Model.Models;
+using Chinook.Storage.Entities;
+using Chinook.Storage.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

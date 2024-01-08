@@ -14,12 +14,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Chinook.Data\Chinook.Data.csproj" />
+    <ProjectReference Include="..\Chinook.Storage\Chinook.Storage.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Extensions\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Extensions\" />
   </ItemGroup>
 </Project>

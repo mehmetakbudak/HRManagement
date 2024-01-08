@@ -1,4 +1,4 @@
-﻿using Chinook.Model.Entities;
+﻿using Chinook.Storage.Entities;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Threading.Tasks;
 

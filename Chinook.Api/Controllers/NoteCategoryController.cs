@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Chinook.Model.Helpers;
-using Chinook.Model.Models;
+using Chinook.Storage.Helpers;
+using Chinook.Storage.Models;
 using Chinook.Service;
 using Chinook.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;

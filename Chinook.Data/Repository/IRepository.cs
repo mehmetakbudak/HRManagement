@@ -1,4 +1,4 @@
-﻿using Chinook.Model.Entities;
+﻿using Chinook.Storage.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

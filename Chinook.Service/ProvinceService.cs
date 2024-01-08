@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Chinook.Data.Repository;
-using Chinook.Model.Entities;
+using Chinook.Storage.Entities;
 
 namespace Chinook.Service
 {

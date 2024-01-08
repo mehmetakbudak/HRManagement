@@ -1,4 +1,4 @@
-﻿using Chinook.Model.Models;
+﻿using Chinook.Storage.Models;
 using Chinook.Service;
 using Chinook.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;

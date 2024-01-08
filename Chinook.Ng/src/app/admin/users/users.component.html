@@ -1,0 +1,41 @@
+<div class="row mb-2">
+    <div class="col-md-6 col-6">
+        <h5>Kullanıcılar</h5>
+    </div>
+    <div class="col-md-6 col-6">
+        <button class="float-end btn btn-success btn-sm" (click)="add()">
+            <i class="dx-icon-plus"></i>
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <dx-data-grid [columnAutoWidth]="false" [dataSource]="dataSource" [remoteOperations]="true"
+            [rowAlternationEnabled]="true" [showBorders]="true" [showRowLines]="true" [showRowLines]="true" [allowColumnResizing]="true">
+            <dxo-paging [pageSize]="5"></dxo-paging>
+            <dxo-header-filter [visible]="true"></dxo-header-filter>
+            <dxo-scrolling columnRenderingMode="virtual" showScrollbar="always"></dxo-scrolling>
+            <dxi-column dataField="id" [width]="60" [allowFiltering]="false" [allowSorting]="false"
+                cellTemplate="cellTemplate" caption=""></dxi-column>
+            <dxo-filter-row [visible]="true"></dxo-filter-row>
+            <dxi-column dataField="firstName" [width]="200" caption="Adı"></dxi-column>
+            <dxi-column dataField="lastName" [width]="200" caption="Soyadı"></dxi-column>
+            <dxi-column dataField="email" [width]="200" caption="Email"></dxi-column>
+            <dxi-column dataField="phone" [width]="200" caption="Telefon"></dxi-column>
+            <dxi-column dataField="titleName" [width]="200" caption="Ünvanı"></dxi-column>
+            <dxi-column dataField="provinceName" [width]="200" caption="İl"></dxi-column>
+            <dxi-column dataField="cityName" [width]="200" caption="İlçe"></dxi-column>
+            <dxi-column dataField="reportedUserName" [width]="200" caption="Onaycı"></dxi-column>
+            <dxi-column dataField="hireDate" dataType="date" format="dd.MM.yyyy"
+                caption="İşe Başlama Tarihi" [width]="200"></dxi-column>
+            <dxi-column dataField="birthDate" dataType="date" format="dd.MM.yyyy" caption="Doğum Tarihi" [width]="200"></dxi-column>
+            <dxi-column dataField="isActive" caption="Aktif" [width]="200"></dxi-column>
+            <div *dxTemplate="let data of 'cellTemplate'">
+                <dx-drop-down-button (onSelectionChanged)="onSelectBlogCategory($event, data)" stylingMode="text"
+                    [items]="settings" icon="preferences" displayExpr="text" keyExpr="value"
+                    [dropDownOptions]="{ width: '100px' }"></dx-drop-down-button>
+            </div>
+        </dx-data-grid>
+    </div>
+</div>

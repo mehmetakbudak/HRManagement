@@ -7,8 +7,8 @@ import {
 import { ConfirmService } from "../../services/confirm.service";
 import { AppService } from "../../app.service";
 import { Urls } from "src/app/models/consts";
-import { createStore } from 'devextreme-aspnet-data-nojquery';
-import CustomStore from 'devextreme/data/custom_store';
+import { createStore } from "devextreme-aspnet-data-nojquery";
+import CustomStore from "devextreme/data/custom_store";
 import { environment } from "src/environments/environment";
 
 export class BlogCategory {
@@ -64,13 +64,17 @@ export class BlogCategoriesComponent implements OnInit {
     this.title = "Yeni Blog Kategori Ekle";
   }
 
-  onSelectBlogCategory(e, c) {
-    if (e.item.value === "edit") {
+  onItemClick(e, c) {
+    console.log(c);
+    
+    if (e.itemData.value === "edit") {
       this.isVisible = true;
       this.title = "Blog Kategori Düzenle";
       this.blogCategory = c.data;
-    } else if (e.item.value === "delete") {
+    } else if (e.itemData.value === "delete") {
       this.confirmService.delete().then((res: boolean) => {
+        console.log(res);
+        
         if (res) {
           this.appService.delete(Urls.BlogCategory, c.data.id).then(() => {
             this.alertService.showDefaultMessage(

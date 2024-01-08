@@ -1,187 +1,70 @@
 <div class="row mb-2">
-    <div class="col-md-6 col-6">
-        <h5>Menüler</h5>
-    </div>
-    <div class="col-md-6 col-6">
-        <button class="float-right btn btn-success btn-sm" (click)="addMenu()">
-      <i class="k-icon k-i-plus"></i> Yeni
+  <div class="col-md-6 col-6">
+    <h5>Menüler</h5>
+  </div>
+  <div class="col-md-6 col-6">
+    <button class="float-end btn btn-success btn-sm" (click)="addMenu()">
+      <i class="dx-icon-plus"></i>
     </button>
-    </div>
+  </div>
 </div>
 
 <div class="row">
-    <div class="col-12">
-        <!-- <kendo-grid
-      [loading]="loading"
-      [kendoGridBinding]="data"
-      [pageSize]="5"
-      [pageable]="true"
-      [filterable]="true"
-      [navigable]="true"
-      [scrollable]="true"
-    >
-      <kendo-grid-command-column width="70">
-        <ng-template kendoGridCellTemplate let-item>
-          <kendo-dropdownbutton
-            class="border-dark"
-            (itemClick)="onMenuClick($event, item)"
-            [data]="menuSettings"
-            icon="more-vertical"
-          ></kendo-dropdownbutton>
-        </ng-template>
-      </kendo-grid-command-column>
-      <kendo-grid-column
-        field="name"
-        title="Adı"
-        width="250"
-      ></kendo-grid-column>
-      <kendo-grid-column
-        field="isDeletable"
-        title="Silinebilir mi?"
-        width="150"
-      >
-        <ng-template kendoGridCellTemplate let-dataItem>
-          <input type="checkbox" [checked]="dataItem.isDeletable" disabled />
-          <span class="pl-2">{{
-            dataItem.isDeletable ? "Evet" : "Hayır"
-          }}</span>
-        </ng-template>
-      </kendo-grid-column>
-      <kendo-grid-column field="isActive" title="Aktif mi?" width="150">
-        <ng-template kendoGridCellTemplate let-dataItem>
-          <input type="checkbox" [checked]="dataItem.isActive" disabled />
-          <span class="pl-2">{{ dataItem.isActive ? "Evet" : "Hayır" }}</span>
-        </ng-template>
-      </kendo-grid-column>
-      <div *kendoGridDetailTemplate="let dataItem">
-        <div class="bg-white border">
-          <div class="border-bottom p-1">
-            <div class="row">
-              <div class="col-8">
-                <h5 class="mt-1 mb-1 pl-1">{{ dataItem.name }} Elemanları</h5>
-              </div>
-              <div class="col-4">
-                <button
-                  type="button"
-                  class="btn btn-success btn-sm float-right mt-1 mb-1"
-                  (click)="addMenuItem()"
-                >
-                  <i class="k-icon k-i-plus"></i> Yeni
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="p-2">
-            <p *ngIf="dataItem.items.length == 0">
-              Kayıt bulunamadı.
-            </p>
+  <div class="col-12">
+    <dx-data-grid [columnAutoWidth]="false" [dataSource]="dataSource" [remoteOperations]="true"
+      [rowAlternationEnabled]="true" [showBorders]="true" [showRowLines]="true" [showRowLines]="true"
+      [allowColumnResizing]="true">
+      <dxo-paging [pageSize]="5"></dxo-paging>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-scrolling columnRenderingMode="virtual" showScrollbar="always"></dxo-scrolling>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxi-column [width]="60" [allowFiltering]="false" [allowSorting]="false" cellTemplate="cellTemplate"
+        caption=""></dxi-column>
+      <dxi-column dataField="id" [visible]="false" sortOrder="desc"></dxi-column>
+      <dxi-column dataField="label" [minWidth]="200" caption="Adı"></dxi-column>
+      <dxi-column dataField="isActive" [width]="200" caption="Aktif"></dxi-column>
+      <dxi-column dataField="isDeletable" [width]="200" caption="Silinebilir"></dxi-column>
+      <div *dxTemplate="let data of 'cellTemplate'">
+        <dx-drop-down-button (onItemClick)="onItemClick($event, data)" stylingMode="text" [items]="settings"
+          icon="preferences" displayExpr="text" keyExpr="value"
+          [dropDownOptions]="{ width: '150px' }"></dx-drop-down-button>
+      </div>
+    </dx-data-grid>
+  </div>
+</div>
 
-            <kendo-treeview
-              [nodes]="dataItem.items"
-              textField="name"
-              kendoTreeViewExpandable
-              kendoTreeViewSelectable
-              kendoTreeViewHierarchyBinding
-              childrenField="items"
-            >
-              <ng-template kendoTreeViewNodeTemplate let-dataItem>
-                <div>
-                  <kendo-dropdownbutton
-                    class="mr-0"
-                    (itemClick)="onMenuItemClick($event, dataItem)"
-                    [data]="menuItemSettings"
-                    icon="more-vertical"
-                  >
-                  </kendo-dropdownbutton>
-                  <span class="ml-2"> {{ dataItem.name }}</span>
-                </div>
-              </ng-template>
-            </kendo-treeview>
-          </div>
+<dx-popup [(visible)]="isVisibleMenu" [(title)]="titleMenu" [(width)]="screenWidth" height="auto">
+  <dx-scroll-view>
+    <form (submit)="save($event)">
+      <div class="mb-3">
+        <label class="form-label">Adı</label>
+        <dx-text-box [(value)]="menu.label">
+          <dx-validator>
+            <dxi-validation-rule type="required" message="Adı gereklidir."></dxi-validation-rule>
+          </dx-validator>
+        </dx-text-box>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Aktif</label>
+        <dx-switch [(value)]="menu.isActive" switchedOnText="Aktif" switchedOffText="Pasif" width="60"></dx-switch>
+      </div>
+      <dx-button class="float-end ms-2" [useSubmitBehavior]="true" text="Kaydet" type="default"></dx-button>
+      <dx-button class="float-end" (click)="isVisibleMenu = false" text="Kapat"></dx-button>
+    </form>
+
+  </dx-scroll-view>
+</dx-popup>
+
+<dx-popup [visible]="isVisibleMenuItems" [(title)]="titleMenuItems" [(width)]="screenWidth" height="auto">
+  <div class="mb-3">
+    <dx-tree-view [dataSource]="items" keyExpr="path" selectionMode="single" width="100%" [selectNodesRecursive]="true">
+      <div class="pb-1" *dxTemplate="let item of 'item'">
+        <div class="text-dark">
+          <i class="dx-icon-edit"></i>
+          {{ item.name }}
         </div>
       </div>
-    </kendo-grid> -->
-    </div>
-</div>
-<!--
-<kendo-dialog
-  [title]="titleMenu"
-  *ngIf="isMenuVisible"
-  (close)="isMenuVisible = false"
-  [width]="this.screenWidth < 768 ? this.screenWidth : 450"
->
-  <div class="row">
-    <div class="col-12">
-      <form class="k-form" [formGroup]="formMenu">
-        <kendo-formfield>
-          <kendo-label text="Adı"></kendo-label>
-          <input formControlName="name" kendoTextBox required maxlength="100" />
-          <kendo-formerror>Menü adı zorunludur!</kendo-formerror>
-        </kendo-formfield>
-        <kendo-formfield>
-          <kendo-label text="Aktif"></kendo-label>
-          <kendo-switch formControlName="isActive"></kendo-switch>
-          <kendo-formerror>Menü adı zorunludur!</kendo-formerror>
-        </kendo-formfield>
-      </form>
-    </div>
+    </dx-tree-view>
   </div>
-
-  <kendo-dialog-actions layout="normal">
-    <button kendoButton (click)="isMenuVisible = false">İptal</button>
-    <button kendoButton (click)="saveMenu()" primary="true">Kaydet</button>
-  </kendo-dialog-actions>
-</kendo-dialog>
-
-<kendo-dialog
-  [title]="titleMenuItem"
-  *ngIf="isMenuItemVisible"
-  (close)="isCategoryVisible = false"
-  [width]="this.screenWidth < 768 ? this.screenWidth : 450"
->
-  <div class="row">
-    <div class="col-12">
-      <form class="k-form" [formGroup]="formMenuItem">
-        <button #anchor (click)="onToggle()" class="k-button">
-          {{ toggleText }} Popup
-        </button>
-        <kendo-popup
-          [anchor]="anchor"
-          (anchorViewportLeave)="show = false"
-          *ngIf="show"
-        >
-          <div class="content">
-            <kendo-treeview
-              [nodes]="dataItem.items"
-              textField="name"
-              kendoTreeViewExpandable
-              kendoTreeViewSelectable
-              kendoTreeViewHierarchyBinding
-              childrenField="items"
-            >
-            </kendo-treeview>
-          </div>
-        </kendo-popup>
-
-        <kendo-formfield>
-          <kendo-label text="Adı"></kendo-label>
-          <input formControlName="name" kendoTextBox required maxlength="100" />
-          <kendo-formerror>Menü adı zorunludur!</kendo-formerror>
-        </kendo-formfield>
-        <kendo-formfield>
-          <kendo-label text="Url"></kendo-label>
-          <input formControlName="url" kendoTextBox maxlength="500" />
-        </kendo-formfield>
-        <kendo-formfield>
-          <kendo-label text="Aktif"></kendo-label>
-          <kendo-switch formControlName="isActive"></kendo-switch>
-          <kendo-formerror>Menü adı zorunludur!</kendo-formerror>
-        </kendo-formfield>
-      </form>
-    </div>
-  </div>
-  <kendo-dialog-actions layout="normal">
-    <button kendoButton (click)="isMenuItemVisible = false">İptal</button>
-    <button kendoButton (click)="saveMenuItem()" primary="true">Kaydet</button>
-  </kendo-dialog-actions>
-</kendo-dialog> -->
+  <dx-button class="float-end" (click)="isVisibleMenuItems = false" text="Kapat"></dx-button>
+</dx-popup>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Claims;
-using Chinook.Model.Consts;
+using Chinook.Storage.Consts;
 
 namespace Chinook.Service.Extensions
 {

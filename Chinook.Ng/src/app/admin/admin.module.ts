@@ -32,9 +32,11 @@ import {
   DxPopupModule,
   DxHtmlEditorModule,
   DxValidationGroupModule,
+  DxScrollViewModule
 } from "devextreme-angular";
 import { BlogsComponent } from "./blogs/blogs.component";
 import { NgbDropdownModule, NgbModalModule, NgbModule, NgbPaginationModule } from "@ng-bootstrap/ng-bootstrap";
+import { PagesComponent } from "./pages/pages.component";
 
 @NgModule({
   imports: [
@@ -57,6 +59,7 @@ import { NgbDropdownModule, NgbModalModule, NgbModule, NgbPaginationModule } fro
     DxDataGridModule,
     DxPopupModule,
     DxHtmlEditorModule,
+    DxScrollViewModule,
     NgbModule,
     NgbPaginationModule,
     NgbModalModule,
@@ -72,7 +75,8 @@ import { NgbDropdownModule, NgbModalModule, NgbModule, NgbPaginationModule } fro
     ProfileComponent,
     MenusComponent,
     UsersComponent,
-    BlogsComponent
+    BlogsComponent,
+    PagesComponent
   ],
   providers: [AlertService, ConfirmService],
 })

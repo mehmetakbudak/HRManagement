@@ -3,7 +3,7 @@ using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text;
-using Chinook.Model.Models;
+using Chinook.Storage.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;

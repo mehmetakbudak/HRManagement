@@ -1,3 +1,5 @@
+@import "primeicons/primeicons.css";
+
 @media (min-width: 768px) {}
 
 .dx-widget {
@@ -19,4 +21,8 @@
 
 .cursor-pointer {
   cursor: pointer !important;
+}
+
+.dx-toolbar-before{
+  width: 100% !important;
 }

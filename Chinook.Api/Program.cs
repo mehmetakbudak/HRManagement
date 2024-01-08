@@ -1,6 +1,6 @@
 using Chinook.Data.Repository;
 using Chinook.Data;
-using Chinook.Model.Models;
+using Chinook.Storage.Models;
 using Chinook.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Microsoft.IdentityModel.Tokens;
+using Chinook.Service.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,6 +78,7 @@ app.UseCors(options => options.WithOrigins(corsDomains)
                               .AllowCredentials()
                               .AllowAnyHeader());
 app.UseRouting();
+app.ErrorHandler();
 app.UseAuthentication();
 app.UseAuthorization();
 

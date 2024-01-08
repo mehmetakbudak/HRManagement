@@ -1,6 +1,6 @@
 ﻿using Chinook.Data.Repository;
-using Chinook.Model.Entities;
-using Chinook.Model.Models;
+using Chinook.Storage.Entities;
+using Chinook.Storage.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,10 +12,9 @@ namespace Chinook.Service
 {
     public interface IMenuItemService
     {
+        List<MenuItemModel> GetByMenuId(int id);
         Task<ServiceResult> Post(MenuItemModel model);
-        Task<ServiceResult> Put(MenuItemModel model);
-        ServiceResult Up(int id);
-        ServiceResult Down(int id);
+        Task<ServiceResult> Put(MenuItemModel model);        
         ServiceResult Delete(int id);
     }
 
@@ -26,6 +25,11 @@ namespace Chinook.Service
         public MenuItemService(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
+        }
+
+        public List<MenuItemModel> GetByMenuId(int id)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<ServiceResult> Post(MenuItemModel model)
@@ -104,36 +108,6 @@ namespace Chinook.Service
                 serviceResult.Message = ex.Message;
             }
             return serviceResult;
-        }
-
-        public ServiceResult Up(int id)
-        {
-            var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-                serviceResult.StatusCode = HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
-            }
-            return serviceResult;
-        }
-
-        public ServiceResult Down(int id)
-        {
-            var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-                serviceResult.StatusCode = HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
-            }
-            return serviceResult;
-        }
+        }               
     }
 }

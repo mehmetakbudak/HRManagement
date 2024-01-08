@@ -1,7 +1,7 @@
 ﻿using Chinook.Data.Repository;
-using Chinook.Model.Entities;
-using Chinook.Model.Enums;
-using Chinook.Model.Models;
+using Chinook.Storage.Entities;
+using Chinook.Storage.Enums;
+using Chinook.Storage.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,9 +13,10 @@ namespace Chinook.Service
 {
     public interface IMenuService
     {
-        List<MenuModel> Get();
+        IQueryable<MenuModel> Get();
         Task<MenuModel> GetById(int id);
-        Task<MenuModel> GetByType(MenuType type);
+        Task<MenuTreeModel> GetByType(MenuType type);
+        Task<List<LookupModel>> GetByLookup();
         Task<ServiceResult> Post(MenuModel model);
         Task<ServiceResult> Put(MenuModel model);
         Task<ServiceResult> Delete(int id);
@@ -30,12 +31,10 @@ namespace Chinook.Service
             _unitOfWork = unitOfWork;
         }
 
-        public List<MenuModel> Get()
+        public IQueryable<MenuModel> Get()
         {
             var list = _unitOfWork.Repository<Menu>()
                 .GetAll(x => !x.Deleted)
-                .Include(a => a.MenuItems)
-                .AsEnumerable()
                 .Select(x => new MenuModel
                 {
                     Id = x.Id,
@@ -43,8 +42,7 @@ namespace Chinook.Service
                     Type = x.Type,
                     IsActive = x.IsActive,
                     IsDeletable = x.IsDeletable,
-                    Items = GetSubMenu(x.MenuItems, x.Id, null)
-                }).ToList();
+                }).OrderByDescending(x => x.Id).AsQueryable();
 
             return list;
         }
@@ -61,14 +59,13 @@ namespace Chinook.Service
                       Type = x.Type,
                       IsActive = x.IsActive,
                       IsDeletable = x.IsDeletable,
-                      Items = GetSubMenu(x.MenuItems, x.Id, null)
                   }).FirstOrDefaultAsync();
             return menu;
         }
 
-        public async Task<MenuModel> GetByType(MenuType type)
+        public async Task<MenuTreeModel> GetByType(MenuType type)
         {
-            var model = new MenuModel();
+            var model = new MenuTreeModel();
 
             var menu = await _unitOfWork.Repository<Menu>()
                   .GetAll(x => !x.Deleted && x.Type == type)
@@ -126,6 +123,17 @@ namespace Chinook.Service
             return list;
         }
 
+        public async Task<List<LookupModel>> GetByLookup()
+        {
+            return await _unitOfWork.Repository<Menu>().GetAll(x => x.IsActive && !x.Deleted)
+                .Select(a => new LookupModel
+                {
+                    Id = a.Id,
+                    Name = a.Name
+                }).ToListAsync();
+        }
+
+
         public async Task<ServiceResult> Post(MenuModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
@@ -134,7 +142,7 @@ namespace Chinook.Service
                 var entity = new Menu
                 {
                     Deleted = false,
-                    IsActive = true,
+                    IsActive = model.IsActive,
                     IsDeletable = true,
                     Name = model.Label,
                     Type = MenuType.Other

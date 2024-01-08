@@ -5,9 +5,12 @@ import {
   alertType,
   defaultMessageType,
 } from "src/app/services/alert.service";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { ConfirmService } from "src/app/services/confirm.service";
 import { Urls } from "src/app/models/consts";
+import CustomStore from "devextreme/data/custom_store";
+import { createStore } from "devextreme-aspnet-data-nojquery";
+import { environment } from "src/environments/environment";
+import { Menu } from "src/app/models/menu";
 
 @Component({
   selector: "app-menus",
@@ -15,28 +18,15 @@ import { Urls } from "src/app/models/consts";
   styleUrls: ["./menus.component.css"],
 })
 export class MenusComponent implements OnInit {
-  menuSettings = [
-    { text: "Düzenle", value: "edit" },
-    { text: "Sil", value: "delete" },
-  ];
-  menuItemSettings = [
-    { text: "Alt Menü Elemanı Ekle", value: "addSubMenuItem" },
-    { text: "Yukarı Taşı", value: "up" },
-    { text: "Aşağı Taşı", value: "down" },
-    { text: "Düzenle", value: "edit" },
-    { text: "Sil", value: "delete" },
-  ];
-  loading = false;
-  screenWidth = screen.width;
-  data;
-  titleMenu;
-  titleMenuItem;
-  isMenuVisible;
-  isMenuItemVisible;
-  formMenu: FormGroup;
-  formMenuItem: FormGroup;
-  toggleText: string = "Hide";
-  show: boolean = false;
+  settings = [];
+  items = [];
+  menu: Menu = new Menu();
+  screenWidth = "40vw";
+  dataSource: CustomStore;
+  isVisibleMenu: boolean = false;
+  isVisibleMenuItems: boolean = false;
+  titleMenu: string;
+  titleMenuItems: string;
 
   constructor(
     private appService: AppService,
@@ -45,109 +35,83 @@ export class MenusComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.settings = [
+      ...this.appService.settingEditDelete(),
+      { text: "Menü Elemanları", value: "menuItems" },
+    ];
     this.bindGrid();
-    this.formMenu = new FormGroup({
-      id: new FormControl(0),
-      type: new FormControl(),
-      name: new FormControl(null, Validators.required),
-      isActive: new FormControl(true),
-      isDeletable: new FormControl(),
-      items: new FormControl(),
-    });
-    this.formMenuItem = new FormGroup({
-      id: new FormControl(0),
-      name: new FormControl(null, Validators.required),
-      url: new FormControl(),
-      isActive: new FormControl(true),
-    });
+    if (screen.width < 768) {
+      this.screenWidth = "90vw";
+    }
   }
 
   bindGrid() {
-    this.appService.get(Urls.Menu).then((res: any) => {
-      this.data = res;
+    var token = this.appService.getToken();
+    this.dataSource = createStore({
+      key: "id",
+      loadUrl: `${environment.apiUrl}${Urls.Menu}`,
+      onBeforeSend(method, ajaxOptions) {
+        ajaxOptions.xhrFields = { withCredentials: true };
+        ajaxOptions.headers = {
+          Authorization: `Bearer ${token}`,
+        };
+      },
+    });
+  }
+
+  getById(id) {
+    this.appService.get(`${Urls.Menu}/${id}`).then((res: Menu) => {
+      this.menu = res;
+    });
+  }
+
+  getMenuByType(type) {
+    this.appService.get(`${Urls.Menu}/gettype/${type}`).then((res: any) => {
+      this.items = res.items;
     });
   }
 
   addMenu() {
-    this.isMenuVisible = true;
+    this.menu = new Menu();
+    this.items = [];
+    this.isVisibleMenu = true;
     this.titleMenu = "Yeni Menü Ekle";
   }
 
   addMenuItem() {
-    this.isMenuItemVisible = true;
-    this.titleMenuItem = "Yeni Menü Elemanı Ekle";
+    this.isVisibleMenu = true;
+    this.titleMenu = "Yeni Menü Elemanı Ekle";
   }
 
-  saveMenu() {
-    this.formMenu.markAllAsTouched();
-    if (this.formMenu.valid) {
-      if (this.formMenu.value.id) {
-        this.appService.put(Urls.Menu, this.formMenu.value).then(
-          (res) => {
-            this.bindGrid();
-            this.isMenuVisible = false;
-            this.alertService.showDefaultMessage(
-              defaultMessageType.update,
-              alertType.success
-            );
-          },
-          (error) => {
-            this.isMenuVisible = false;
-            this.alertService.showMessage(error, alertType.error);
-          }
-        );
-      } else {
-        this.appService.post(Urls.Menu, this.formMenu.value).then(
-          (res) => {
-            this.bindGrid();
-            this.isMenuVisible = false;
-            this.alertService.showDefaultMessage(
-              defaultMessageType.save,
-              alertType.success
-            );
-          },
-          (error) => {
-            this.isMenuVisible = false;
-            this.alertService.showMessage(error, alertType.error);
-          }
-        );
-      }
+  save(e) {
+    e.preventDefault();
+    if (this.menu.id == 0) {
+      this.appService.post(`${Urls.Menu}`, this.menu).then((res) => {
+        this.bindGrid();
+        this.isVisibleMenu = false;
+      });
+    } else {
+      this.appService.put(`${Urls.Menu}`, this.menu).then((res) => {
+        this.bindGrid();
+        this.isVisibleMenu = false;
+      });
     }
   }
 
-  saveMenuItem() {}
-
-  onMenuClick(e, c) {
-    if (e.value == "edit") {
-      this.isMenuVisible = true;
-      this.formMenu.setValue(c);
-    } else if (e.value == "delete") {
-      if (!c.isDeletable) {
+  onItemClick(e, c) {
+    if (e.itemData.value === "edit") {
+      this.isVisibleMenu = true;
+      this.titleMenu = "Menü Düzenle";
+      this.getById(c.data.id);
+    } else if (e.itemData.value === "delete") {
+      if (!c.data.isDeletable) {
         this.alertService.showMessage("Bu menü silinemez!", alertType.error);
         return;
       }
-      // this.confirmService.delete().subscribe((x: any) => {
-      //   if (x.primary) {
-      //     this.appService.delete(this.appService.menu, c.id).then(res => {
-      //       this.bindGrid();
-      //       this.alertService.showDefaultMessage(defaultMessageType.delete, alertType.success);
-      //     });
-      //   }
-      // });
+    } else if (e.itemData.value === "menuItems") {
+      this.titleMenuItems = "Menü Elemanları";
+      this.isVisibleMenuItems = true;
+      this.getMenuByType(c.data.type);
     }
-  }
-
-  onMenuItemClick(e, c) {
-    if (e.value == "edit") {
-      console.log(c);
-    } else if (e.value == "delete") {
-    } else if (e.value == "up") {
-    } else if (e.value == "down") {
-    }
-  }
-
-  public onToggle(): void {
-    this.show = !this.show;
-    this.toggleText = this.show ? "Hidе" : "Show";
   }
 }

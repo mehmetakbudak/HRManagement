@@ -1,14 +1,15 @@
-import { Routes } from '@angular/router';
-import { NotesComponent } from './notes/notes.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { AuthGuard } from '../helpers/auth.guard';
-import { AdminComponent } from './admin/admin.component';
-import { BlogCategoriesComponent } from './blog-categories/blog-categories.component';
-import { ChangePasswordComponent } from './change-password/change-password.component';
-import { ProfileComponent } from './profile/profile.component';
-import { MenusComponent } from './menus/menus.component';
-import { UsersComponent } from './users/users.component';
-import { BlogsComponent } from './blogs/blogs.component';
+import { Routes } from "@angular/router";
+import { NotesComponent } from "./notes/notes.component";
+import { DashboardComponent } from "./dashboard/dashboard.component";
+import { AuthGuard } from "../helpers/auth.guard";
+import { AdminComponent } from "./admin/admin.component";
+import { BlogCategoriesComponent } from "./blog-categories/blog-categories.component";
+import { ChangePasswordComponent } from "./change-password/change-password.component";
+import { ProfileComponent } from "./profile/profile.component";
+import { MenusComponent } from "./menus/menus.component";
+import { UsersComponent } from "./users/users.component";
+import { BlogsComponent } from "./blogs/blogs.component";
+import { PagesComponent } from "./pages/pages.component";
 
 export const AdminRoutes: Routes = [
   {
@@ -23,43 +24,47 @@ export const AdminRoutes: Routes = [
       {
         path: "notes",
         component: NotesComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
       },
       {
         path: "blog-categories",
         component: BlogCategoriesComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
       },
       {
         path: "change-password",
         component: ChangePasswordComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
       },
       {
         path: "profile",
         component: ProfileComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
       },
       {
         path: "menus",
         component: MenusComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
       },
       {
         path: "users",
         component: UsersComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
       },
       {
         path: "blogs",
         component: BlogsComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
       },
-
+      {
+        path: "pages",
+        component: PagesComponent,
+        canActivate: [AuthGuard],
+      },
       // {
       //   path: '**',
       //   redirectTo: ""
       // }
-    ]
-  }
+    ],
+  },
 ];

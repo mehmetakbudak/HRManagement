@@ -15,6 +15,7 @@
       id="gridContainer"
       [dataSource]="dataSource"
       [remoteOperations]="true"
+      [rowAlternationEnabled]="true"
       [showBorders]="true"
       [showRowLines]="true"
       [showRowLines]="true"
@@ -35,7 +36,7 @@
       <dxi-column dataField="isActive" caption="Aktif"></dxi-column>
       <div *dxTemplate="let data of 'cellTemplate'">
         <dx-drop-down-button
-          (onSelectionChanged)="onSelectBlogCategory($event, data)"
+          (onItemClick)="onItemClick($event, data)"
           stylingMode="text"
           [items]="settings"
           icon="preferences"

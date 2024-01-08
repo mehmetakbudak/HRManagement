@@ -1,23 +1,32 @@
 ﻿using Chinook.Service;
+using DevExtreme.AspNet.Data;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Chinook.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PageController : ControllerBase
+    public class PageController : Controller
     {
-        private readonly IPageService pageService;
+        private readonly IPageService _pageService;
         public PageController(IPageService pageService)
         {
-            this.pageService = pageService;
+            _pageService = pageService;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions)
         {
-            var list = pageService.Get();
-            return Ok(list);
+            var list = _pageService.Get();
+            return Json(await DataSourceLoader.LoadAsync(list, loadOptions));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            var result = await _pageService.GetById(id);
+            return Ok(result);
         }
     }
 }
