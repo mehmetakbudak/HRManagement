@@ -24,8 +24,8 @@ namespace Chinook.Storage.Models
     public class MenuItemModel : BaseModel
     {
         public int? ParentId { get; set; }
-        public string Name { get; set; }
-        public string Url { get; set; }
+        public string Label { get; set; }
+        public string RouterLink { get; set; }
         public bool IsActive { get; set; }
         public int MenuId { get; set; }
         public int Order { get; set; }
