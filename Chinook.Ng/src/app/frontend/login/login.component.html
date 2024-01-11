@@ -2,43 +2,23 @@
   <div class="col-12 col-md-4 offset-md-4">
     <div class="card shadow">
       <div class="card-header bg-white py-3">
-        <h5>Giriş Yap</h5>
+        <h4>Giriş Yap</h4>
       </div>
       <div class="card-body">
-        <dx-validation-group>
+        <form class="my-3">
           <div class="mb-4">
-            <label>Email Adresi</label>
-            <dx-text-box mode="email" [(value)]="login.emailAddress">
-              <dx-validator>
-                <dxi-validation-rule
-                  type="required"
-                  message="Email adresinizi giriniz."
-                ></dxi-validation-rule>
-              </dx-validator>
-            </dx-text-box>
+            <label class="pb-2">Email Address</label>
+            <input class="w-100" pInputText placeholder="Email Address" [(ngModel)]="login.emailAddress">
           </div>
           <div class="mb-4">
-            <label>Şifre</label>
-            <dx-text-box mode="password" [(value)]="login.password">
-              <dx-validator>
-                <dxi-validation-rule
-                  type="required"
-                  message="Şifrenizi giriniz."
-                ></dxi-validation-rule>
-              </dx-validator>
-            </dx-text-box>
+            <label class="pb-2">Password</label>
+            <input class="w-100" placeholder="Password" pInputText [(ngModel)]="login.password">
           </div>
           <div class="mb-4">
             <!-- <a class="float-start text-decoration-none cursor-pointer" (click)="goTo()">Şifremi Unuttum</a> -->
-            <dx-button
-              class="float-end ms-2"
-              [useSubmitBehavior]="true"
-              text="Giriş Yap"
-              type="default"
-              (onClick)="save($event)"
-            ></dx-button>
+            <p-button class="float-end ms-2" label="Giriş Yap" type="default" (click)="save($event)"></p-button>
           </div>
-        </dx-validation-group>
+        </form>
       </div>
     </div>
   </div>

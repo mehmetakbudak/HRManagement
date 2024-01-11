@@ -46,6 +46,11 @@ ul {
   padding-left: 0px;
 }
 
+.p-button {
+  font-size: 1rem !important;
+  border-radius: 6px !important;
+}
+
 .p-menubar {
   border: 0 !important;
 }
