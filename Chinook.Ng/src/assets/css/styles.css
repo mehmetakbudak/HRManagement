@@ -38,3 +38,19 @@ h3 {
   background-color: #3B82F6 !important;
   border-color: #3B82F6 !important;
 }
+}
+
+dl,
+ol,
+ul {
+  margin-bottom: 0px;
+  padding-left: 0px;
+}
+
+.p-menubar {
+  border: 0 !important;
+}
+
+a {
+  text-decoration: none;
+}

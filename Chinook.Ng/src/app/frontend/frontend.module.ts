@@ -2,6 +2,8 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { MenubarModule } from "primeng/menubar";
+import { InputTextModule } from "primeng/inputtext";
 
 import { FrontendRoutes } from "./frontend.routing";
 import { HomeComponent } from "./home/home.component";
@@ -30,6 +32,9 @@ import {
     FormsModule,
     CommonModule,
     ReactiveFormsModule,
+    MenubarModule,
+    InputTextModule,
+
     DxMenuModule,
     DxDataGridModule,
     DxTreeViewModule,
@@ -52,4 +57,4 @@ import {
   ],
   providers: [AlertService],
 })
-export class FrontendModule {}
+export class FrontendModule { }

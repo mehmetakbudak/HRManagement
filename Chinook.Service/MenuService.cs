@@ -105,12 +105,12 @@ namespace Chinook.Service
                 var model = new MenuItemModel
                 {
                     Id = item.Id,
-                    Name = item.Name,
+                    Label = item.Name,
                     IsActive = item.IsActive,
                     MenuId = item.MenuId,
                     ParentId = item.ParentId,
                     Order = item.Order,
-                    Url = item.Url
+                    RouterLink = item.Url
                 };
 
                 if (items.Any())
