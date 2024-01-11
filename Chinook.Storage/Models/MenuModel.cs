@@ -18,7 +18,7 @@ namespace Chinook.Storage.Models
         public MenuType Type { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeletable { get; set; }
-        public List<MenuItemModel> Items { get; set; }
+        public List<MenuItemModel> Children { get; set; }
     }
 
     public class MenuItemModel : BaseModel
@@ -29,6 +29,6 @@ namespace Chinook.Storage.Models
         public bool IsActive { get; set; }
         public int MenuId { get; set; }
         public int Order { get; set; }
-        public List<MenuItemModel> Items { get; set; }
+        public List<MenuItemModel> Children { get; set; }
     }    
 }

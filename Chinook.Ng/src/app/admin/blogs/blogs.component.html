@@ -1,149 +1,113 @@
-<div class="row">
-  <div class="col-md-6 col-6">
-    <h3>Bloglar</h3>
-  </div>
-  <div class="col-md-6 col-6">
-    <a (click)="add(content)" class="float-end btn btn-success btn-sm">
-      <i class="dx-icon-plus"></i>
-    </a>
-  </div>
-</div>
-
-<div class="row mb-3">
+<div class="row" style="margin-bottom: 15px;">
   <div class="col-md-12">
-   
+    <p-panel [toggleable]="true">
+      <ng-template pTemplate="header">
+        <div class="font-bold">
+          <h3>Blogs</h3>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="icons">
+        <button class="p-panel-header-icon p-link mr-2" (click)="reset()">
+          <span class="pi pi-delete-left"></span>
+        </button>
+        <button class="p-panel-header-icon p-link mr-2" (click)="search()">
+          <span class="pi pi-search"></span>
+        </button>
+        <button class="p-panel-header-icon p-link mr-2" (click)="menu.toggle($event)">
+          <span class="pi pi-ellipsis-v"></span>
+        </button>
+        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+      </ng-template>
+      <div class="m-0">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <input class="w-100" type="text" pInputText [(ngModel)]="filterForm.title" placeholder="Name">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <input class="w-100" type="text" pInputText [(ngModel)]="filterForm.url" placeholder="Url">
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group ml-md-3">
+              <p-triStateCheckbox [(ngModel)]="filterForm.isActive" inputId="tricheckbox"></p-triStateCheckbox>
+              <div class="mt-1">{{ filterForm.isActive === null ? 'All' : filterForm.isActive ? 'Active' :
+                'Passive' }}</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </p-panel>
   </div>
+
 </div>
 
-<div class="row mb-2">
+<div class="row">
   <div class="col-12">
-    <div class="table-responsive">
-     
-    </div>
+    <p-table [value]="blogs" [lazy]="true" styleClass="p-datatable-gridlines" [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true" [first]="first" [rows]="rows" [loading]="loading" [scrollable]="true"
+      (onPage)="pageChange($event)" [rowsPerPageOptions]="[5, 10, 25, 50]" [totalRecords]="totalRecords"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px" pFrozenColumn></th>
+          <th>Title</th>
+          <th>Url</th>
+          <th>IsActive</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-blog>
+        <tr>
+          <td pFrozenColumn>
+            <p-menu #menu [model]="gridMenuItems" [popup]="true" appendTo="body"></p-menu>
+            <button class="btn btn-primary btn-sm" type="button" (click)="menuToggle(menu, $event, blog)">
+              <i class="pi pi-cog"></i>
+            </button>
+          </td>
+          <td>{{ blog.title }}</td>
+          <td>{{ blog.url }}</td>
+          <td>
+            <p-checkbox [disabled]="true" [(ngModel)]="blog.isActive" [binary]="true" inputId="binary"></p-checkbox>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
 
-    <div class="d-flex justify-content-between">
-     
-    </div>
   </div>
 </div>
 
-<ng-template #content let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">{{ modalTitle }}</h4>
-    <button
-      type="button"
-      class="btn-close"
-      aria-label="Close"
-      (click)="modal.dismiss('Cross click')"
-    ></button>
-  </div>
-  <div class="modal-body">
-    <form>
-      <div class="mb-3">
-        <label class="form-label">Blog Kategori</label>
-        <dx-select-box
-          [(value)]="blog.blogCategoryId"
-          valueExprr="id"
-          displayExpr="name"
-          placeholder="Kategori seçiniz."
-          [dataSource]="blogCategories"
-        ></dx-select-box>
+<p-dialog [header]="title" [(visible)]="isVisible" [breakpoints]="{ '960px': '90vw' }" [style]="{width: '75vw'}"
+  [modal]="true">
+  <form [formGroup]="form">
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input class="w-100" type="text" pInputText formControlName="title"
+        [ngClass]="{ 'is-invalid': submitted && f['title'].errors }">
+      <div *ngIf="submitted && f['title'].errors" class="invalid-feedback">
+        <div *ngIf="f['title'].errors['required']">Title is required</div>
       </div>
-      <div class="mb-3">
-        <label class="form-label">Başlık</label>
-        <dx-text-box [(value)]="blog.title"></dx-text-box>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Url</label>
+      <input class="w-100" type="text" pInputText formControlName="url"
+        [ngClass]="{ 'is-invalid': submitted && f['url'].errors }">
+      <div *ngIf="submitted && f['url'].errors" class="invalid-feedback">
+        <div *ngIf="f['url'].errors['required']">Url is required</div>
       </div>
-      <div class="mb-3">
-        <label class="form-label">Kısa Açıklama</label>
-        <dx-text-area [(value)]="blog.shortDefinition"></dx-text-area>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Açıklama</label>
-        <dx-html-editor [(value)]="blog.description">
-          <dxo-toolbar [multiline]="true">
-            <dxi-item name="undo"></dxi-item>
-            <dxi-item name="redo"></dxi-item>
-            <dxi-item name="separator"></dxi-item>
-            <dxi-item
-              name="size"
-              [acceptedValues]="[
-                '8pt',
-                '10pt',
-                '12pt',
-                '14pt',
-                '18pt',
-                '24pt',
-                '36pt'
-              ]"
-            ></dxi-item>
-            <dxi-item
-              name="font"
-              [acceptedValues]="[
-                'Arial',
-                'Courier New',
-                'Georgia',
-                'Impact',
-                'Lucida Console',
-                'Tahoma',
-                'Times New Roman',
-                'Verdana'
-              ]"
-            ></dxi-item>
-            <dxi-item name="separator"></dxi-item>
-            <dxi-item name="bold"></dxi-item>
-            <dxi-item name="italic"></dxi-item>
-            <dxi-item name="strike"></dxi-item>
-            <dxi-item name="underline"></dxi-item>
-            <dxi-item name="separator"></dxi-item>
-            <dxi-item name="alignLeft"></dxi-item>
-            <dxi-item name="alignCenter"></dxi-item>
-            <dxi-item name="alignRight"></dxi-item>
-            <dxi-item name="alignJustify"></dxi-item>
-            <dxi-item name="separator"></dxi-item>
-            <dxi-item name="orderedList"></dxi-item>
-            <dxi-item name="bulletList"></dxi-item>
-            <dxi-item name="separator"></dxi-item>
-            <dxi-item
-              name="header"
-              [acceptedValues]="[false, 1, 2, 3, 4, 5]"
-            ></dxi-item>
-            <dxi-item name="separator"></dxi-item>
-            <dxi-item name="color"></dxi-item>
-            <dxi-item name="background"></dxi-item>
-            <dxi-item name="separator"></dxi-item>
-            <dxi-item name="link"></dxi-item>
-            <dxi-item name="image"></dxi-item>
-            <dxi-item name="separator"></dxi-item>
-            <dxi-item name="clear"></dxi-item>
-            <dxi-item name="codeBlock"></dxi-item>
-            <dxi-item name="blockquote"></dxi-item>
-            <dxi-item name="separator"></dxi-item>
-            <dxi-item name="insertTable"></dxi-item>
-            <dxi-item name="deleteTable"></dxi-item>
-            <dxi-item name="insertRowAbove"></dxi-item>
-            <dxi-item name="insertRowBelow"></dxi-item>
-            <dxi-item name="deleteRow"></dxi-item>
-            <dxi-item name="insertColumnLeft"></dxi-item>
-            <dxi-item name="insertColumnRight"></dxi-item>
-            <dxi-item name="deleteColumn"></dxi-item>
-          </dxo-toolbar>
-          <dxo-media-resizing [enabled]="true"> </dxo-media-resizing>
-          <dxo-image-upload [tabs]="['file', 'url']" fileUploadMode="base64">
-          </dxo-image-upload>
-        </dx-html-editor>
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button
-      type="button"
-      class="btn btn-outline-secondary"
-      (click)="modal.close('Save click')"
-    >
-      Kapat
-    </button>
-    <button type="button" class="btn btn-primary" (click)="save()">
-      Kaydet
-    </button>
-  </div>
-</ng-template>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Is Active</label>
+      <p-checkbox class="w-100" [binary]="true" inputId="binary" formControlName="isActive"></p-checkbox>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button size="small" (click)="save()" type="submit" class="float-right" icon="pi pi-save" label="Save" pAutoFocus
+      [autofocus]="true"></p-button>
+  </ng-template>
+</p-dialog>

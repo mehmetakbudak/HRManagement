@@ -1,106 +1,114 @@
-<div class="row mb-2">
-  <div class="col-md-6 col-6">
-    <h5>Blog Kategorileri</h5>
+<div class="row" style="margin-bottom: 15px;">
+  <div class="col-md-12">
+    <p-panel [toggleable]="true">
+      <ng-template pTemplate="header">
+        <div class="font-bold">
+          <h3>Blog Categories</h3>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="icons">
+        <button class="p-panel-header-icon p-link mr-2" (click)="reset()">
+          <span class="pi pi-delete-left"></span>
+        </button>
+        <button class="p-panel-header-icon p-link mr-2" (click)="search()">
+          <span class="pi pi-search"></span>
+        </button>
+        <button class="p-panel-header-icon p-link mr-2" (click)="menu.toggle($event)">
+          <span class="pi pi-ellipsis-v"></span>
+        </button>
+        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+      </ng-template>
+      <div class="m-0">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <input class="w-100" type="text" pInputText [(ngModel)]="filterForm.name" placeholder="Name">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <input class="w-100" type="text" pInputText [(ngModel)]="filterForm.url" placeholder="Url">
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group ml-md-3">
+              <p-triStateCheckbox [(ngModel)]="filterForm.isActive" inputId="tricheckbox"></p-triStateCheckbox>
+              <div class="mt-1">{{ filterForm.isActive === null ? 'All' : filterForm.isActive ? 'Active' :
+                'Passive' }}</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </p-panel>
   </div>
-  <div class="col-md-6 col-6">
-    <button class="float-end btn btn-success btn-sm" (click)="add()">
-      <i class="dx-icon-plus"></i>
-    </button>
-  </div>
+
 </div>
 
 <div class="row">
   <div class="col-12">
-    <dx-data-grid
-      id="gridContainer"
-      [dataSource]="dataSource"
-      [remoteOperations]="true"
-      [rowAlternationEnabled]="true"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [showRowLines]="true"
-    >
-      <dxo-paging [pageSize]="5"></dxo-paging>
+    <p-table [value]="blogCategories" [lazy]="true" styleClass="p-datatable-gridlines"
+      [tableStyle]="{ 'min-width': '50rem' }" [paginator]="true" [first]="first" [rows]="rows" [loading]="loading"
+      [scrollable]="true" (onPage)="pageChange($event)" [rowsPerPageOptions]="[5, 10, 25, 50]"
+      [totalRecords]="totalRecords" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [showCurrentPageReport]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px" pFrozenColumn></th>
+          <th>Name</th>
+          <th>Url</th>
+          <th>IsActive</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-category>
+        <tr>
+          <td pFrozenColumn>
+            <p-menu #menu [model]="gridMenuItems" [popup]="true" appendTo="body"></p-menu>
+            <button class="btn btn-primary btn-sm" type="button" (click)="menuToggle(menu, $event, category)">
+              <i class="pi pi-cog"></i>
+            </button>
+          </td>
+          <td>{{ category.name }}</td>
+          <td>{{ category.url }}</td>
+          <td>
+            <p-checkbox [disabled]="true" [(ngModel)]="category.isActive" [binary]="true" inputId="binary"></p-checkbox>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
 
-      <dxi-column
-        dataField="id"
-        [width]="60"
-        [allowFiltering]="false"
-        [allowSorting]="false"
-        cellTemplate="cellTemplate"
-        caption=""
-      ></dxi-column>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxi-column dataField="name" caption="Adı"></dxi-column>
-      <dxi-column dataField="url" caption="Url"></dxi-column>
-      <dxi-column dataField="isActive" caption="Aktif"></dxi-column>
-      <div *dxTemplate="let data of 'cellTemplate'">
-        <dx-drop-down-button
-          (onItemClick)="onItemClick($event, data)"
-          stylingMode="text"
-          [items]="settings"
-          icon="preferences"
-          displayExpr="text"
-          keyExpr="value"
-          [dropDownOptions]="{ width: '100px' }"
-        ></dx-drop-down-button>
-      </div>
-    </dx-data-grid>
   </div>
 </div>
 
-<dx-popup
-  [(visible)]="isVisible"
-  [(title)]="title"
-  [(width)]="screenWidth"
-  height="auto"
->
-  <div class="row">
-    <div class="col-12">
-      <div class="mb-3">
-        <label class="form-label">Kategori Adı</label>
-        <dx-text-box [(value)]="blogCategory.name">
-          <dx-validator>
-            <dxi-validation-rule
-              type="required"
-              message="Kategori Adı giriniz."
-            ></dxi-validation-rule>
-          </dx-validator>
-        </dx-text-box>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Url</label>
-        <dx-text-box [(value)]="blogCategory.url">
-          <dx-validator>
-            <dxi-validation-rule
-              type="required"
-              message="Url giriniz."
-            ></dxi-validation-rule>
-          </dx-validator>
-        </dx-text-box>
-      </div>
-      <div class="mb-3">
-        <label class="form-label w-100">Aktif</label>
-        <dx-switch
-          switchedOnText="Aktif"
-          switchedOffText="Pasif"
-          [(value)]="blogCategory.isActive"
-        ></dx-switch>
-      </div>
-      <div class="mb-3">
-        <dx-button
-          class="float-end ms-2"
-          [useSubmitBehavior]="true"
-          text="Kaydet"
-          type="default"
-          (onClick)="save($event)"
-        ></dx-button>
-        <dx-button
-          class="float-end"
-          (click)="isVisible = false"
-          text="Kapat"
-        ></dx-button>
+<p-dialog [header]="title" [(visible)]="isVisible" [breakpoints]="{ '960px': '90vw' }" [style]="{width: '50vw'}"
+  [modal]="true">
+  <form [formGroup]="form">
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input class="w-100" type="text" pInputText formControlName="name"
+        [ngClass]="{ 'is-invalid': submitted && f['name'].errors }">
+      <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
+        <div *ngIf="f['name'].errors['required']">Name is required</div>
       </div>
     </div>
-  </div>
-</dx-popup>
+
+    <div class="form-group">
+      <label class="form-label">Url</label>
+      <input class="w-100" type="text" pInputText formControlName="url"
+        [ngClass]="{ 'is-invalid': submitted && f['url'].errors }">
+      <div *ngIf="submitted && f['url'].errors" class="invalid-feedback">
+        <div *ngIf="f['url'].errors['required']">Url is required</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Is Active</label>
+      <p-checkbox class="w-100" [binary]="true" inputId="binary" formControlName="isActive"></p-checkbox>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button size="small" (click)="save()" type="submit" class="float-right" icon="pi pi-save" label="Save" pAutoFocus
+      [autofocus]="true"></p-button>
+  </ng-template>
+</p-dialog>

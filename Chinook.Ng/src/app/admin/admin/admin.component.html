@@ -1,56 +1,36 @@
-<nav class="navbar navbar-light bg-light flex-nowrap p-1 border-bottom">
-  <div class="ps-1 pe-3">
-    <dx-button type="default" icon="menu" (onClick)="menuShow()"> </dx-button>
+<nav class="navbar navbar-light bg-light p-1 border-bottom">
+  <div class="navbar-brand">
+    <a class="btn btn-primary" (click)="menuShow()">
+      <i class="pi pi-bars"></i>
+    </a>
+    <a class="navbar-brand text-left pl-2" routerLink="/admin">Admin Panel</a>
   </div>
-  <div class="w-100">
-    <a class="navbar-brand text-left" routerLink="/admin">Admin Paneli</a>
-  </div>
-  <div>
-    <dx-drop-down-button
-      icon="user"
-      stylingMode="text"
-      [useSelectMode]="false"
-      [text]="fullName"
-      [items]="userMenu"
-      displayExpr="name"
-      (onItemClick)="selectUserMenu($event)"
-    >
-    </dx-drop-down-button>
+  <div class="navbar-text">
+    <p-menu #menu [model]="userMenu" [popup]="true"></p-menu>
+    <button type="button" class="btn btn-light text-dark w-100" (click)="menu.toggle($event)">
+      {{fullName}} <i class="ml-2 pi pi-chevron-down"></i>
+    </button>
   </div>
 </nav>
 <div class="container-fluid h-100">
   <div class="row">
-    <div
-      *ngIf="isShowMenu"
-      class="col-12 col-md-2 d-md-block pt-3 border-end"
-      [ngStyle]="{ height: screen?.availHeight + 'px' }"
-    >
-      <dx-tree-view
-        [dataSource]="items"
-        keyExpr="path"
-        selectionMode="single"
-        [expandNodesRecursive]="true"
-        [focusStateEnabled]="false"
-        expandEvent="click"
-        width="100%"
-        [searchEnabled]="true"
-        searchMode="contains"
-        searchExpr="name"
-        [searchEditorOptions]="{ placeholder: 'Menüde Ara' }"
-      >
-        <div class="pb-1" *dxTemplate="let item of 'item'">
-          <a class="text-dark" [routerLink]="item.url"> {{ item.name }}</a>
+    <div *ngIf="isShowMenu" class="col-12 col-sm-3 col-md-2 d-md-block "
+      [ngStyle]="{ height: screen?.availHeight + 'px' }">
+      <div class="card mt-3">
+        <div class="card-body">
+          <p-tree [value]="items" class="w-100">
+            <ng-template let-node pTemplate="default">
+              <div style="font-size: 14px;" *ngIf="node.url == null">{{node.name}}</div>
+              <a style="font-size: 14px;" *ngIf="node.url != null" [routerLink]="node.url"
+                class="text-dark text-decoration-none" (click)="menuShow()">
+                {{node.name}}</a>
+            </ng-template>
+          </p-tree>
         </div>
-      </dx-tree-view>
-    </div>
-    <div
-      class="mt-3"
-      [hidden]="!isShowContent"
-      [ngClass]="{ 'col-12 col-md-10': isShowMenu, 'col-12': !isShowMenu }"
-    >
-      <div class="p-2">
-        <router-outlet></router-outlet>
       </div>
+    </div>
+    <div class="mt-3" [hidden]="!isShowContent" [ngClass]="{ 'col-12 col-md-10': isShowMenu, 'col-12': !isShowMenu }">
+      <router-outlet></router-outlet>
     </div>
   </div>
 </div>

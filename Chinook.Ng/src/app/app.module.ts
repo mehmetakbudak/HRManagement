@@ -1,4 +1,3 @@
-import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { LOCALE_ID, NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -7,6 +6,8 @@ import { AppRoutes } from "./app.routing";
 import { JwtInterceptor } from "./helpers/jwt.interceptor";
 import { ErrorInterceptor } from "./helpers/error.interceptor";
 import { RouterModule } from '@angular/router';
+import { ToastModule } from "primeng/toast";
+import { ConfirmDialogModule } from "primeng/confirmdialog";
 
 import { AppComponent } from "./app.component";
 import {
@@ -22,6 +23,7 @@ import {
 
 import { registerLocaleData } from "@angular/common";
 import localeTr from "@angular/common/locales/tr";
+import { ConfirmationService, MessageService } from "primeng/api";
 registerLocaleData(localeTr);
 
 @NgModule({
@@ -32,6 +34,9 @@ registerLocaleData(localeTr);
     RouterModule.forRoot(AppRoutes),
     ReactiveFormsModule,
     BrowserAnimationsModule,
+    ToastModule,
+    ConfirmDialogModule,
+
     DxMenuModule,
     DxDataGridModule,
     DxTreeViewModule,
@@ -45,7 +50,9 @@ registerLocaleData(localeTr);
     { provide: LOCALE_ID, useValue: "tr-TR" },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    MessageService,
+    ConfirmationService
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

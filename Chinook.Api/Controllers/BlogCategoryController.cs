@@ -22,12 +22,20 @@ namespace Chinook.Controllers
             this.blogCategoryService = blogCategoryService;
         }
 
-        [HttpGet]
-        //[Authorize]
-        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions)
+        [Authorize]
+        [HttpPost("GetByFilter")]
+        public IActionResult GetByFilter([FromBody] BlogCategoryFilterModel model)
         {
-            var list = blogCategoryService.Get();
-            return Json(await DataSourceLoader.LoadAsync(list, loadOptions));
+            var list = blogCategoryService.GetByFilter(model);
+            return Ok(list);
+        }
+
+        [Authorize]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await blogCategoryService.GetById(id);
+            return Ok(result);
         }
 
         [HttpPost]

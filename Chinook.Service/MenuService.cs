@@ -82,11 +82,11 @@ namespace Chinook.Service
 
                 if (menu.MenuItems.Any())
                 {
-                    model.Items = GetSubMenu(menu.MenuItems, menu.Id, null);
+                    model.Children = GetSubMenu(menu.MenuItems, menu.Id, null);
                 }
                 else
                 {
-                    model.Items = null;
+                    model.Children = null;
                 }
             }
             return model;
@@ -115,7 +115,7 @@ namespace Chinook.Service
 
                 if (items.Any())
                 {
-                    model.Items = items;
+                    model.Children = items;
                 }
 
                 list.Add(model);

@@ -1,4 +1,6 @@
 ﻿using Chinook.Data.Repository;
+using Chinook.Service.Exceptions;
+using Chinook.Service.Helpers;
 using Chinook.Storage.Entities;
 using Chinook.Storage.Models;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +15,8 @@ namespace Chinook.Service
     public interface IBlogCategoryService
     {
         IQueryable<BlogCategory> Get();
+        Task<BlogCategoryModel> GetById(int id);
+        PaginationModel<BlogCategory> GetByFilter(BlogCategoryFilterModel model);
         Task<List<BlogCategoryLookupModel>> GetByLookup();
         Task<ServiceResult> Post(BlogCategoryModel model);
         Task<ServiceResult> Put(BlogCategoryModel model);
@@ -41,6 +45,47 @@ namespace Chinook.Service
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        public async Task<BlogCategoryModel> GetById(int id)
+        {
+            var data = await _unitOfWork.Repository<BlogCategory>()
+                   .Get(x => x.Id == id);
+
+            if (data == null)
+            {
+                throw new NotFoundException("Blog category not found.");
+            }
+            return new BlogCategoryModel
+            {
+                Id = data.Id,
+                IsActive = data.IsActive,
+                Name = data.Name,
+                Url = data.Url
+            };
+        }
+
+        public PaginationModel<BlogCategory> GetByFilter(BlogCategoryFilterModel model)
+        {
+            var query = _unitOfWork.Repository<BlogCategory>()
+                .GetAll(x => !x.Deleted)
+                .OrderByDescending(x => x.Id)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(model.Name))
+            {
+                query = query.Where(x => x.Name.ToLower().Contains(model.Name.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(model.Url))
+            {
+                query = query.Where(x => x.Url.ToLower().Contains(model.Url.ToLower()));
+            }
+            if (model.IsActive.HasValue)
+            {
+                query = query.Where(x => x.IsActive == model.IsActive.Value);
+            }
+            var list = PaginationHelper<BlogCategory>.Paginate(query, model);
+            return list;
         }
 
         public async Task<List<BlogCategoryLookupModel>> GetByLookup()

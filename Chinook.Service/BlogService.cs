@@ -1,7 +1,9 @@
 ﻿using Chinook.Data.Repository;
+using Chinook.Service.Exceptions;
+using Chinook.Service.Extensions;
+using Chinook.Service.Helpers;
 using Chinook.Storage.Entities;
 using Chinook.Storage.Models;
-using Chinook.Service.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,7 +19,7 @@ namespace Chinook.Service
         IQueryable<Blog> Get();
         PaginationModel<Blog> GetByFilter(BlogFilterModel model);
         List<Blog> GetAllByCategoryUrl(string categoryUrl);
-        Task<Blog> GetById(int id);
+        Task<BlogModel> GetById(int id);
         Task<ServiceResult> Post(BlogModel model);
         Task<ServiceResult> Put(BlogModel model);
         Task<ServiceResult> Delete(int id);
@@ -41,6 +43,7 @@ namespace Chinook.Service
             return _unitOfWork.Repository<Blog>()
                 .GetAll(x => !x.Deleted)
                 .Include(x => x.BlogCategory)
+                .OrderByDescending(x => x.Id)
                 .AsQueryable();
         }
 
@@ -51,113 +54,116 @@ namespace Chinook.Service
             return list;
         }
 
-        public async Task<Blog> GetById(int id)
+        public async Task<BlogModel> GetById(int id)
         {
-            return await _unitOfWork.Repository<Blog>()
+            var data = await _unitOfWork.Repository<Blog>()
                 .Get(x => x.Id == id && !x.Deleted);
+
+            if (data is null)
+            {
+                throw new NotFoundException("Blog not found.");
+            }
+            return new BlogModel
+            {
+                Id = data.Id,
+                BlogCategoryId = data.BlogCategoryId,
+                Description = data.Description,
+                ImageUrl = data.ImageUrl,
+                IsActive = data.IsActive,
+                Published = data.Published,
+                Sequence = data.Sequence,
+                ShortDefinition = data.ShortDefinition,
+                Title = data.Title,
+                Url = data.Url
+            };
         }
 
         public PaginationModel<Blog> GetByFilter(BlogFilterModel model)
         {
-            var list = Get();
-
-            var result = new PaginationModel<Blog>
+            var query = Get();
+            if (!string.IsNullOrEmpty(model.Title))
             {
-                Count = list.Count(),
-                List = list.Skip((model.Page - 1) * model.PageSize).Take(model.PageSize).ToList()
-            };
-
-            return result;
+                query = query.Where(x => x.Title.ToLower().Contains(model.Title.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(model.Url))
+            {
+                query = query.Where(x => x.Url.ToLower().Contains(model.Url.ToLower()));
+            }
+            if (model.IsActive.HasValue)
+            {
+                query = query.Where(x => x.IsActive == model.IsActive.Value);
+            }
+            var list = PaginationHelper<Blog>.Paginate(query, model);
+            return list;
         }
 
         public async Task<ServiceResult> Post(BlogModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            try
+
+            var userId = _httpContextAccessor.HttpContext.User.UserId();
+            var entity = new Blog()
             {
-                var userId = _httpContextAccessor.HttpContext.User.UserId();
-                var entity = new Blog()
-                {
-                    BlogCategoryId = model.BlogCategoryId,
-                    Deleted = false,
-                    Description = model.Description,
-                    ImageUrl = model.ImageUrl,
-                    InsertDate = DateTime.Now,
-                    InsertedBy = userId,
-                    Published = model.Published,
-                    IsActive = model.IsActive,
-                    ReadCount = 0,
-                    Sequence = model.Sequence,
-                    ShortDefinition = model.ShortDefinition,
-                    Title = model.Title,
-                    Url = model.Url
-                };
-                await _unitOfWork.Repository<Blog>().Add(entity);
-                await _unitOfWork.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                result.StatusCode = HttpStatusCode.InternalServerError;
-                result.Message = ex.Message;
-            }
+                BlogCategoryId = model.BlogCategoryId,
+                Deleted = false,
+                Description = model.Description,
+                ImageUrl = model.ImageUrl,
+                InsertDate = DateTime.Now,
+                InsertedBy = userId,
+                Published = model.Published,
+                IsActive = model.IsActive,
+                ReadCount = 0,
+                Sequence = model.Sequence,
+                ShortDefinition = model.ShortDefinition,
+                Title = model.Title,
+                Url = model.Url
+            };
+            await _unitOfWork.Repository<Blog>().Add(entity);
+            await _unitOfWork.SaveChanges();
             return result;
         }
 
         public async Task<ServiceResult> Put(BlogModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            try
+
+            var userId = _httpContextAccessor.HttpContext.User.UserId();
+
+            var blog = await _unitOfWork.Repository<Blog>().Get(x => x.Id == model.Id && !x.Deleted);
+
+            if (blog is null)
             {
-                var userId = _httpContextAccessor.HttpContext.User.UserId();
-
-                var blog = await GetById(model.Id);
-
-                if (blog != null)
-                {
-                    blog.Title = model.Title;
-                    blog.Url = model.Url;
-                    blog.Published = model.Published;
-                    blog.IsActive = model.IsActive;
-                    blog.Description = model.Description;
-                    blog.ImageUrl = model.ImageUrl;
-                    blog.Sequence = model.Sequence;
-                    blog.ShortDefinition = model.ShortDefinition;
-                    blog.UpdateDate = DateTime.Now;
-                    blog.UpdatedBy = userId;
-
-                    await _unitOfWork.SaveChanges();
-                }
+                throw new NotFoundException("Blog not found.");
             }
-            catch (Exception ex)
-            {
-                result.StatusCode = HttpStatusCode.InternalServerError;
-                result.Message = ex.Message;
-            }
+
+            blog.Title = model.Title;
+            blog.Url = model.Url;
+            blog.Published = model.Published;
+            blog.IsActive = model.IsActive;
+            blog.Description = model.Description;
+            blog.ImageUrl = model.ImageUrl;
+            blog.Sequence = model.Sequence;
+            blog.ShortDefinition = model.ShortDefinition;
+            blog.UpdateDate = DateTime.Now;
+            blog.UpdatedBy = userId;
+
+            await _unitOfWork.SaveChanges();
             return result;
         }
 
         public async Task<ServiceResult> Delete(int id)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            try
+
+            var blog = await _unitOfWork.Repository<Blog>().Get(x => x.Id == id && !x.Deleted);
+
+            if (blog is null)
             {
-                var blog = await GetById(id);
-                if (blog != null)
-                {
-                    blog.Deleted = true;
-                    blog.UpdateDate = DateTime.Now;
-                }
-                else
-                {
-                    result.StatusCode = HttpStatusCode.NotFound;
-                    result.Message = "Kayıt bulunamadı.";
-                }
+                throw new NotFoundException("Blog not found.");
             }
-            catch (Exception ex)
-            {
-                result.StatusCode = HttpStatusCode.InternalServerError;
-                result.Message = ex.Message;
-            }
+            blog.Deleted = true;
+            blog.UpdateDate = DateTime.Now;
+
             return result;
         }
 
