@@ -22,8 +22,6 @@
     "@angular/platform-browser": "^16.2.10",
     "@angular/platform-browser-dynamic": "^16.2.10",
     "@angular/router": "^16.2.10",
-    "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.2.0",
     "devextreme": "23.2.3",
     "devextreme-angular": "23.2.3",
     "devextreme-aspnet-data-nojquery": "^3.0.0",

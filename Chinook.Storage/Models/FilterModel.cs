@@ -1,16 +1,13 @@
 ﻿namespace Chinook.Storage.Models
 {
     public class FilterModel
-    {
+    {   
         public FilterModel()
         {
-            Page = 1;
-            PageSize = 5;
+            First = 0;
+            Rows = 5;
         }
-
-        public int Page { get; set; }
-
-        public int PageSize { get; set; }
+        public int First { get; set; }
+        public int Rows { get; set; }
     }
 }
-

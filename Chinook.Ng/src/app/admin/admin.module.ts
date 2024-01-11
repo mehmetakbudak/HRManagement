@@ -3,6 +3,16 @@ import { CommonModule } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 
+import { TableModule } from "primeng/table";
+import { CheckboxModule } from "primeng/checkbox";
+import { ButtonModule } from "primeng/button";
+import { MenuModule } from "primeng/menu";
+import { PanelModule } from "primeng/panel";
+import { DialogModule } from "primeng/dialog";
+import { TreeModule } from "primeng/tree";
+import { InputTextModule } from "primeng/inputtext";
+import { TriStateCheckboxModule } from 'primeng/tristatecheckbox';
+
 import { DashboardComponent } from "./dashboard/dashboard.component";
 import { AdminRoutes } from "./admin.routing";
 import { NotesComponent } from "./notes/notes.component";
@@ -42,6 +52,16 @@ import { PagesComponent } from "./pages/pages.component";
     FormsModule,
     CommonModule,
     ReactiveFormsModule,
+    TableModule,
+    CheckboxModule,
+    ButtonModule,
+    MenuModule,
+    InputTextModule,
+    PanelModule,
+    DialogModule,
+    TreeModule,
+    TriStateCheckboxModule,
+    
     DxTreeViewModule,
     DxToolbarModule,
     DxDropDownButtonModule,
@@ -73,6 +93,9 @@ import { PagesComponent } from "./pages/pages.component";
     BlogsComponent,
     PagesComponent
   ],
-  providers: [AlertService, ConfirmService],
+  providers: [
+    AlertService,
+    ConfirmService    
+  ],
 })
-export class AdminModule {}
+export class AdminModule { }

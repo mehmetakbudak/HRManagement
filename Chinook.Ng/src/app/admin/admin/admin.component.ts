@@ -19,7 +19,6 @@ export class AdminComponent implements OnInit {
   isShowMenu = false;
   isShowContent = true;
   contentClass = "";
-
   items = [];
   userMenu = [];
   currentUser;
@@ -30,7 +29,7 @@ export class AdminComponent implements OnInit {
     private authenticationService: AuthenticationService,
     private appService: AppService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.screen = screen;
@@ -38,25 +37,23 @@ export class AdminComponent implements OnInit {
       this.isShowMenu = true;
     }
     this.currentUser = this.authenticationService.currentUserValue;
-    this.fullName =
-      this.currentUser.firstName + " " + this.currentUser.lastName;
+    this.fullName = this.currentUser.firstName + " " + this.currentUser.lastName;
 
     this.appService.get(`${Urls.Menu}/gettype/${MenuType.Admin}`).then((res: any) => {
-      this.items = res.items;
+      this.items = res.children;
     });
 
     this.userMenu = [
-      { name: "Siteye Git", url: "/" },
-      { name: "Hesabım", url: "/admin/profile" },
-      { name: "Şifre Değiştir", url: "/admin/change-password" },
-      { name: "Çıkış Yap", url: "/giris?cikis=true", isParam: true },
+      { label: "Go To Homepage", routerLink: "/" },
+      { label: "Profile", routerLink: "/admin/profile" },
+      { label: "Change Password", routerLink: "/admin/change-password" },
+      { label: "Logout", routerLink: "/giris?cikis=true", isParam: true },
     ];
   }
 
   menuShow() {
-    this.isShowMenu = !this.isShowMenu;
     if (screen.width <= 768) {
-      this.isShowContent = !this.isShowContent;
+      this.isShowContent = false;
     } else {
       this.isShowContent = true;
     }

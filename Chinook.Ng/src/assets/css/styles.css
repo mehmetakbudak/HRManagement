@@ -1,22 +1,13 @@
 @import "primeicons/primeicons.css";
 
-@media (min-width: 768px) {}
+@media (max-width: 768px) {
+  .p-paginator .p-paginator-current {
+    width: 100% !important;
+  }
 
-.dx-widget {
-  display: block;
-  -ms-content-zooming: none;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-text-size-adjust: none;
-  -webkit-touch-callout: none;
-  padding: 0;
-  outline: 0;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-  color: black;
-  font-weight: 400;
-  font-size: 1rem;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Noto Sans, Liberation Sans, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
-  line-height: 1.5;
+  .p-paginator-rpp-options {
+    margin-top: 10px !important;
+  }
 }
 
 .cursor-pointer {
@@ -25,6 +16,28 @@
 
 .dx-toolbar-before {
   width: 100% !important;
+}
+
+.p-button {
+  border-radius: 6px !important;
+}
+
+h2 {
+  font-size: 1.5em !important;
+}
+
+h3 {
+  font-size: 1.17em !important;
+}
+
+.pi {
+  line-height: unset !important;
+}
+
+.btn-primary {
+  background-color: #3B82F6 !important;
+  border-color: #3B82F6 !important;
+}
 }
 
 dl,
