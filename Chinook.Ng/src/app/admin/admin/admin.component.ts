@@ -47,7 +47,11 @@ export class AdminComponent implements OnInit {
       { label: "Go To Homepage", routerLink: "/" },
       { label: "Profile", routerLink: "/admin/profile" },
       { label: "Change Password", routerLink: "/admin/change-password" },
-      { label: "Logout", routerLink: "/giris?cikis=true", isParam: true },
+      {
+        label: "Logout", command: () => {
+          this.router.navigateByUrl("/giris?cikis=true");
+        }
+      },
     ];
   }
 

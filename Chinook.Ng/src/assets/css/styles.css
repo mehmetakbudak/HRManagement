@@ -22,6 +22,10 @@
   border-radius: 6px !important;
 }
 
+.p-password {
+  width: 100% !important;
+}
+
 h2 {
   font-size: 1.5em !important;
 }
@@ -38,13 +42,17 @@ h3 {
   background-color: #3B82F6 !important;
   border-color: #3B82F6 !important;
 }
-}
 
 dl,
 ol,
 ul {
   margin-bottom: 0px;
   padding-left: 0px;
+}
+
+.p-button {
+  font-size: 1rem !important;
+  border-radius: 6px !important;
 }
 
 .p-menubar {

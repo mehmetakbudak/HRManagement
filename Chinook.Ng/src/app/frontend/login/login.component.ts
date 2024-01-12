@@ -1,32 +1,35 @@
 import { Component, OnInit } from "@angular/core";
 import { AuthenticationService } from "../../services/authentication.service";
 import { ActivatedRoute, Router } from "@angular/router";
-import { AlertService, alertType } from "../../services/alert.service";
-import notify from "devextreme/ui/notify";
+import { MessageService } from "primeng/api";
+import { AbstractControl, FormBuilder, FormGroup, Validators } from "@angular/forms";
 
-export class Login {
-  emailAddress: string;
-  password: string;
-}
 @Component({
   selector: "app-login",
   templateUrl: "./login.component.html",
   styleUrls: ["./login.component.css"],
 })
 export class LoginComponent implements OnInit {
-  login = new Login();
+  form: FormGroup;
+  submitted = false;
   loading = false;
   returnUrl: string;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private alertService: AlertService,
+    private messageService: MessageService,
+    private formBuilder: FormBuilder,
     private authenticationService: AuthenticationService
-  ) {}
+  ) { }
 
   ngOnInit() {
     const isLogout = this.route.snapshot.queryParams["cikis"];
+    this.form = this.formBuilder.group({
+      emailAddress: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
+    });
+
     if (isLogout) {
       this.authenticationService.logout();
       this.router.navigateByUrl("/giris");
@@ -34,28 +37,33 @@ export class LoginComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams["returnUrl"] || "/admin";
   }
 
-  save(e) {
-    const result = e.validationGroup.validate();
-    if (result.isValid) {
-      this.authenticationService
-        .login(this.login)
-        .then(() => {
-          const currentUser = this.authenticationService.currentUserValue;
-          const fullName = currentUser.firstName + " " + currentUser.lastName;
-          notify("Hoşgeldiniz " + fullName, alertType[alertType.success], 1000);
-          setTimeout(() => {
-            this.router.navigateByUrl(this.returnUrl);
-          }, 1000);
-        })
-        .catch((error) => {
-          this.loading = false;
-          notify(error, alertType[alertType.error], 1000);
-        });
+  get f(): { [key: string]: AbstractControl } {
+    return this.form.controls;
+  }
+
+  onSubmit() {
+    this.submitted = true;
+    if (this.form?.invalid) {
+      return;
     }
+    this.authenticationService
+      .login(this.form.value)
+      .then(() => {
+        const currentUser = this.authenticationService.currentUserValue;
+        const fullName = currentUser.firstName + " " + currentUser.lastName;
+        this.messageService.add({ severity: 'info', summary: 'Success', detail: "Welcome " + fullName });
+        setTimeout(() => {
+          this.router.navigateByUrl(this.returnUrl);
+        }, 1000);
+      })
+      .catch((error) => {
+        this.loading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
+      });
   }
 
   public clearForm(): void {
-    this.login = new Login();
+    this.form.reset();
   }
 
   goTo() {

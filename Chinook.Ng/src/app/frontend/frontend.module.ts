@@ -4,6 +4,8 @@ import { RouterModule } from "@angular/router";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MenubarModule } from "primeng/menubar";
 import { InputTextModule } from "primeng/inputtext";
+import { ButtonModule } from "primeng/button";
+import { PasswordModule } from 'primeng/password';
 
 import { FrontendRoutes } from "./frontend.routing";
 import { HomeComponent } from "./home/home.component";
@@ -34,6 +36,8 @@ import {
     ReactiveFormsModule,
     MenubarModule,
     InputTextModule,
+    ButtonModule,
+    PasswordModule,
 
     DxMenuModule,
     DxDataGridModule,
