@@ -22,6 +22,10 @@
   border-radius: 6px !important;
 }
 
+.p-password {
+  width: 100% !important;
+}
+
 h2 {
   font-size: 1.5em !important;
 }

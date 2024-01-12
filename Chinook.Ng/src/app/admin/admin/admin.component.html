@@ -8,7 +8,8 @@
   <div class="navbar-text">
     <p-menu #menu [model]="userMenu" [popup]="true"></p-menu>
     <button type="button" class="btn btn-light text-dark w-100" (click)="menu.toggle($event)">
-      {{fullName}} <i class="ml-2 pi pi-chevron-down"></i>
+      <i class="mr-2 pi pi-user">
+      </i> {{fullName}} <i class="ml-2 pi pi-chevron-down"></i>
     </button>
   </div>
 </nav>

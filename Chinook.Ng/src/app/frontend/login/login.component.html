@@ -1,22 +1,33 @@
 <div class="row mt-5">
-  <div class="col-12 col-md-4 offset-md-4">
+  <div class="col-12 col-md-4 col-sm-6 offset-md-4">
     <div class="card shadow">
       <div class="card-header bg-white py-3">
-        <h4>Giriş Yap</h4>
+        <h4>Login</h4>
       </div>
       <div class="card-body">
-        <form class="my-3">
+        <form [formGroup]="form">
           <div class="mb-4">
             <label class="pb-2">Email Address</label>
-            <input class="w-100" pInputText placeholder="Email Address" [(ngModel)]="login.emailAddress">
+            <input class="w-100" pInputText type="email" placeholder="Email Address" formControlName="emailAddress"
+              [ngClass]="{ 'is-invalid': submitted && f['emailAddress'].errors }">
+            <div *ngIf="submitted && f['emailAddress'].errors" class="invalid-feedback">
+              <div *ngIf="f['emailAddress'].errors['required']">Email address is required</div>
+              <div *ngIf="f['emailAddress'].errors['email']">Email address is invalid</div>
+            </div>
           </div>
           <div class="mb-4">
             <label class="pb-2">Password</label>
-            <input class="w-100" placeholder="Password" pInputText [(ngModel)]="login.password">
+            <p-password type="password" class="w-100" [inputStyle]="{'width':'100%'}" placeholder="Password"
+              [feedback]="false" formControlName="password"
+              [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"></p-password>
+            <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+              <div *ngIf="f['password'].errors['required']">Password is required</div>
+            </div>
           </div>
           <div class="mb-4">
             <!-- <a class="float-start text-decoration-none cursor-pointer" (click)="goTo()">Şifremi Unuttum</a> -->
-            <p-button class="float-end ms-2" label="Giriş Yap" type="default" (click)="save($event)"></p-button>
+            <p-button class="btn btn-primary float-right" size="small" (click)="onSubmit()" type="submit"
+              class="float-right" label="Login" pAutoFocus [autofocus]="true"></p-button>
           </div>
         </form>
       </div>

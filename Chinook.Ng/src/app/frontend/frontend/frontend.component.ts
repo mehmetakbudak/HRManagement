@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { AppService } from "src/app/app.service";
 import { Urls } from "src/app/models/consts";
-import { MenuType } from "src/app/models/enums";
 
 @Component({
   selector: "app-frontend",
@@ -15,9 +14,9 @@ export class FrontendComponent implements OnInit {
 
   ngOnInit() {
     this.appService
-      .get(`${Urls.Menu}/GetType/${MenuType.FrontEnd}`)
+      .get(`${Urls.Menu}/GetFrontendMenu`)
       .then((res: any) => {
-        this.items = res.items;
+        this.items = res;
       });
   }
 }

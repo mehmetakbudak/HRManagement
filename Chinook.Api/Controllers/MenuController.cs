@@ -35,6 +35,13 @@ namespace Chinook.Api.Controllers
             return Ok(menu);
         }
 
+        [HttpGet("GetFrontendMenu")]
+        public async Task<IActionResult> GetFrontendMenu()
+        {
+            var menu = await menuService.GetFrontendMenu();
+            return Ok(menu);
+        }
+
         [HttpGet("GetType/{type}")]
         public async Task<IActionResult> GetType(MenuType type)
         {

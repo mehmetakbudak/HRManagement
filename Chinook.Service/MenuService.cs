@@ -15,6 +15,7 @@ namespace Chinook.Service
     {
         IQueryable<MenuModel> Get();
         Task<MenuModel> GetById(int id);
+        Task<List<MenubarModel>> GetFrontendMenu(int? parentId = null, List<MenubarModel> children = null);
         Task<MenuTreeModel> GetByType(MenuType type);
         Task<List<LookupModel>> GetByLookup();
         Task<ServiceResult> Post(MenuModel model);
@@ -92,6 +93,37 @@ namespace Chinook.Service
             return model;
         }
 
+        public async Task<List<MenubarModel>> GetFrontendMenu(int? parentId = null, List<MenubarModel> children = null)
+        {
+            var menuItems = new List<MenubarModel>();
+
+            var list = await _unitOfWork.Repository<MenuItem>()
+                .GetAll(x => x.Menu.Type == MenuType.Frontend && !x.Deleted && x.IsActive && x.ParentId == parentId)
+                .Include(x => x.Menu)
+                .OrderBy(x => x.Order)
+                .Select(x => new MenubarModel
+                {
+                    Id = x.Id,
+                    Label = x.Name,
+                    RouterLink = x.Url,
+                    DisplayOrder = x.Order,
+                    ParentId = x.ParentId,
+                    IsActive = x.IsActive
+                }).ToListAsync();
+
+            menuItems.AddRange(list);
+
+            foreach (var menuItem in list)
+            {
+                var items = await GetFrontendMenu(menuItem.Id, list);
+                if (items != null && items.Count > 0)
+                {
+                    menuItem.Items = items;
+                }
+            }
+            return menuItems;
+        }
+
         private List<MenuItemModel> GetSubMenu(IList<MenuItem> menuItems, int menuId, int? parentId)
         {
             var list = new List<MenuItemModel>();
@@ -105,12 +137,12 @@ namespace Chinook.Service
                 var model = new MenuItemModel
                 {
                     Id = item.Id,
-                    Label = item.Name,
+                    Name = item.Name,
                     IsActive = item.IsActive,
                     MenuId = item.MenuId,
                     ParentId = item.ParentId,
                     Order = item.Order,
-                    RouterLink = item.Url
+                    Url = item.Url
                 };
 
                 if (items.Any())

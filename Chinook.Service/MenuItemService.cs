@@ -47,8 +47,8 @@ namespace Chinook.Service
                     Deleted = false,
                     IsActive = model.IsActive,
                     MenuId = model.MenuId,
-                    Name = model.Label,
-                    Url = model.RouterLink,
+                    Name = model.Name,
+                    Url = model.Url,
                     ParentId = model.ParentId,
                     Order = lastMenuItem == null ? 1 : (lastMenuItem.Order + 1)
                 };
@@ -74,9 +74,9 @@ namespace Chinook.Service
                 if (menuItem != null)
                 {
                     menuItem.IsActive = model.IsActive;
-                    menuItem.Name = model.Label;
+                    menuItem.Name = model.Name;
                     menuItem.Order = model.Order;
-                    menuItem.Url = model.RouterLink;
+                    menuItem.Url = model.Url;
                     menuItem.MenuId = model.MenuId;
 
                     await unitOfWork.SaveChanges();
