@@ -1,234 +1,192 @@
 import { Component, OnInit } from "@angular/core";
 import { AppService } from "../../app.service";
-import {
-  defaultMessageType,
-  AlertService,
-  alertType,
-} from "src/app/services/alert.service";
-import { ConfirmService } from "src/app/services/confirm.service";
 import { Urls } from "src/app/models/consts";
-
-export class NoteCategory {
-  id: number;
-  name: string;
-}
-export class Note {
-  id: number;
-  noteCategoryId: number;
+import { ConfirmationService, MessageService } from "primeng/api";
+import { AbstractControl, FormBuilder, FormGroup, Validators } from "@angular/forms";
+class NoteFilter {
+  noteCategoryIds: [];
   title: string;
-  description: string;
 }
-
 @Component({
   selector: "app-notes",
   templateUrl: "./notes.component.html",
   styleUrls: ["./notes.component.css"],
 })
 export class NotesComponent implements OnInit {
-  noteCategorySettings = [
-    { text: "Düzenle", value: "edit" },
-    { text: "Sil", value: "delete" },
-  ];
-  noteSettings = [
-    { text: "Taşı", value: "move" },
-    { text: "Sil", value: "delete" },
-  ];
-
-  noteCategory: NoteCategory = new NoteCategory();
-  note: Note = new Note();
-  moveNote: Note = new Note();
-
-  screenWidth = "40vw";
-  noteCategoryId;
-  selectNoteCategoryId;
-  noteId;
-
-  categories;
-  moveCategories;
-  selectMoveNoteId;
-  countCategory;
-
-  notes;
-  countNote;
-  noteHeader;
-
-  isCategoryVisible = false;
-  visibleNotes = false;
-  visibleNoteDetail = false;
-  titleCategory;
-
-  isMoveNoteVisible = false;
+  form: FormGroup;
+  formNoteCategory: FormGroup;
+  notes = [];
+  filterForm: NoteFilter;
+  totalRecords: number;
+  rows = 5;
+  first = 0;
+  loading = false;
+  menuItems = [];
+  gridMenuItems = [];
+  gridNoteCategoryMenuItems = [];
+  selectedData: any;
+  noteCategories = [];
+  isVisibleNote = false;
+  isVisibleNoteCategory = false;
+  title = "";
+  submitted = false;
+  noteCategoryHeader = "";
 
   constructor(
-    private alertService: AlertService,
-    private confirmService: ConfirmService,
-    private appService: AppService
-  ) {}
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
+    private appService: AppService,
+    private formBuilder: FormBuilder
+  ) { }
 
   ngOnInit() {
-    this.categoryBind();
-    if (screen.width < 768) {
-      this.screenWidth = "90vw";
-    }
+    this.getNotes();
+    this.getNoteCategories();
+    this.filterForm = new NoteFilter();
+    this.form = this.formBuilder.group({
+      id: [0, []],
+      noteCategoryId: [0, Validators.required],
+      title: ['', [Validators.required]],
+      description: ['', []]
+    });
+    this.formNoteCategory = this.formBuilder.group({
+      id: [0, []],
+      name: ['', [Validators.required]]
+    });
+    this.menuItems = [
+      { label: "Add", command: () => { this.add() } }
+    ];
+    this.gridMenuItems = [
+      { label: "Edit", command: () => { this.edit() } },
+      { label: "Delete", command: (e) => { this.delete(e) } }
+    ];
+    this.gridNoteCategoryMenuItems= [
+      { label: "Edit", command: () => { this.editNoteCategory() } },
+      { label: "Delete", command: (e) => { this.deleteNoteCategory(e) } }
+    ];
   }
 
-  categoryBind() {
+  getNoteCategories() {
     this.appService.get(Urls.NoteCategory).then((res: any) => {
-      this.categories = res;
-      this.countCategory = res.length;
+      this.noteCategories = res;
     });
   }
 
-  onSelectRowNoteCategory(e) {
-    console.log('not seç');
-    this.selectNoteCategoryId = e.row.data.id;
-    this.noteBind();
-    this.visibleNoteDetail = false;
+  getNotes() {
+    this.loading = true;
+    this.appService.post(`${Urls.Note}/GetByFilter`, {
+      first: this.first,
+      rows: this.rows,
+      ...this.filterForm
+    }).then((res: any) => {
+      this.notes = res.data;
+      this.totalRecords = res.count;
+      this.loading = false;
+    });
   }
 
-  onSelectRowNote(e) {
-    this.noteHeader = "Not Düzenle";
-    this.visibleNoteDetail = true;
-    this.note = e.row.data;
+  pageChange(e) {
+    this.first = e.first;
+    this.rows = e.rows;
+    this.getNotes();
   }
 
-  addCategory() {
-    this.titleCategory = "Yeni Kategori";
-    this.isCategoryVisible = true;
-    this.visibleNotes = false;
-    this.visibleNoteDetail = false;
-    this.noteCategory = new NoteCategory();
+  menuToggle(menu, e, data) {
+    this.gridMenuItems.forEach((menuItem) => {
+      menuItem.data = data;
+    });
+    this.selectedData = data;
+    menu.toggle(e);
   }
 
-  noteBind() {
-    this.appService
-      .get(`${Urls.Note}/GetByCategoryId/${this.selectNoteCategoryId}`)
+  reset() {
+    this.filterForm = new NoteFilter();
+    this.getNotes();
+  }
+
+  search() {
+    this.getNotes();
+  }
+
+  showNoteCategory() {
+    this.isVisibleNoteCategory = true;
+    this.noteCategoryHeader = "Add Note Category";
+  }
+
+  get fNoteCategory(): { [key: string]: AbstractControl } {
+    return this.formNoteCategory.controls;
+  }
+
+  add() {
+    this.title = "Add Note";
+    this.isVisibleNote = true;
+    this.form.reset();
+    this.form.get('id').setValue(0);
+  }
+
+  edit() {
+    console.log(this.selectedData);
+    this.appService.get(`${Urls.Note}/${this.selectedData.id}`)
       .then((res: any) => {
-        this.notes = res;
-        this.countNote = res.length;
+        this.form.setValue(res);
+        this.isVisibleNote = true;
+        this.title = "Edit Note";
       });
   }
 
-  addNote() {
-    this.noteHeader = "Yeni Not";
-    this.visibleNoteDetail = true;
-    this.note = new Note();
-  }
-
-  saveNote(e) {
-    const result = e.validationGroup.validate();
-    if (result.isValid) {
-      if (this.note.id) {
-        this.appService.put(Urls.Note, this.note).then((res) => {
-          this.noteBind();
-          this.noteClear();
-          this.alertService.showDefaultMessage(
-            defaultMessageType.update,
-            alertType.success
-          );
-        });
-      } else {
-        this.note.id = 0;
-        this.note.noteCategoryId = this.noteCategoryId;
-        this.appService.post(Urls.Note, this.note).then((res) => {
-          this.noteBind();
-          this.noteClear();
-          this.alertService.showDefaultMessage(
-            defaultMessageType.save,
-            alertType.success
-          );
-        });
+  delete(event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure that you want to delete?',
+      header: 'Delete',
+      icon: 'pi pi-exclamation-triangle',
+      acceptIcon: "none",
+      rejectIcon: "none",
+      rejectButtonStyleClass: "p-button-text",
+      accept: () => {
+        this.appService.delete(`${Urls.Note}`, this.selectedData.id)
+          .then((res: any) => {
+            this.getNotes();
+            this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Deletion was successful' });
+          })
       }
-    }
+    });
   }
-  saveCategory(e) {
-    const result = e.validationGroup.validate();
-    if (result.isValid) {
-      if (this.noteCategory.id) {
-        this.appService
-          .put(Urls.NoteCategory, this.noteCategory)
-          .then((res) => {
-            this.categoryBind();
-            this.isCategoryVisible = false;
-            this.alertService.showDefaultMessage(
-              defaultMessageType.update,
-              alertType.success
-            );
-          });
-      } else {
-        this.noteCategory.id = 0;
-        this.appService
-          .post(Urls.NoteCategory, this.noteCategory)
-          .then((res) => {
-            this.isCategoryVisible = false;
-            this.categoryBind();
-            this.alertService.showDefaultMessage(
-              defaultMessageType.save,
-              alertType.success
-            );
-          });
-      }
+
+  save() {
+    this.submitted = true;
+    if (this.form?.invalid) {
+      return;
+    }
+    if (this.form.value.id == 0) {
+      this.appService.post(Urls.Note, this.form.value)
+        .then((res: any) => {
+          this.getNotes();
+          this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Addition was successful' });
+          this.isVisibleNote = false;
+        });
+    } else {
+      this.appService.put(Urls.Note, this.form.value)
+        .then((res: any) => {
+          this.getNotes();
+          this.messageService.add({ severity: 'info', summary: 'Success', detail: 'The update was successful' });
+          this.isVisibleNote = false;
+        });
     }
   }
 
-  onSelectNoteCategory(e, c) {
-    if (e.item.value === "edit") {
-      this.isCategoryVisible = true;
-      this.titleCategory = "Kategori Düzenle";
-      this.noteCategory = c.data;
-    } else if (e.item.value === "delete") {
-      this.confirmService.delete().then((isAccept: boolean) => {
-        if (isAccept) {
-          this.appService.delete(Urls.NoteCategory, c.data.id).then((res) => {
-            this.categoryBind();
-            this.alertService.showDefaultMessage(
-              defaultMessageType.delete,
-              alertType.success
-            );
-          });
-        }
-      });
-    }
+  editNoteCategory(){
+
   }
 
-  onSelectNote(e, c) {
-    if (e.item.value === "move") {
-      this.isMoveNoteVisible = true;
-      this.moveNote = c.data;
-    } else if (e.item.value === "delete") {
-      this.confirmService.delete().then((isDelete: boolean) => {
-        if (isDelete) {
-          this.appService.delete(Urls.Note, c.data.id).then((res) => {
-            this.noteBind();
-            this.visibleNoteDetail = false;
-            this.alertService.showDefaultMessage(
-              defaultMessageType.delete,
-              alertType.success
-            );
-          });
-        }
-      });
-    }
+  deleteNoteCategory(e) {
+
   }
 
-  onMoveNote(e) {
-    const result = e.validationGroup.validate();
-    if (result.isValid) {
-      this.moveNote.noteCategoryId = this.selectMoveNoteId;
-      this.appService.put(`${Urls.Note}/move`, this.moveNote).then((res) => {
-        this.isMoveNoteVisible = false;
-        this.visibleNoteDetail = false;
-        this.noteBind();
-        this.alertService.showMessage(
-          "Taşıma işlemi başarıyla gerçekleşti.",
-          alertType.info
-        );
-      });
+  saveNoteCategory() {
+    this.submitted = true;
+    if (this.formNoteCategory?.invalid) {
+      return;
     }
-  }
-
-  noteClear() {
-    this.noteHeader = "Yeni Not";
-    this.note = new Note();
   }
 }

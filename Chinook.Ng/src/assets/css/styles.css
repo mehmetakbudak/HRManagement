@@ -1,4 +1,5 @@
 @import "primeicons/primeicons.css";
+@import url("https://unpkg.com/quill@1.3.7/dist/quill.snow.css");
 
 @media (max-width: 768px) {
   .p-paginator .p-paginator-current {
@@ -59,6 +60,7 @@ ul {
   border: 0 !important;
 }
 
-a {
+a,
+a:hover {
   text-decoration: none;
 }

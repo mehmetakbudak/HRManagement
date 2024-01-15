@@ -1,14 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { AppService } from "src/app/app.service";
-import { AlertService, alertType } from "src/app/services/alert.service";
-import notify from "devextreme/ui/notify";
 import { Urls } from "src/app/models/consts";
-
-export class ChangePassword {
-  oldPassword: string;
-  newPassword: string;
-  reNewPassword: string;
-}
+import { AbstractControl, FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { MessageService } from "primeng/api";
 
 @Component({
   selector: "app-change-password",
@@ -16,43 +10,41 @@ export class ChangePassword {
   styleUrls: ["./change-password.component.css"],
 })
 export class ChangePasswordComponent implements OnInit {
-  changePassword = new ChangePassword();
+  form: FormGroup;
+  submitted = false;
 
   constructor(
-    private alertService: AlertService,
-    private appService: AppService
-  ) {}
+    private formBuilder: FormBuilder,
+    private appService: AppService,
+    private messageService: MessageService
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.form = this.formBuilder.group({
+      oldPassword: ['', [Validators.required]],
+      newPassword: ['', [Validators.required]],
+      reNewPassword: ['', [Validators.required]]
+    });
+  }
 
-  save(e) {
-    const result = e.validationGroup.validate();
-    if (result.isValid) {
-      if (
-        this.changePassword.newPassword !== this.changePassword.reNewPassword
-      ) {
-        notify(
-          "Şifre alanları uyuşmamaktadır.",
-          alertType[alertType.error],
-          1000
-        );
-        return;
-      }
-      this.appService
-        .post(`${Urls.User}/changePassword`, this.changePassword)
-        .then(
-          (res) => {
-            notify(
-              "Şifre başarıyla güncellendi.",
-              alertType[alertType.success],
-              1000
-            );
-            this.changePassword = new ChangePassword();
-          },
-          (error) => {
-            notify(error, alertType[alertType.error], 1000);
-          }
-        );
+  get f(): { [key: string]: AbstractControl } {
+    return this.form.controls;
+  }
+  
+  save() {
+    this.submitted = true;
+    if (this.form?.invalid) {
+      return;
     }
+    if (this.form.value.newPassword !== this.form.value.reNewPassword) {
+      this.messageService.add({ severity: 'error', summary: 'Success', detail: "Password fields don't matched." });      
+      return;
+    }
+    this.appService.post(`${Urls.User}/changePassword`, this.form.value).then((res) => {
+      this.messageService.add({ severity: 'info', summary: 'Success', detail: "Password has been updated successfully." });
+      this.form.reset();
+    }, (error) => {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
+    });
   }
 }

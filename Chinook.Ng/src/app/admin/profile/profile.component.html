@@ -1,125 +1,63 @@
 <div class="row mb-2">
   <div class="col-12">
-    <div class="card">
-      <div class="card-header bg-white py-3">
-        <h5>Hesabım</h5>
-      </div>
-      <div class="card-body">
+    <p-card header="Profile">
+      <form [formGroup]="form">
         <div class="row">
           <div class="col-md-6">
+
             <div class="mb-3">
-              <label class="form-label">Email Adresi</label>
-              <dx-text-box
-                [readOnly]="true"
-                [(value)]="user.emailAddress"
-              ></dx-text-box>
+              <label class="form-label">Email Address</label>
+              <input pInputText class="w-100" formControlName="emailAddress">
             </div>
             <div class="mb-3">
-              <label class="form-label">Adınız</label>
-              <dx-text-box [(value)]="user.firstName">
-                <dx-validator>
-                  <dxi-validation-rule
-                    type="required"
-                    message="Adı gereklidir."
-                  ></dxi-validation-rule>
-                </dx-validator>
-              </dx-text-box>
+              <label class="form-label">Name</label>
+              <input pInputText class="w-100" formControlName="firstName">
             </div>
             <div class="mb-3">
-              <label class="form-label">Soyadınız</label>
-              <dx-text-box [(value)]="user.lastName">
-                <dx-validator>
-                  <dxi-validation-rule
-                    type="required"
-                    message="Soyadı gereklidir."
-                  ></dxi-validation-rule>
-                </dx-validator>
-              </dx-text-box>
+              <label class="form-label">Surname</label>
+              <input pInputText class="w-100" formControlName="lastName">
             </div>
             <div class="mb-3">
-              <label class="form-label">Doğum Tarihi</label>
-              <dx-date-box
-                [(value)]="user.birthDate"
-                displayFormat="dd.MM.yyyy"
-              ></dx-date-box>
+              <label class="form-label">Birth Date</label>
+              <p-calendar formControlName="birthDate" styleClass="w-100" dateFormat="dd.mm.yy"
+                dataType="string"></p-calendar>
             </div>
             <div class="mb-3">
-              <label class="form-label">Ünvanı</label>
-              <dx-select-box
-                [readOnly]="true"
-                [dataSource]="titles"
-                displayExpr="name"
-                valueExpr="id"
-                [(value)]="user.titleId"
-              >
-              </dx-select-box>
+              <label class="form-label">Title</label>
+              <p-dropdown styleClass="w-100" formControlName="titleId" [options]="titles" optionLabel="name"
+                optionValue="id"></p-dropdown>
             </div>
             <div class="mb-3">
-              <label class="form-label">İşe Başlama Tarihi</label>
-              <dx-date-box
-                [readOnly]="true"
-                [(value)]="user.hireDate"
-                displayFormat="dd.MM.yyyy"
-              ></dx-date-box>
+              <label class="form-label">Hire Date</label>
+              <p-calendar formControlName="hireDate" styleClass="w-100" dateFormat="dd.mm.yy"></p-calendar>
             </div>
           </div>
           <div class="col-md-6">
             <div class="mb-3">
-              <label class="form-label">Telefonu</label>
-              <dx-text-box
-                [(value)]="user.phone"
-                mask="(999) 999-9999"
-              ></dx-text-box>
+              <label class="form-label">Phone</label>
+              <input pInputText class="w-100" formControlName="phone">
             </div>
             <div class="mb-3">
-              <label class="form-label">İl</label>
-              <dx-select-box
-                [dataSource]="provinces"
-                displayExpr="name"
-                valueExpr="id"
-                [(value)]="user.provinceId"
-                (onValueChanged)="selectProvince($event)"
-              >
-              </dx-select-box>
+              <label class="form-label">Province</label>
+              <p-dropdown styleClass="w-100" formControlName="provinceId" [filter]="true" [options]="provinces" optionLabel="name"
+                optionValue="id" [showClear]="true" placeholder="Select a province"
+                (onChange)="selectProvince($event)"></p-dropdown>
             </div>
             <div class="mb-3">
-              <label class="form-label">İlçe</label>
-              <dx-select-box
-                [dataSource]="cities"
-                displayExpr="name"
-                valueExpr="id"
-                [(value)]="user.cityId"
-              >
-              </dx-select-box>
+              <label class="form-label">City</label>
+              <p-dropdown styleClass="w-100" formControlName="cityId" [filter]="true" [options]="cities" optionLabel="name"
+                optionValue="id" [showClear]="true" placeholder="Select a city"></p-dropdown>
             </div>
             <div class="mb-3">
-              <label class="form-label">Adres</label>
-              <dx-text-area [(value)]="user.address"></dx-text-area>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Aktif</label>
-              <p>
-                <dx-switch
-                  switchedOnText="Aktif"
-                  switchedOffText="Pasif"
-                  [width]="60"
-                  [readOnly]="true"
-                  [(value)]="user.isActive"
-                ></dx-switch>
-              </p>
+              <label class="form-label">Address</label>
+              <textarea pInputTextarea class="w-100" formControlName="address"></textarea>
             </div>
           </div>
         </div>
-      </div>
-      <div class="card-footer bg-white py-3">
-        <dx-button
-          width="120"
-          text="Kaydet"
-          type="default"
-          [useSubmitBehavior]="true"
-          (onClick)="save($event)"
-        ></dx-button>
-      </div>
-    </div>
+        <div class="mt-3">
+          <p-button size="small" label="Save" (click)="save($event)"></p-button>
+        </div>
+      </form>
+    </p-card>
   </div>
 </div>

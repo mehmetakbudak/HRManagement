@@ -1,10 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Chinook.Storage.Helpers;
-using Chinook.Storage.Models;
-using Chinook.Service;
+﻿using Chinook.Service;
 using Chinook.Service.Attributes;
+using Chinook.Storage.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Chinook.Controllers
 {
@@ -31,43 +29,22 @@ namespace Chinook.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] NoteCategoryModel model)
         {
-            try
-            {
-                var result = await noteCategoryService.Post(model);
-                return StatusCode((int)result.StatusCode, result.CreateReturnModel());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ServiceResult { Message = ex.Message });
-            }
+            var result = await noteCategoryService.Post(model);
+            return Ok(result);
         }
 
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] NoteCategoryModel model)
         {
-            try
-            {
-                var result = await noteCategoryService.Put(model);
-                return StatusCode((int)result.StatusCode, result.CreateReturnModel());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ServiceResult { Message = ex.Message });
-            }
+            var result = await noteCategoryService.Put(model);
+            return Ok(result);
         }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                var result = await noteCategoryService.Delete(id);
-                return StatusCode((int)result.StatusCode, result.CreateReturnModel());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ServiceResult { Message = ex.Message });
-            }
+            var result = await noteCategoryService.Delete(id);
+            return Ok(result);
         }
     }
 }

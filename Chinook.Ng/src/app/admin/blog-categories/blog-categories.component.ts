@@ -109,7 +109,7 @@ export class BlogCategoriesComponent implements OnInit {
       });
   }
 
-  delete(e) {
+  delete(event) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
       message: 'Are you sure that you want to delete?',

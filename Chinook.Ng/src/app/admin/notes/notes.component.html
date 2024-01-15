@@ -1,191 +1,166 @@
-<div class="row">
-    <div class="col-md-3">
-        <div class="row mt-2 mb-2">
-            <div class="col-8">
-                <h5>Kategoriler({{ countCategory }})</h5>
-            </div>
-            <div class="col-4">
-                <dx-button icon="plus" type="success" class="float-end" (click)="addCategory()">
-                </dx-button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <dx-data-grid [dataSource]="categories" [showBorders]="true" [showColumnHeaders]="true" [showColumnLines]="true" [showRowLines]="true" keyExpr="id" [focusedRowEnabled]="true" [(focusedRowKey)]="noteCategoryId" (onFocusedRowChanged)="onSelectRowNoteCategory($event)">
-                    <dxi-column dataField="id" [width]="60" [allowFiltering]="false" [allowSorting]="false" cellTemplate="cellTemplate" caption=""></dxi-column>
-                    <dxi-column caption="Adı" dataField="name"></dxi-column>
-                    <div *dxTemplate="let data of 'cellTemplate'">
-                        <dx-drop-down-button (onSelectionChanged)="onSelectNoteCategory($event,data)" stylingMode="text" [items]="noteCategorySettings" icon="preferences" displayExpr="text" keyExpr="value" [dropDownOptions]="{ width: '100px' }"></dx-drop-down-button>
-                    </div>
-                    <dxo-paging [pageSize]="5" [enabled]="true"></dxo-paging>
-                    <dxo-filter-row [visible]="true"></dxo-filter-row>
-                </dx-data-grid>
-            </div>
-        </div>
-
-    </div>
-    <div class="col-md-3">
-        <div *ngIf="noteCategoryId">
-            <div class="row mt-2 mb-2">
-                <div class="col-8">
-                    <h5>Notlar({{ countNote }})</h5>
+<div class="row" style="margin-bottom: 15px;">
+    <div class="col-md-12">
+        <p-panel [toggleable]="true">
+            <ng-template pTemplate="header">
+                <div class="font-bold">
+                    <h3>Notes</h3>
                 </div>
-                <div class="col-4">
-                    <dx-button type="success" *ngIf="noteCategoryId" icon="plus" class="float-end" (click)="addNote()">
-                    </dx-button>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-12">
-                    <dx-data-grid [(dataSource)]="notes" [showBorders]="true" [showColumnHeaders]="true" [showColumnLines]="true" [showRowLines]="true" keyExpr="id" [focusedRowEnabled]="true" [(focusedRowKey)]="noteId" (onFocusedRowChanged)="onSelectRowNote($event)">
-                        <dxo-filter-row [visible]="true"></dxo-filter-row>
-                        <dxo-paging [enabled]="true" pageSize="5"></dxo-paging>
-
-                        <dxi-column dataField="id" [width]="60" [allowFiltering]="false" [allowSorting]="false" cellTemplate="cellTemplate" caption=""></dxi-column>
-                        <dxi-column caption="Adı" dataField="title"></dxi-column>
-                        <div *dxTemplate="let data of 'cellTemplate'">
-                            <dx-drop-down-button (onSelectionChanged)="onSelectNote($event,data)" stylingMode="text" [items]="noteSettings" icon="preferences" displayExpr="text" keyExpr="value" [dropDownOptions]="{ width: '100px' }"></dx-drop-down-button>
-                        </div>
-                    </dx-data-grid>
-                </div>
-            </div>
-
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div [hidden]="!visibleNoteDetail">
-            <dx-validation-group>
-                <div class="row mt-2 mb-2">
-                    <div class="col-4">
-                        <h5>{{ noteHeader }}</h5>
-                    </div>
-                    <div class="col-8">
-                        <dx-button type="default" icon="save" [useSubmitBehavior]="true" class="float-end ms-2" (onClick)="saveNote($event)"></dx-button>
-                        <dx-button type="danger" icon="clearformat" class="float-end" (click)="noteClear()">
-                        </dx-button>
-                    </div>
-                </div>
+            </ng-template>
+            <ng-template pTemplate="icons">
+                <button class="p-panel-header-icon p-link mr-2" (click)="reset()">
+                    <span class="pi pi-delete-left"></span>
+                </button>
+                <button class="p-panel-header-icon p-link mr-2" (click)="search()">
+                    <span class="pi pi-search"></span>
+                </button>
+                <button class="p-panel-header-icon p-link mr-2" (click)="menu.toggle($event)">
+                    <span class="pi pi-ellipsis-v"></span>
+                </button>
+                <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+            </ng-template>
+            <div class="m-0">
                 <div class="row">
-                    <div class="col-12">
-                        <div class="mb-3">
-                            <label class="form-label">Başlık</label>
-                            <dx-text-box [(value)]="note.title">
-                                <dx-validator>
-                                    <dxi-validation-rule type="required" message="Başlık alanı zorunludur."></dxi-validation-rule>
-                                </dx-validator>
-                            </dx-text-box>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <p-multiSelect styleClass="w-100" [options]="noteCategories" optionLabel="name"
+                                optionValue="id" placeholder="Select categories" [showClear]="true"
+                                [(ngModel)]="filterForm.noteCategoryIds"></p-multiSelect>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Açıklama</label>
-                            <dx-html-editor [(value)]="note.description" [height]="400">
-                              <dxo-toolbar [multiline]="true">
-                                <dxi-item name="undo"></dxi-item>
-                                <dxi-item name="redo"></dxi-item>
-                                <dxi-item name="separator"></dxi-item>
-                                <dxi-item
-                                  name="size"
-                                  [acceptedValues]="['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt']"
-                                ></dxi-item>
-                                <dxi-item
-                                  name="font"
-                                  [acceptedValues]="[
-                                    'Arial',
-                                    'Courier New',
-                                    'Georgia',
-                                    'Impact',
-                                    'Lucida Console',
-                                    'Tahoma',
-                                    'Times New Roman',
-                                    'Verdana'
-                                  ]"
-                                ></dxi-item>
-                                <dxi-item name="separator"></dxi-item>
-                                <dxi-item name="bold"></dxi-item>
-                                <dxi-item name="italic"></dxi-item>
-                                <dxi-item name="strike"></dxi-item>
-                                <dxi-item name="underline"></dxi-item>
-                                <dxi-item name="separator"></dxi-item>
-                                <dxi-item name="alignLeft"></dxi-item>
-                                <dxi-item name="alignCenter"></dxi-item>
-                                <dxi-item name="alignRight"></dxi-item>
-                                <dxi-item name="alignJustify"></dxi-item>
-                                <dxi-item name="separator"></dxi-item>
-                                <dxi-item name="orderedList"></dxi-item>
-                                <dxi-item name="bulletList"></dxi-item>
-                                <dxi-item name="separator"></dxi-item>
-                                <dxi-item
-                                  name="header"
-                                  [acceptedValues]="[false, 1, 2, 3, 4, 5]"
-                                ></dxi-item>
-                                <dxi-item name="separator"></dxi-item>
-                                <dxi-item name="color"></dxi-item>
-                                <dxi-item name="background"></dxi-item>
-                                <dxi-item name="separator"></dxi-item>
-                                <dxi-item name="link"></dxi-item>
-                                <dxi-item name="image"></dxi-item>
-                                <dxi-item name="separator"></dxi-item>
-                                <dxi-item name="clear"></dxi-item>
-                                <dxi-item name="codeBlock"></dxi-item>
-                                <dxi-item name="blockquote"></dxi-item>
-                                <dxi-item name="separator"></dxi-item>
-                                <dxi-item name="insertTable"></dxi-item>
-                                <dxi-item name="deleteTable"></dxi-item>
-                                <dxi-item name="insertRowAbove"></dxi-item>
-                                <dxi-item name="insertRowBelow"></dxi-item>
-                                <dxi-item name="deleteRow"></dxi-item>
-                                <dxi-item name="insertColumnLeft"></dxi-item>
-                                <dxi-item name="insertColumnRight"></dxi-item>
-                                <dxi-item name="deleteColumn"></dxi-item>
-                              </dxo-toolbar>
-                              <dxo-media-resizing [enabled]="true"> </dxo-media-resizing>
-                            </dx-html-editor>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <input class="w-100" pInputText placeholder="Title" [(ngModel)]="filterForm.title">
                         </div>
                     </div>
                 </div>
-            </dx-validation-group>
-        </div>
+            </div>
+        </p-panel>
     </div>
 </div>
 
-<dx-popup [(visible)]="isCategoryVisible" [(width)]="screenWidth" [(title)]="titleCategory" height="auto">
-    <div class="row">
-        <div class="col-12">
-            <dx-validation-group>
-                <div class="mb-3">
-                    <label class="form-label">Kategori Adı</label>
-                    <dx-text-box [(value)]="noteCategory.name">
-                        <dx-validator>
-                            <dxi-validation-rule type="required" message="Kategori Adı giriniz."></dxi-validation-rule>
-                        </dx-validator>
-                    </dx-text-box>
-                </div>
-                <div class="mb-3">
-                    <dx-button class="float-end ms-2" [useSubmitBehavior]="true" text="Kaydet" type="default" (onClick)="saveCategory($event)"></dx-button>
-                    <dx-button class="float-end" (onClick)="isCategoryVisible=false" text="Kapat"></dx-button>
-                </div>
-            </dx-validation-group>
-        </div>
-    </div>
-</dx-popup>
+<div class="row">
+    <div class="col-md-12">
+        <p-table [value]="notes" [lazy]="true" styleClass="p-datatable-gridlines"
+            [tableStyle]="{ 'min-width': '50rem' }" [paginator]="true" [first]="first" [rows]="rows" [loading]="loading"
+            [scrollable]="true" (onPage)="pageChange($event)" [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [totalRecords]="totalRecords"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            [showCurrentPageReport]="true" dataKey="id">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 5rem"></th>
+                    <th style="width:50px" pFrozenColumn></th>
+                    <th>Category Name <a style="cursor: pointer;" class="pl-2" (click)="showNoteCategory()"><i
+                                class="pi pi-external-link"></i></a></th>
+                    <th>Title</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-note let-expanded="expanded">
+                <tr>
+                    <td>
+                        <button type="button" pButton pRipple [pRowToggler]="note"
+                            class="p-button-text p-button-rounded p-button-plain"
+                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                    </td>
+                    <td pFrozenColumn>
+                        <p-menu #menu [model]="gridMenuItems" [popup]="true" appendTo="body"></p-menu>
+                        <button class="btn btn-primary btn-sm" type="button" (click)="menuToggle(menu, $event, note)">
+                            <i class="pi pi-cog"></i>
+                        </button>
+                    </td>
+                    <td>{{ note.noteCategory.name }}</td>
+                    <td>{{ note.title }}</td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="rowexpansion" let-note>
+                <tr>
+                    <td colspan="4">
+                        <div class="p-2">
+                            <div
+                                style="font-size: 16px;font-weight: bold;padding-bottom: 10px; text-decoration: underline;">
+                                Description :</div>
+                            <div [innerHTML]="note.description"></div>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="4">No notes found.</td>
+                </tr>
+            </ng-template>
+        </p-table>
 
-<dx-popup [(visible)]="isMoveNoteVisible" [(width)]="screenWidth" title="Not Taşı" height="auto">
-    <div class="row">
-        <div class="col-12">
-            <dx-validation-group>
-                <div class="mb-3">
-                    <label class="form-label">Kategori</label>
-                    <dx-select-box [(value)]="selectMoveNoteId" displayExpr="name" valueExpr="id" [dataSource]="categories" searchMode="contains" searchExpr="name" [searchEnabled]="true" placeholder="Kategori seçiniz.">
-                        <dx-validator>
-                            <dxi-validation-rule type="required" message="Kategori seçiniz"></dxi-validation-rule>
-                        </dx-validator>
-                    </dx-select-box>
+    </div>
+</div>
+
+<p-dialog [header]="title" [(visible)]="isVisibleNote" [breakpoints]="{ '960px': '90vw' }" [style]="{width: '50vw'}"
+    [modal]="true">
+    <form [formGroup]="form">
+        <div class="form-group">
+            <label>Category Name</label>
+            <p-dropdown styleClass="w-100" [options]="noteCategories" optionLabel="name" optionValue="id"
+                placeholder="Select a category" [showClear]="true" formControlName="noteCategoryId"></p-dropdown>
+        </div>
+        <div class="form-group">
+            <label>Title</label>
+            <input class="w-100" pInputText formControlName="title">
+        </div>
+        <div class="form-group">
+            <label>Title</label>
+            <p-editor formControlName="description" class="w-100" [style]="{ height: '120px' }"></p-editor>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <p-button size="small" (click)="save()" type="submit" class="float-right" icon="pi pi-save" label="Save"
+            pAutoFocus [autofocus]="true"></p-button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog header="Note Categories" [(visible)]="isVisibleNoteCategory" [breakpoints]="{ '960px': '90vw' }"
+    [style]="{width: '50vw'}" [modal]="true">
+    <div class="card mb-3">
+        <div class="card-header font-weight-bold">{{noteCategoryHeader}}</div>
+        <div class="card-body">
+            <form [formGroup]="formNoteCategory">
+                <div>
+                    <input class="w-100" type="text" pInputText placeholder="Name" formControlName="name"
+                        [ngClass]="{ 'is-invalid': submitted && fNoteCategory['name'].errors }">
+                    <div *ngIf="submitted && fNoteCategory['name'].errors" class="invalid-feedback">
+                        <div *ngIf="fNoteCategory['name'].errors['required']">Name is required</div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="button" pButton icon="pi pi-save" size="small"
+                            (click)="saveNoteCategory()"></button>
+                        <button type="button" pButton icon="pi pi-times" size="small"
+                            class="bg-danger ml-2 border border-danger"></button>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <dx-button class="float-end ms-2" [useSubmitBehavior]="true" text="Taşı" type="default" (onClick)="onMoveNote($event)"></dx-button>
-                    <dx-button class="float-end" (onClick)="isMoveNoteVisible=false" text="Kapat"></dx-button>
-                </div>
-            </dx-validation-group>
+
+            </form>
         </div>
     </div>
-</dx-popup>
+    <div>
+        <p-table [value]="noteCategories" styleClass="p-datatable-gridlines" [tableStyle]="{ 'min-width': '50rem' }"
+            [paginator]="true" [rows]="5" [showCurrentPageReport]="true">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:50px"></th>
+                    <th>Name </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-category>
+                <tr>
+                    <td>
+                        <p-menu #menu [model]="gridMenuItems" [popup]="true" appendTo="body"></p-menu>
+                        <button class="btn btn-primary btn-sm" type="button"
+                            (click)="menuToggle(menu, $event, category)">
+                            <i class="pi pi-cog"></i>
+                        </button>
+                    </td>
+                    <td>{{ category.name }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</p-dialog>

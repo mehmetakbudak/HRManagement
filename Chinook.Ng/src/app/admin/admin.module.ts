@@ -12,6 +12,12 @@ import { DialogModule } from "primeng/dialog";
 import { TreeModule } from "primeng/tree";
 import { InputTextModule } from "primeng/inputtext";
 import { TriStateCheckboxModule } from 'primeng/tristatecheckbox';
+import { CardModule } from 'primeng/card';
+import { PasswordModule } from 'primeng/password';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { DropdownModule } from 'primeng/dropdown';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { EditorModule } from "primeng/editor";
 
 import { DashboardComponent } from "./dashboard/dashboard.component";
 import { AdminRoutes } from "./admin.routing";
@@ -46,6 +52,7 @@ import {
 } from "devextreme-angular";
 import { BlogsComponent } from "./blogs/blogs.component";
 import { PagesComponent } from "./pages/pages.component";
+import { CalendarModule } from "primeng/calendar";
 
 @NgModule({
   imports: [
@@ -61,7 +68,14 @@ import { PagesComponent } from "./pages/pages.component";
     DialogModule,
     TreeModule,
     TriStateCheckboxModule,
-    
+    CardModule,
+    PasswordModule,
+    InputTextareaModule,
+    CalendarModule,
+    DropdownModule,
+    MultiSelectModule,
+    EditorModule,
+
     DxTreeViewModule,
     DxToolbarModule,
     DxDropDownButtonModule,
@@ -95,7 +109,7 @@ import { PagesComponent } from "./pages/pages.component";
   ],
   providers: [
     AlertService,
-    ConfirmService    
+    ConfirmService
   ],
 })
 export class AdminModule { }

@@ -1,23 +1,8 @@
 import { Component, OnInit } from "@angular/core";
-import { AlertService, alertType } from "src/app/services/alert.service";
 import { AppService } from "src/app/app.service";
-import { LookupService, Lookup } from "src/app/services/lookup.service";
-import notify from "devextreme/ui/notify";
 import { Urls } from "src/app/models/consts";
-export class User {
-  id: number;
-  emailAddress: string;
-  firstName: string;
-  lastName: string;
-  titleId: number;
-  provinceId: number;
-  cityId: number;
-  address: string;
-  birthDate: Date;
-  hireDate: Date;
-  isActive: boolean;
-  phone: string;
-}
+import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
+import { MessageService } from "primeng/api";
 
 @Component({
   selector: "app-profile",
@@ -25,7 +10,7 @@ export class User {
   styleUrls: ["./profile.component.css"],
 })
 export class ProfileComponent implements OnInit {
-  user: User;
+  form: FormGroup;
   provinces: [];
   cities;
   titles;
@@ -33,13 +18,27 @@ export class ProfileComponent implements OnInit {
   selectCityName = "";
 
   constructor(
-    private alertService: AlertService,
-    private lookupService: LookupService,
+    private formBuilder: FormBuilder,
+    private messageService: MessageService,
     private appService: AppService
-  ) {}
+  ) { }
 
   ngOnInit() {
-    this.user = new User();
+    this.form = this.formBuilder.group({
+      id: [0, []],
+      emailAddress: new FormControl({ value: '', disabled: true }),
+      firstName: ['', [Validators.required]],
+      lastName: ['', [Validators.required]],
+      birthDate: new FormControl<Date | null>({ value: null, disabled: true }),
+      titleId: new FormControl({ value: null, disabled: true }),
+      hireDate: new FormControl<Date | null>({ value: null, disabled: true }),
+      phone: ['', [Validators.required]],
+      provinceId: [null, []],
+      cityId: [null, []],
+      address: ['', []],
+      reportedUserId: [null, []],
+      isActive: [false, []]
+    });
     this.getProvinces();
     this.getProfile();
     this.getTitle();
@@ -48,7 +47,9 @@ export class ProfileComponent implements OnInit {
   getProfile() {
     this.appService.get(Urls.Profile).then((res: any) => {
       this.getCities(res.provinceId);
-      this.user = res;
+      this.form.setValue(res);
+      this.form.get('hireDate').setValue(new Date(res.hireDate));
+      this.form.get('birthDate').setValue(new Date(res.birthDate));
     });
   }
 
@@ -59,9 +60,11 @@ export class ProfileComponent implements OnInit {
   }
 
   getCities(id) {
-    this.appService.get(`${Urls.Lookup}/Cities/${id}`).then((res: any) => {
-      this.cities = res;
-    });
+    if (id) {
+      this.appService.get(`${Urls.Lookup}/Cities/${id}`).then((res: any) => {
+        this.cities = res;
+      });
+    }
   }
 
   getTitle() {
@@ -71,17 +74,17 @@ export class ProfileComponent implements OnInit {
   }
 
   selectProvince(e) {
-    this.selectProvinceId = e.value;
-    this.getCities(e.value);
+    if (e.value) {
+      this.selectProvinceId = e.value;
+      this.getCities(e.value);
+    } else {
+      this.cities = [];
+    }
   }
 
   save(e) {
-    this.appService.put(Urls.Profile, this.user).then(() => {
-      notify(
-        "Kullanıcı bilgileri başarıyla güncellendi.",
-        alertType[alertType.success],
-        1000
-      );
+    this.appService.put(Urls.Profile, this.form.value).then(() => {
+      this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Profile updated successfully.' });
     });
   }
 }

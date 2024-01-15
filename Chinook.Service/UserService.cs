@@ -183,7 +183,7 @@ namespace Chinook.Service
 
             if (user == null)
             {
-                throw new NotFoundException("User not found.");
+                throw new NotFoundException("The current password is incorrect.");
             }
 
             if (model.NewPassword != model.ReNewPassword)
@@ -210,7 +210,6 @@ namespace Chinook.Service
                 throw new NotFoundException("User not found.");
             }
             user.Address = model.Address;
-            user.BirthDate = model.BirthDate ?? model.BirthDate.Value.Date;
             user.CityId = model.CityId;
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;

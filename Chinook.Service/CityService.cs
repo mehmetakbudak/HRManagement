@@ -1,16 +1,13 @@
 ﻿using Chinook.Data.Repository;
 using Chinook.Storage.Entities;
-using Chinook.Storage.Models;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Chinook.Service
 {
     public interface ICityService
     {
-        IQueryable<City> GetByProvinceId(int provinceId);
+        List<City> GetByProvinceId(int provinceId);
     }
 
     public class CityService : ICityService
@@ -22,10 +19,12 @@ namespace Chinook.Service
             _unitOfWork = unitOfWork;
         }
 
-        public IQueryable<City> GetByProvinceId(int provinceId)
+        public List<City> GetByProvinceId(int provinceId)
         {
             return _unitOfWork.Repository<City>()
-                .GetAll(x => x.ProvinceId == provinceId);
+                .GetAll(x => x.ProvinceId == provinceId)
+                .OrderBy(x => x.Name)
+                .ToList();
         }
     }
 }

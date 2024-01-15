@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Chinook.Data.Repository;
 using Chinook.Storage.Entities;
 
@@ -6,7 +7,7 @@ namespace Chinook.Service
 {
     public interface IProvinceService
     {
-        IQueryable<Province> Get();
+        List<Province> Get();
     }
 
     public class ProvinceService : IProvinceService
@@ -18,9 +19,10 @@ namespace Chinook.Service
             _unitOfWork = unitOfWork;
         }
 
-        public IQueryable<Province> Get()
+        public List<Province> Get()
         {
-            return _unitOfWork.Repository<Province>().GetAll();
+            return _unitOfWork.Repository<Province>().GetAll()
+                .OrderBy(x => x.Id).ToList();
         }
     }
 }
