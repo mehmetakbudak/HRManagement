@@ -1,16 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Consts\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Consts\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="DevExtreme.AspNet.Data" Version="2.9.3" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Consts\" />
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Consts\" />
+	</ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 </Project>

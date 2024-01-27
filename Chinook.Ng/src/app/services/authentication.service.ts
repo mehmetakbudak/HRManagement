@@ -20,7 +20,7 @@ export class AuthenticationService {
   }
 
   login(data): Promise<any> {
-    return this.http.post(environment.apiUrl + "user/authenticate", data)
+    return this.http.post(environment.apiUrl + "User/Login", data)
       .toPromise().then((res: any) => {
         const user: User = res.data;
         localStorage.setItem('currentUser', JSON.stringify(user));

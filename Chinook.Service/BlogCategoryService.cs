@@ -14,9 +14,9 @@ namespace Chinook.Service
 {
     public interface IBlogCategoryService
     {
-        IQueryable<BlogCategory> Get();
+        IQueryable<BlogCategoryDmo> Get();
         Task<BlogCategoryModel> GetById(int id);
-        PaginationModel<BlogCategory> GetByFilter(BlogCategoryFilterModel model);
+        PaginationModel<BlogCategoryDmo> GetByFilter(BlogCategoryFilterModel model);
         Task<List<BlogCategoryLookupModel>> GetByLookup();
         Task<ServiceResult> Post(BlogCategoryModel model);
         Task<ServiceResult> Put(BlogCategoryModel model);
@@ -31,11 +31,11 @@ namespace Chinook.Service
             _unitOfWork = unitOfWork;
         }
 
-        public IQueryable<BlogCategory> Get()
+        public IQueryable<BlogCategoryDmo> Get()
         {
             try
             {
-                var result = _unitOfWork.Repository<BlogCategory>()
+                var result = _unitOfWork.Repository<BlogCategoryDmo>()
                     .GetAll(x => !x.Deleted)
                     .OrderByDescending(x => x.Id)
                     .AsQueryable();
@@ -49,7 +49,7 @@ namespace Chinook.Service
 
         public async Task<BlogCategoryModel> GetById(int id)
         {
-            var data = await _unitOfWork.Repository<BlogCategory>()
+            var data = await _unitOfWork.Repository<BlogCategoryDmo>()
                    .Get(x => x.Id == id);
 
             if (data == null)
@@ -65,9 +65,9 @@ namespace Chinook.Service
             };
         }
 
-        public PaginationModel<BlogCategory> GetByFilter(BlogCategoryFilterModel model)
+        public PaginationModel<BlogCategoryDmo> GetByFilter(BlogCategoryFilterModel model)
         {
-            var query = _unitOfWork.Repository<BlogCategory>()
+            var query = _unitOfWork.Repository<BlogCategoryDmo>()
                 .GetAll(x => !x.Deleted)
                 .OrderByDescending(x => x.Id)
                 .AsQueryable();
@@ -84,13 +84,13 @@ namespace Chinook.Service
             {
                 query = query.Where(x => x.IsActive == model.IsActive.Value);
             }
-            var list = PaginationHelper<BlogCategory>.Paginate(query, model);
+            var list = PaginationHelper<BlogCategoryDmo>.Paginate(query, model);
             return list;
         }
 
         public async Task<List<BlogCategoryLookupModel>> GetByLookup()
         {
-            return await _unitOfWork.Repository<BlogCategory>()
+            return await _unitOfWork.Repository<BlogCategoryDmo>()
                 .GetAll(x => x.IsActive && !x.Deleted)
                 .Select(x => new BlogCategoryLookupModel
                 {
@@ -105,14 +105,14 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var category = new BlogCategory
+                var category = new BlogCategoryDmo
                 {
                     Name = model.Name,
                     Url = model.Url,
                     IsActive = model.IsActive,
                     Deleted = false
                 };
-                await _unitOfWork.Repository<BlogCategory>().Add(category);
+                await _unitOfWork.Repository<BlogCategoryDmo>().Add(category);
                 await _unitOfWork.SaveChanges();
             }
             catch (Exception ex)
@@ -128,7 +128,7 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var category = await _unitOfWork.Repository<BlogCategory>().Get(x => x.Id == model.Id);
+                var category = await _unitOfWork.Repository<BlogCategoryDmo>().Get(x => x.Id == model.Id);
                 if (category != null)
                 {
                     category.Name = model.Name;
@@ -155,7 +155,7 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var category = await _unitOfWork.Repository<BlogCategory>().Get(x => x.Id == id);
+                var category = await _unitOfWork.Repository<BlogCategoryDmo>().Get(x => x.Id == id);
                 if (category != null)
                 {
                     category.Deleted = true;

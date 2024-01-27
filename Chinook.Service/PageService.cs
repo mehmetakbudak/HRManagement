@@ -9,8 +9,8 @@ namespace Chinook.Service
 {
     public interface IPageService
     {
-        IQueryable<Page> Get();
-        Task<Page> GetById(int id);
+        IQueryable<PageDmo> Get();
+        Task<PageDmo> GetById(int id);
         Task<ServiceResult> Post(PageModel model);
         Task<ServiceResult> Put(PageModel model);
         Task<ServiceResult> Delete(int id);
@@ -24,17 +24,17 @@ namespace Chinook.Service
             _unitOfWork = unitOfWork;
         }
        
-        public IQueryable<Page> Get()
+        public IQueryable<PageDmo> Get()
         {
-            return _unitOfWork.Repository<Page>()
+            return _unitOfWork.Repository<PageDmo>()
                 .GetAll(x => !x.Deleted)
                 .Include(x => x.Menu)
                 .AsQueryable();
         }
 
-        public async Task<Page> GetById(int id)
+        public async Task<PageDmo> GetById(int id)
         {
-            var page = await _unitOfWork.Repository<Page>().Get(x => x.Id == id);
+            var page = await _unitOfWork.Repository<PageDmo>().Get(x => x.Id == id);
             return page;
         }
 

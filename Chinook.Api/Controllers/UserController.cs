@@ -1,9 +1,7 @@
-﻿using Chinook.Storage.Helpers;
-using Chinook.Storage.Models;
+﻿using Chinook.Storage.Models;
 using Chinook.Service;
 using Chinook.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
 
 namespace Chinook.Controllers
@@ -32,33 +30,35 @@ namespace Chinook.Controllers
             return Ok(result);
         }
 
-        [HttpPost("authenticate")]
-        public async Task<IActionResult> Authenticate([FromBody] LoginModel model)
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            try
-            {
-                var result = await _userService.Authenticate(model);
-                return StatusCode((int)result.StatusCode, result.CreateReturnModel());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ServiceResult { Message = ex.Message });
-            }
+            var result = await _userService.Login(model);
+            return Ok(result);
         }
 
         [Authorize]
-        [HttpPost("changePassword")]
+        [HttpPost("ChangePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] PasswordModel model)
         {
-            try
-            {
-                var result = await _userService.ChangePassword(model);
-                return StatusCode((int)result.StatusCode, result.CreateReturnModel());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ServiceResult { Message = ex.Message });
-            }
+            var result = await _userService.ChangePassword(model);
+            return Ok(result);
+        }
+
+        [HttpGet("Profile")]
+        [Authorize]
+        public async Task<IActionResult> GetProfile()
+        {
+            var result = await _userService.GetProfile();
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPut("Profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserModel model)
+        {
+            var result = await _userService.UpdateProfile(model);
+            return Ok(result);
         }
 
         [HttpPut]

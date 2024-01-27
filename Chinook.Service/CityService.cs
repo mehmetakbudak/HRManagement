@@ -7,7 +7,7 @@ namespace Chinook.Service
 {
     public interface ICityService
     {
-        List<City> GetByProvinceId(int provinceId);
+        List<CityDmo> GetByProvinceId(int provinceId);
     }
 
     public class CityService : ICityService
@@ -19,9 +19,9 @@ namespace Chinook.Service
             _unitOfWork = unitOfWork;
         }
 
-        public List<City> GetByProvinceId(int provinceId)
+        public List<CityDmo> GetByProvinceId(int provinceId)
         {
-            return _unitOfWork.Repository<City>()
+            return _unitOfWork.Repository<CityDmo>()
                 .GetAll(x => x.ProvinceId == provinceId)
                 .OrderBy(x => x.Name)
                 .ToList();

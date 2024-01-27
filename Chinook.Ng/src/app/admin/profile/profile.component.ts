@@ -45,7 +45,7 @@ export class ProfileComponent implements OnInit {
   }
 
   getProfile() {
-    this.appService.get(Urls.Profile).then((res: any) => {
+    this.appService.get(`${Urls.User}/Profile`).then((res: any) => {
       this.getCities(res.provinceId);
       this.form.setValue(res);
       this.form.get('hireDate').setValue(new Date(res.hireDate));
@@ -83,7 +83,7 @@ export class ProfileComponent implements OnInit {
   }
 
   save(e) {
-    this.appService.put(Urls.Profile, this.form.value).then(() => {
+    this.appService.put(`${Urls.User}/Profile`, this.form.value).then(() => {
       this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Profile updated successfully.' });
     });
   }

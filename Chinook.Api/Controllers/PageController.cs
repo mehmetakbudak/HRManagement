@@ -1,5 +1,4 @@
 ﻿using Chinook.Service;
-using DevExtreme.AspNet.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -16,10 +15,10 @@ namespace Chinook.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions)
+        public IActionResult Get()
         {
             var list = _pageService.Get();
-            return Json(await DataSourceLoader.LoadAsync(list, loadOptions));
+            return Ok(list);
         }
 
         [HttpGet("{id}")]

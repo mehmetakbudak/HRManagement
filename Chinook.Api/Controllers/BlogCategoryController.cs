@@ -1,13 +1,7 @@
-﻿using Chinook.Api;
-using Chinook.Storage.Helpers;
-using Chinook.Storage.Models;
-using Chinook.Service;
+﻿using Chinook.Service;
 using Chinook.Service.Attributes;
-using DevExtreme.AspNet.Data;
-using Elfie.Serialization;
+using Chinook.Storage.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Chinook.Controllers
@@ -42,45 +36,25 @@ namespace Chinook.Controllers
         [Authorize]
         public async Task<IActionResult> Post([FromBody] BlogCategoryModel model)
         {
-            try
-            {
-                var result = await blogCategoryService.Post(model);
-                return StatusCode((int)result.StatusCode, result.CreateReturnModel());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ServiceResult { Message = ex.Message });
-            }
+            var result = await blogCategoryService.Post(model);
+            return Ok(result);
         }
 
         [HttpPut]
         [Authorize]
         public async Task<IActionResult> Put([FromBody] BlogCategoryModel model)
         {
-            try
-            {
-                var result = await blogCategoryService.Put(model);
-                return StatusCode((int)result.StatusCode, result.CreateReturnModel());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ServiceResult { Message = ex.Message });
-            }
+            var result = await blogCategoryService.Put(model);
+            return Ok(result);
         }
 
         [HttpDelete("{id:int}")]
         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                var result = await blogCategoryService.Delete(id);
-                return StatusCode((int)result.StatusCode, result.CreateReturnModel());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ServiceResult { Message = ex.Message });
-            }
+
+            var result = await blogCategoryService.Delete(id);
+            return Ok(result);
         }
     }
 }

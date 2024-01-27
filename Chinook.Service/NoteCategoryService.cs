@@ -35,7 +35,7 @@ namespace Chinook.Service
         {
             var userId = _httpContextAccessor.HttpContext.User.UserId();
 
-            var list = _unitOfWork.Repository<NoteCategory>()
+            var list = _unitOfWork.Repository<TaskCategoryDmo>()
                 .GetAll(x => !x.Deleted && x.UserId == userId)
                 .OrderByDescending(x => x.UpdateDate)
                 .Select(x => new NoteCategoryModel
@@ -53,7 +53,7 @@ namespace Chinook.Service
             {
                 var userId = _httpContextAccessor.HttpContext.User.UserId();
 
-                var noteCategory = new NoteCategory
+                var noteCategory = new TaskCategoryDmo
                 {
                     UserId = userId,
                     Name = model.Name,
@@ -61,7 +61,7 @@ namespace Chinook.Service
                     UpdateDate = DateTime.Now,
                     Deleted = false
                 };
-                await _unitOfWork.Repository<NoteCategory>().Add(noteCategory);
+                await _unitOfWork.Repository<TaskCategoryDmo>().Add(noteCategory);
                 await _unitOfWork.SaveChanges();
             }
             catch (Exception ex)
@@ -79,7 +79,7 @@ namespace Chinook.Service
             {
                 var userId = _httpContextAccessor.HttpContext.User.UserId();
 
-                var category = await _unitOfWork.Repository<NoteCategory>()
+                var category = await _unitOfWork.Repository<TaskCategoryDmo>()
                     .Get(x => x.Id == model.Id && x.UserId == userId);
 
                 if (category != null)
@@ -109,7 +109,7 @@ namespace Chinook.Service
             {
                 var userId = _httpContextAccessor.HttpContext.User.UserId();
 
-                var category = await _unitOfWork.Repository<NoteCategory>()
+                var category = await _unitOfWork.Repository<TaskCategoryDmo>()
                     .Get(x => x.Id == id && x.UserId == userId);
 
                 if (category != null)

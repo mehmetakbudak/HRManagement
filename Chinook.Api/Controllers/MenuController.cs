@@ -1,9 +1,7 @@
 ﻿using Chinook.Storage.Enums;
-using Chinook.Storage.Helpers;
 using Chinook.Storage.Models;
 using Chinook.Service;
 using Chinook.Service.Attributes;
-using DevExtreme.AspNet.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -22,10 +20,10 @@ namespace Chinook.Api.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions)
+        public IActionResult Get()
         {
             var list = menuService.Get();
-            return Json(await DataSourceLoader.LoadAsync(list, loadOptions));
+            return Ok(list);
         }
 
         [HttpGet("{id:int}")]
@@ -54,7 +52,7 @@ namespace Chinook.Api.Controllers
         public async Task<IActionResult> Post([FromBody] MenuModel model)
         {
             var result = await menuService.Post(model);
-            return StatusCode((int)result.StatusCode, result.CreateReturnModel());
+            return Ok(result);
         }
 
         [HttpPut]
@@ -62,7 +60,7 @@ namespace Chinook.Api.Controllers
         public async Task<IActionResult> Put([FromBody] MenuModel model)
         {
             var result = await menuService.Put(model);
-            return StatusCode((int)result.StatusCode, result.CreateReturnModel());
+            return Ok(result);
         }
 
         [Authorize]
@@ -70,7 +68,7 @@ namespace Chinook.Api.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var result = await menuService.Delete(id);
-            return StatusCode((int)result.StatusCode, result.CreateReturnModel());
+            return Ok(result);
         }
     }
 }

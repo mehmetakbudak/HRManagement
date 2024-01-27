@@ -6,7 +6,7 @@ namespace Chinook.Service
 {
     public interface ITitleService
     {
-        IQueryable<Title> Get();
+        IQueryable<TitleDmo> Get();
     }
 
     public class TitleService : ITitleService
@@ -18,9 +18,9 @@ namespace Chinook.Service
             _unitOfWork = unitOfWork;
         }
 
-        public IQueryable<Title> Get()
+        public IQueryable<TitleDmo> Get()
         {
-            return _unitOfWork.Repository<Title>().GetAll(x => !x.Deleted);
+            return _unitOfWork.Repository<TitleDmo>().GetAll(x => !x.Deleted);
         }
     }
 }

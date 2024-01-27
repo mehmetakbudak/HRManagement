@@ -37,12 +37,12 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var lastMenuItem = await unitOfWork.Repository<MenuItem>()
+                var lastMenuItem = await unitOfWork.Repository<MenuItemDmo>()
                     .GetAll(x => x.ParentId == model.ParentId && x.IsActive && !x.Deleted)
                     .OrderByDescending(x => x.Order)
                     .FirstOrDefaultAsync();
 
-                var entity = new MenuItem
+                var entity = new MenuItemDmo
                 {
                     Deleted = false,
                     IsActive = model.IsActive,
@@ -52,7 +52,7 @@ namespace Chinook.Service
                     ParentId = model.ParentId,
                     Order = lastMenuItem == null ? 1 : (lastMenuItem.Order + 1)
                 };
-                await unitOfWork.Repository<MenuItem>().Add(entity);
+                await unitOfWork.Repository<MenuItemDmo>().Add(entity);
                 await unitOfWork.SaveChanges();
             }
             catch (Exception ex)
@@ -68,7 +68,7 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var menuItem = await unitOfWork.Repository<MenuItem>()
+                var menuItem = await unitOfWork.Repository<MenuItemDmo>()
                     .Get(x => x.Id == model.Id && !x.Deleted && x.IsActive);
 
                 if (menuItem != null)

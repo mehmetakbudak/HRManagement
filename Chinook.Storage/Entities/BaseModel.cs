@@ -11,7 +11,7 @@ namespace Chinook.Storage.Entities
 
     public class BaseInfoModel : BaseModel
     {
-        public DateTime? UpdateDate { get; set; }
-        public DateTime InsertDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public DateTime InsertedDate { get; set; }
     }
 }

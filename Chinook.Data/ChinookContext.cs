@@ -9,23 +9,30 @@ namespace Chinook.Data
         {
         }
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<BlogCategory> BlogCategories { get; set; }
-        public DbSet<NoteCategory> NoteCategories { get; set; }
-        public DbSet<Note> Notes { get; set; }
-        public DbSet<Title> Titles { get; set; }
-        public DbSet<Province> Provinces { get; set; }
-        public DbSet<City> Cities { get; set; }
-        public DbSet<Menu> Menus { get; set; }
-        public DbSet<MenuItem> MenuItems { get; set; }
-        public DbSet<Page> Pages { get; set; }
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<AccessRightCategory> AccessRightCategories { get; set; }
-        public DbSet<AccessRight> AccessRights { get; set; }
-        public DbSet<AccessRightEndpoint> AccessRightEndpoints { get; set; }
-        public DbSet<UserAccessRight> UserAccessRights { get; set; }
+        public DbSet<AccessRightDmo> AccessRights { get; set; }
+        public DbSet<AccessRightEndpointDmo> AccessRightEndpoints { get; set; }
+        public DbSet<BlogCategoryDmo> BlogCategories { get; set; }
+        public DbSet<BlogDmo> Blogs { get; set; }
+        public DbSet<CityDmo> Cities { get; set; }
+        public DbSet<CommentDmo> Comments { get; set; }
+        public DbSet<MenuDmo> Menus { get; set; }
+        public DbSet<MenuItemAccessRightDmo> MenuItemAccessRights { get; set; }
+        public DbSet<MenuItemDmo> MenuItems { get; set; }
+        public DbSet<PageDmo> Pages { get; set; }
+        public DbSet<ProvinceDmo> Provinces { get; set; }
+        public DbSet<RoleAccessRightDmo> RoleAccessRights { get; set; }
+        public DbSet<RoleDmo> Roles { get; set; }
+        public DbSet<SelectedBlogCategoryDmo> SelectedBlogCategories { get; set; }
+        public DbSet<SourceTagDmo> SourceTags { get; set; }
+        public DbSet<TagDmo> Tags { get; set; }
+        public DbSet<TaskCategoryDmo> TaskCategories { get; set; }
+        public DbSet<TaskDmo> Tasks { get; set; }
+        public DbSet<TaskStatusDmo> TaskStatuses { get; set; }
+        public DbSet<TitleDmo> Titles { get; set; }
+        public DbSet<UserAccessRightDmo> UserAccessRights { get; set; }
+        public DbSet<UserDmo> Users { get; set; }
+        public DbSet<UserRoleDmo> UserRoles { get; set; }
 
-        public DbSet<MenuItemAccessRight> MenuItemAccessRights { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

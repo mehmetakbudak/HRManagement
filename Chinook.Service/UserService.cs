@@ -21,10 +21,11 @@ namespace Chinook.Service
     {
         IQueryable<UserGridModel> Get();
         Task<UserModel> Get(int id);
-        Task<User> GetById(int id);
-        Task<ServiceResult> Authenticate(LoginModel model);
+        Task<UserDmo> GetById(int id);
+        Task<ServiceResult> Login(LoginModel model);
         string NewToken(string userId);
         Task<ServiceResult> ChangePassword(PasswordModel model);
+        Task<UserModel> GetProfile();
         Task<ServiceResult> UpdateProfile(UserModel model);
         Task<ServiceResult> Put(UserModel model);
         Task<ServiceResult> Delete(int id);
@@ -116,7 +117,7 @@ namespace Chinook.Service
             return tokenString;
         }
 
-        public async Task<ServiceResult> Authenticate(LoginModel model)
+        public async Task<ServiceResult> Login(LoginModel model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
@@ -163,7 +164,7 @@ namespace Chinook.Service
             return serviceResult;
         }
 
-        public async Task<User> GetById(int id)
+        public async Task<UserDmo> GetById(int id)
         {
             var user = await _context.Users
                 .Include(a => a.City)
@@ -194,6 +195,34 @@ namespace Chinook.Service
             user.Password = model.NewPassword;
             await _context.SaveChangesAsync();
             return serviceResult;
+        }
+
+        public async Task<UserModel> GetProfile()
+        {
+            var userId = _httpContextAccessor.HttpContext.User.UserId();
+            var user = await GetById(userId);
+
+            if (user == null)
+            {
+                throw new NotFoundException("User not found.");
+            }
+
+            var model = new UserModel
+            {
+                Id = user.Id,
+                EmailAddress = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                TitleId = user.TitleId,
+                ProvinceId = user.City?.ProvinceId,
+                CityId = user.CityId,
+                Address = user.Address,
+                BirthDate = user.BirthDate,
+                HireDate = user.HireDate,
+                IsActive = user.IsActive,
+                Phone = user.Phone
+            };
+            return model;
         }
 
         public async Task<ServiceResult> UpdateProfile(UserModel model)
@@ -254,7 +283,7 @@ namespace Chinook.Service
             }
 
             user.Deleted = true;
-            
+
             await _context.SaveChangesAsync();
 
             return result;

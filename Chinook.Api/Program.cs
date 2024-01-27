@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Microsoft.IdentityModel.Tokens;
 using Chinook.Service.Extensions;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,8 +67,15 @@ builder.Services.AddControllers(mvcOptions =>
                 mvcOptions.EnableEndpointRouting = false);
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

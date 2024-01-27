@@ -1,13 +1,16 @@
-﻿using Chinook.Data.Repository;
+﻿using Chinook.Data;
 using Chinook.Service.Exceptions;
 using Chinook.Service.Extensions;
 using Chinook.Service.Helpers;
 using Chinook.Storage.Entities;
+using Chinook.Storage.Enums;
 using Chinook.Storage.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -16,69 +19,38 @@ namespace Chinook.Service
 {
     public interface IBlogService
     {
-        IQueryable<Blog> Get();
-        PaginationModel<Blog> GetByFilter(BlogFilterModel model);
-        List<Blog> GetAllByCategoryUrl(string categoryUrl);
-        Task<BlogModel> GetById(int id);
-        Task<ServiceResult> Post(BlogModel model);
-        Task<ServiceResult> Put(BlogModel model);
+        IQueryable<BlogDmo> Get();
+        PaginationModel<BlogDmo> GetByFilter(BlogFilterModel model);
+        Task<BlogDetailModel> GetById(int id);
+        Task<ServiceResult> Post(BlogPostModel model);
+        Task<ServiceResult> Put(BlogPutModel model);
         Task<ServiceResult> Delete(int id);
-        Task<List<Blog>> GetBlogsByCategoryUrl(string categoryUrl);
+        Task<List<BlogModel>> GetBlogsByCategoryUrl(string categoryUrl);
     }
     public class BlogService : IBlogService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ChinookContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHostingEnvironment _environment;
 
         public BlogService(
-            IUnitOfWork unitOfWork,
+            ChinookContext context,
+            IHostingEnvironment environment,
             IHttpContextAccessor httpContextAccessor)
         {
-            _unitOfWork = unitOfWork;
+            _context = context;
+            _environment = environment;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public IQueryable<Blog> Get()
+        public IQueryable<BlogDmo> Get()
         {
-            return _unitOfWork.Repository<Blog>()
-                .GetAll(x => !x.Deleted)
-                .Include(x => x.BlogCategory)
+            return _context.Blogs.Where(x => !x.Deleted)
                 .OrderByDescending(x => x.Id)
                 .AsQueryable();
         }
 
-        public List<Blog> GetAllByCategoryUrl(string categoryUrl)
-        {
-            var list = _unitOfWork.Repository<Blog>()
-                .GetAll(x => !x.Deleted && x.Published && x.BlogCategory.Url == categoryUrl).ToList();
-            return list;
-        }
-
-        public async Task<BlogModel> GetById(int id)
-        {
-            var data = await _unitOfWork.Repository<Blog>()
-                .Get(x => x.Id == id && !x.Deleted);
-
-            if (data is null)
-            {
-                throw new NotFoundException("Blog not found.");
-            }
-            return new BlogModel
-            {
-                Id = data.Id,
-                BlogCategoryId = data.BlogCategoryId,
-                Description = data.Description,
-                ImageUrl = data.ImageUrl,
-                IsActive = data.IsActive,
-                Published = data.Published,
-                Sequence = data.Sequence,
-                ShortDefinition = data.ShortDefinition,
-                Title = data.Title,
-                Url = data.Url
-            };
-        }
-
-        public PaginationModel<Blog> GetByFilter(BlogFilterModel model)
+        public PaginationModel<BlogDmo> GetByFilter(BlogFilterModel model)
         {
             var query = Get();
             if (!string.IsNullOrEmpty(model.Title))
@@ -93,61 +65,407 @@ namespace Chinook.Service
             {
                 query = query.Where(x => x.IsActive == model.IsActive.Value);
             }
-            var list = PaginationHelper<Blog>.Paginate(query, model);
+            var list = PaginationHelper<BlogDmo>.Paginate(query, model);
             return list;
         }
 
-        public async Task<ServiceResult> Post(BlogModel model)
+        public async Task<List<BlogModel>> GetBlogsByCategoryUrl(string blogCategoryUrl)
         {
-            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var blogCategory = await _context.BlogCategories
+                .Where(x => x.Url == blogCategoryUrl && !x.Deleted).FirstOrDefaultAsync();
 
-            var userId = _httpContextAccessor.HttpContext.User.UserId();
-            var entity = new Blog()
+            if (blogCategory is null)
             {
-                BlogCategoryId = model.BlogCategoryId,
-                Deleted = false,
-                Description = model.Description,
-                ImageUrl = model.ImageUrl,
-                InsertDate = DateTime.Now,
-                InsertedBy = userId,
-                Published = model.Published,
-                IsActive = model.IsActive,
-                ReadCount = 0,
-                Sequence = model.Sequence,
-                ShortDefinition = model.ShortDefinition,
-                Title = model.Title,
-                Url = model.Url
-            };
-            await _unitOfWork.Repository<Blog>().Add(entity);
-            await _unitOfWork.SaveChanges();
-            return result;
+                throw new NotFoundException("Blog category not found.");
+            }
+
+            var comments = _context.Comments
+                .Where(x => !x.Deleted && x.Status == CommentStatus.Approved && x.SourceType == SourceType.Blog).AsQueryable();
+
+            var blogs = await _context.SelectedBlogCategories
+                 .Where(x => !x.Blog.Deleted && x.Blog.Published && x.Blog.IsActive && x.BlogCategoryId == blogCategory.Id)
+                 .Include(x => x.Blog)
+                 .Include(x => x.BlogCategory)
+                 .Select(x => x.Blog)
+                 .OrderBy(x => x.DisplayOrder)
+                 .Select(x => new BlogModel
+                 {
+                     Id = x.Id,
+                     Url = x.Url,
+                     Title = x.Title,
+                     Content = x.Content,
+                     ImageUrl = x.ImageUrl,
+                     Description = x.Description,
+                     InsertedDate = x.InsertedDate,
+                     FullName = $"{x.User.FirstName} {x.User.LastName}",
+                     CommentCount = comments.Count(a => a.SourceId == x.Id)
+                 }).ToListAsync();
+
+            return blogs;
         }
 
-        public async Task<ServiceResult> Put(BlogModel model)
+        public async Task<BlogDetailModel> GetById(int id)
         {
-            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-
-            var userId = _httpContextAccessor.HttpContext.User.UserId();
-
-            var blog = await _unitOfWork.Repository<Blog>().Get(x => x.Id == model.Id && !x.Deleted);
+            BlogDetailModel model = null;
+            var blog = await _context.Blogs
+                .Where(x => !x.Deleted && x.Id == id)
+                .Include(x => x.SelectedBlogCategories)
+                .ThenInclude(x => x.BlogCategory)
+                .FirstOrDefaultAsync();
 
             if (blog is null)
             {
                 throw new NotFoundException("Blog not found.");
             }
 
-            blog.Title = model.Title;
-            blog.Url = model.Url;
-            blog.Published = model.Published;
-            blog.IsActive = model.IsActive;
-            blog.Description = model.Description;
-            blog.ImageUrl = model.ImageUrl;
-            blog.Sequence = model.Sequence;
-            blog.ShortDefinition = model.ShortDefinition;
-            blog.UpdateDate = DateTime.Now;
-            blog.UpdatedBy = userId;
+            var blogTags = await _context.SourceTags
+                .Where(x => x.SourceId == blog.Id && x.SourceType == SourceType.Blog)
+                .Include(x => x.Tag)
+                .ToListAsync();
 
-            await _unitOfWork.SaveChanges();
+            model = new BlogDetailModel
+            {
+                Content = blog.Content,
+                Id = blog.Id,
+                Description = blog.Description,
+                Title = blog.Title,
+                Url = blog.Url,
+                IsActive = blog.IsActive,
+                Published = blog.Published,
+                DisplayOrder = blog.DisplayOrder,
+                ImageUrl = blog.ImageUrl,
+                BlogCategories = blog.SelectedBlogCategories.Select(x => x.BlogCategory.Id).ToList(),
+                SelectedTags = blogTags.Select(x => x.Tag.Name).ToList()
+            };
+            return model;
+        }
+
+        public async Task<BlogDetailModel> GetDetailById(int id)
+        {
+            BlogDetailModel model = null;
+
+            var blog = await _context.Blogs
+                .Where(x => x.Id == id && !x.Deleted && x.Published && x.IsActive)
+                .Include(x => x.SelectedBlogCategories)
+                .ThenInclude(x => x.BlogCategory)
+                .Include(x => x.User)
+                .FirstOrDefaultAsync();
+
+            if (blog == null)
+            {
+                throw new NotFoundException("Blog not found.");
+            }
+
+            var commentCount = await _context.Comments
+                .Where(x => x.SourceType == SourceType.Blog && x.SourceId == id && !x.Deleted && x.Status == CommentStatus.Approved).CountAsync();
+
+            var blogTags = await _context.SourceTags
+                .Where(x => x.SourceType == SourceType.Blog && x.SourceId == id)
+                .Include(x => x.Tag)
+                .Select(x => x.Tag).ToListAsync();
+
+            model = new BlogDetailModel
+            {
+                Content = blog.Content,
+                NumberOfView = blog.NumberOfView,
+                Id = blog.Id,
+                InsertedDate = blog.InsertedDate,
+                Title = blog.Title,
+                ImageUrl = blog.ImageUrl,
+                FullName = $"{blog.User.FirstName} {blog.User.LastName}",
+                CommentCount = commentCount,
+                Url = blog.Url,
+                BlogCategories = blog.SelectedBlogCategories
+                                     .Select(x => x.BlogCategory)
+                                     .Select(x => new BlogDetailCategoryModel
+                                     {
+                                         Id = x.Id,
+                                         Name = x.Name,
+                                         Url = x.Url
+                                     }).ToList(),
+                BlogTags = blogTags.Select(x => new BlogDetailTagModel
+                {
+                    Name = x.Name,
+                    Url = x.Url
+                }).ToList()
+            };
+            return model;
+        }
+
+        public async Task<List<MostReadBlogModel>> MostRead(string blogCategoryUrl = null)
+        {
+            IQueryable<BlogDmo> data = null;
+
+            if (!string.IsNullOrEmpty(blogCategoryUrl))
+            {
+                data = _context.SelectedBlogCategories
+                    .Where(x => !x.Blog.Deleted && x.Blog.IsActive && x.Blog.Published && x.BlogCategory.Url == blogCategoryUrl)
+                    .Include(x => x.Blog)
+                    .Include(x => x.BlogCategory)
+                    .Select(x => x.Blog).AsQueryable();
+            }
+            else
+            {
+                data = _context.Blogs.Where(x => !x.Deleted && x.IsActive && x.Published);
+            }
+
+            var list = await data.OrderByDescending(x => x.NumberOfView).Take(5)
+                .Select(x => new MostReadBlogModel()
+                {
+                    Id = x.Id,
+                    ImageUrl = x.ImageUrl,
+                    Title = x.Title,
+                    Url = x.Url,
+                    InsertedDate = x.InsertedDate
+                }).ToListAsync();
+
+            return list;
+        }
+
+        public async Task<ServiceResult> Post(BlogPostModel model)
+        {
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
+            var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                if (model == null || model.Id != 0)
+                {
+                    throw new NotFoundException("Model null olamaz.");
+                }
+                if (model.Image == null)
+                {
+                    throw new BadRequestException("Resim ekleyiniz.");
+                }
+
+                #region Add File
+                var extension = Path.GetExtension(model.Image.FileName);
+                string imageUrl = $"/images/blogs/{Guid.NewGuid()}{extension}";
+                var fileUploadUrl = $"{_environment.WebRootPath}{imageUrl}";
+                model.Image.CopyTo(new FileStream(fileUploadUrl, FileMode.Create));
+                #endregion
+
+                var userId = _httpContextAccessor.HttpContext.User.UserId();
+
+                #region Add Blog 
+                var blog = new BlogDmo
+                {
+                    Content = model.Content,
+                    Deleted = false,
+                    Description = model.Content,
+                    DisplayOrder = model.,
+                    InsertedDate = DateTime.Now,
+                    IsActive = model.IsActive,
+                    Published = model.Published,
+                    NumberOfView = 0,
+                    Title = model.Title,
+                    UserId = userId,
+                    ImageUrl = imageUrl,
+                    Url = UrlHelper.FriendlyUrl(model.Title)
+                };
+
+                await _context.Blogs.AddAsync(blog);
+                await _context.SaveChangesAsync();
+                #endregion
+
+                #region Add SelectedBlogCategory
+                foreach (var blogCategoryId in model.BlogCategories)
+                {
+                    await _context.SelectedBlogCategories.AddAsync(new SelectedBlogCategoryDmo
+                    {
+                        BlogCategoryId = blogCategoryId,
+                        BlogId = blog.Id
+                    });
+                }
+                #endregion
+
+                await AddNewTags(model.SelectedTags);
+
+                #region Add SourceTag
+                var tags = await _context.Tags
+                    .Where(x => model.SelectedTags.Contains(x.Name)).ToListAsync();
+
+                foreach (var tag in tags)
+                {
+                    await _context.SourceTags.AddAsync(new SourceTagDmo
+                    {
+                        SourceId = blog.Id,
+                        TagId = tag.Id,
+                        SourceType = SourceType.Blog
+                    });
+                }
+                #endregion
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                await transaction.CommitAsync();
+            }
+            return result;
+        }
+
+        private async Task AddNewTags(List<string> tags)
+        {
+            var tagNames = await _context.Tags.Select(x => x.Name).ToListAsync();
+
+            var addingTagList = tags.Where(x => !string.IsNullOrEmpty(x) && !tagNames.Contains(x)).ToList();
+
+            if (addingTagList != null && addingTagList.Count > 0)
+            {
+                foreach (var tagName in addingTagList)
+                {
+                    await _context.Tags.AddAsync(new TagDmo
+                    {
+                        Name = tagName,
+                        Url = UrlHelper.FriendlyUrl(tagName)
+                    });
+                }
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<ServiceResult> Put(BlogPutModel model)
+        {
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
+            var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var blog = await _context.Blogs.FirstOrDefaultAsync(x => x.Id == model.Id && !x.Deleted);
+
+                if (blog == null)
+                {
+                    throw new NotFoundException("Kayıt bulunamadı.");
+                }
+
+                #region Update File
+                if (model.Image != null)
+                {
+                    var currentFileUrl = Path.Combine(_environment.WebRootPath, blog.ImageUrl);
+
+                    if (File.Exists(currentFileUrl))
+                    {
+                        File.Delete(currentFileUrl);
+                    }
+                    var extension = Path.GetExtension(model.Image.FileName);
+                    string imageUrl = $"/images/blogs/{Guid.NewGuid()}{extension}";
+                    var fileUploadUrl = $"{_environment.WebRootPath}{imageUrl}";
+                    model.Image.CopyTo(new FileStream(fileUploadUrl, FileMode.Create));
+
+                    blog.ImageUrl = imageUrl;
+                }
+                #endregion
+
+                #region Update Blog
+                blog.Content = model.Content;
+                blog.Published = model.Published;
+                blog.IsActive = model.IsActive;
+                blog.Description = model.Description;
+                blog.UpdatedDate = DateTime.Now;
+                blog.Title = model.Title;
+                blog.DisplayOrder = model.DisplayOrder;
+                blog.Url = UrlHelper.FriendlyUrl(model.Title);
+                #endregion
+
+                #region Update SelectedBlogCategory
+                var selectedBlogCategories = await _context.SelectedBlogCategories
+                    .Where(x => x.BlogId == model.Id).ToListAsync();
+
+                var addingBlogCategoryList = model.BlogCategories
+                    .Where(x => !selectedBlogCategories.Select(x => x.BlogCategoryId).Contains(x)).ToList();
+
+                if (addingBlogCategoryList != null && addingBlogCategoryList != null)
+                {
+                    foreach (var blogCategoryId in addingBlogCategoryList)
+                    {
+                        await _context.SelectedBlogCategories.AddAsync(new SelectedBlogCategoryDmo()
+                        {
+                            BlogCategoryId = blogCategoryId,
+                            BlogId = blog.Id
+                        });
+                    }
+                }
+
+                var deletingBlogCategoryList = selectedBlogCategories
+                    .Where(x => !model.BlogCategories.Contains(x.BlogCategoryId)).ToList();
+
+                if (deletingBlogCategoryList != null && deletingBlogCategoryList.Any())
+                {
+                    _context.SelectedBlogCategories.RemoveRange(deletingBlogCategoryList);
+                }
+                #endregion
+
+                await AddNewTags(model.SelectedTags);
+
+                #region Update SourceTags
+                var sourceTags = await _context.SourceTags
+                    .Where(x => x.SourceId == model.Id && x.SourceType == SourceType.Blog)
+                    .Include(x => x.Tag)
+                    .ToListAsync();
+
+                var addingTagNameList = model.SelectedTags
+                    .Where(x => !sourceTags.Select(x => x.Tag.Name).Contains(x)).ToList();
+
+                var addingTagList = await _context.Tags
+                    .Where(x => addingTagNameList.Contains(x.Name)).ToListAsync();
+
+                if (addingTagList != null && addingTagList != null)
+                {
+                    foreach (var tag in addingTagList)
+                    {
+                        await _context.SourceTags.AddAsync(new SourceTagDmo
+                        {
+                            SourceId = blog.Id,
+                            TagId = tag.Id,
+                            SourceType = SourceType.Blog
+                        });
+                    }
+                }
+
+                var deletingSourceTagList = sourceTags.Where(x => !model.SelectedTags.Contains(x.Tag.Name)).ToList();
+
+                if (deletingSourceTagList != null && deletingSourceTagList.Any())
+                {
+                    _context.SourceTags.RemoveRange(deletingSourceTagList);
+                }
+                #endregion
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                await transaction.CommitAsync();
+            }
+            return result;
+        }
+
+        public async Task<ServiceResult> Seen(int id)
+        {
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
+            var blog = await _context.Blogs
+                .FirstOrDefaultAsync(x => !x.Deleted && x.Published && x.IsActive && x.Id == id);
+
+            if (blog is null)
+            {
+                throw new NotFoundException("Blog not found.");
+            }
+
+            blog.NumberOfView++;
+            await _context.SaveChangesAsync();
+
             return result;
         }
 
@@ -155,24 +473,54 @@ namespace Chinook.Service
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var blog = await _unitOfWork.Repository<Blog>().Get(x => x.Id == id && !x.Deleted);
+            var blog = await _context.Blogs.FirstOrDefaultAsync(x => x.Id == id && !x.Deleted);
 
             if (blog is null)
             {
                 throw new NotFoundException("Blog not found.");
             }
+
             blog.Deleted = true;
-            blog.UpdateDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            var currentFileUrl = Path.Combine(_environment.WebRootPath, blog.ImageUrl);
+
+            if (File.Exists(currentFileUrl))
+            {
+                File.Delete(currentFileUrl);
+            }
 
             return result;
         }
 
-        public async Task<List<Blog>> GetBlogsByCategoryUrl(string categoryUrl)
+        public async Task<List<BlogModel>> GetTagBlogsByUrl(string url)
         {
-            var list = await _unitOfWork.Repository<Blog>()
-                .GetAll(x => !x.Deleted && x.IsActive && x.Published && x.BlogCategory.Url == categoryUrl).ToListAsync();
+            var sourceTags = await _context.SourceTags
+                .Where(x => x.Tag.Url == url && x.SourceType == SourceType.Blog)
+                .Include(x => x.Tag)
+                .ToListAsync();
 
-            return list;
+            var comments = _context.Comments
+                .Where(x => !x.Deleted && x.Status == CommentStatus.Approved && x.SourceType == SourceType.Blog).AsQueryable();
+
+            var blogs = await _context.Blogs
+                .Where(x => sourceTags.Select(a => a.SourceId).Contains(x.Id) && x.Published && !x.Deleted && x.IsActive)
+                .OrderBy(x => x.DisplayOrder)
+              .Select(x => new BlogModel
+              {
+                  Id = x.Id,
+                  Url = x.Url,
+                  Title = x.Title,
+                  Content = x.Content,
+                  ImageUrl = x.ImageUrl,
+                  Description = x.Description,
+                  InsertedDate = x.InsertedDate,
+                  FullName = $"{x.User.FirstName} {x.User.LastName}",
+                  CommentCount = comments.Count(a => a.SourceId == x.Id)
+              }).ToListAsync();
+
+            return blogs;
         }
     }
 }

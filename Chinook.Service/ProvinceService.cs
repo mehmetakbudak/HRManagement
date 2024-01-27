@@ -7,7 +7,7 @@ namespace Chinook.Service
 {
     public interface IProvinceService
     {
-        List<Province> Get();
+        List<ProvinceDmo> Get();
     }
 
     public class ProvinceService : IProvinceService
@@ -19,9 +19,9 @@ namespace Chinook.Service
             _unitOfWork = unitOfWork;
         }
 
-        public List<Province> Get()
+        public List<ProvinceDmo> Get()
         {
-            return _unitOfWork.Repository<Province>().GetAll()
+            return _unitOfWork.Repository<ProvinceDmo>().GetAll()
                 .OrderBy(x => x.Id).ToList();
         }
     }

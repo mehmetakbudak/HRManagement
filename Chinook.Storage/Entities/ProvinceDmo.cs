@@ -2,7 +2,7 @@
 
 namespace Chinook.Storage.Entities
 {
-    public class Province : BaseModel
+    public class ProvinceDmo : BaseModel
     {
         public string Name { get; set; }
     }

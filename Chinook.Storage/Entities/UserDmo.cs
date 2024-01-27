@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chinook.Storage.Entities
 {
-    public class User : BaseModel
+    public class UserDmo : BaseModel
     {
         public string LastName { get; set; }
 
@@ -12,13 +12,13 @@ namespace Chinook.Storage.Entities
 
         public int? TitleId { get; set; }
 
-        public Title Title { get; set; }
+        public TitleDmo Title { get; set; }
 
         public int? CityId { get; set; }
 
-        public City City { get; set; }
+        public CityDmo City { get; set; }
 
-        public User ReportedUser { get; set; }
+        public UserDmo ReportedUser { get; set; }
 
         public int? ReportedUserId { get; set; }
 

@@ -15,7 +15,7 @@ namespace Chinook.Service
 {
     public interface INoteService
     {
-        PaginationModel<Note> GetByFilter(NoteFilterModel model);
+        PaginationModel<TaskDmo> GetByFilter(NoteFilterModel model);
         Task<NoteModel> GetById(int id);
         Task<ServiceResult> Post(NoteModel model);
         Task<ServiceResult> Put(NoteModel model);
@@ -36,11 +36,11 @@ namespace Chinook.Service
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public PaginationModel<Note> GetByFilter(NoteFilterModel model)
+        public PaginationModel<TaskDmo> GetByFilter(NoteFilterModel model)
         {
             var userId = _httpContextAccessor.HttpContext.User.UserId();
 
-            var query = _unitOfWork.Repository<Note>()
+            var query = _unitOfWork.Repository<TaskDmo>()
                 .GetAll(x => !x.Deleted && x.NoteCategory.UserId == userId)
                 .Include(x => x.NoteCategory)
                 .OrderByDescending(x => x.UpdateDate)
@@ -55,7 +55,7 @@ namespace Chinook.Service
                 query = query.Where(x => x.Title.ToLower().Contains(model.Title.ToLower()));
             }
 
-            var list = PaginationHelper<Note>.Paginate(query, model);
+            var list = PaginationHelper<TaskDmo>.Paginate(query, model);
 
             return list;
         }
@@ -64,7 +64,7 @@ namespace Chinook.Service
         {
             var userId = _httpContextAccessor.HttpContext.User.UserId();
 
-            var note = await _unitOfWork.Repository<Note>()
+            var note = await _unitOfWork.Repository<TaskDmo>()
                 .Get(x => !x.Deleted && x.Id == id && x.NoteCategory.UserId == userId);
 
             if (note == null)
@@ -87,7 +87,7 @@ namespace Chinook.Service
 
             var userId = _httpContextAccessor.HttpContext.User.UserId();
 
-            var category = _unitOfWork.Repository<NoteCategory>()
+            var category = _unitOfWork.Repository<TaskCategoryDmo>()
                 .Get(x => x.Id == model.NoteCategoryId && x.UserId == userId);
 
             if (category == null)
@@ -95,7 +95,7 @@ namespace Chinook.Service
                 throw new NotFoundException("Note category not found");
             }
 
-            var note = new Note
+            var note = new TaskDmo
             {
                 Title = model.Title,
                 NoteCategoryId = model.NoteCategoryId,
@@ -104,7 +104,7 @@ namespace Chinook.Service
                 InsertDate = DateTime.Now,
                 Deleted = false
             };
-            await _unitOfWork.Repository<Note>().Add(note);
+            await _unitOfWork.Repository<TaskDmo>().Add(note);
             await _unitOfWork.SaveChanges();
 
             return serviceResult;
@@ -116,7 +116,7 @@ namespace Chinook.Service
 
             var userId = _httpContextAccessor.HttpContext.User.UserId();
 
-            var note = await _unitOfWork.Repository<Note>()
+            var note = await _unitOfWork.Repository<TaskDmo>()
                 .Get(x => x.Id == model.Id && x.NoteCategory.UserId == userId);
 
             if (note == null)
@@ -140,7 +140,7 @@ namespace Chinook.Service
 
             var userId = _httpContextAccessor.HttpContext.User.UserId();
 
-            var note = await _unitOfWork.Repository<Note>()
+            var note = await _unitOfWork.Repository<TaskDmo>()
                 .Get(x => x.Id == id && x.NoteCategory.UserId == userId);
 
             if (note == null)
@@ -159,7 +159,7 @@ namespace Chinook.Service
 
             var userId = _httpContextAccessor.HttpContext.User.UserId();
 
-            var note = await _unitOfWork.Repository<Note>()
+            var note = await _unitOfWork.Repository<TaskDmo>()
                 .Get(x => x.Id == model.Id && x.NoteCategory.UserId == userId);
 
             if (note == null)

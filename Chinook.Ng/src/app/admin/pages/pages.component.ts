@@ -1,5 +1,4 @@
 import { Component, OnInit } from "@angular/core";
-import { createStore } from "devextreme-aspnet-data-nojquery";
 import { AppService } from "src/app/app.service";
 import { Urls } from "src/app/models/consts";
 import { Page } from "src/app/models/page";
@@ -11,7 +10,7 @@ import { environment } from "src/environments/environment";
   styleUrls: ["./pages.component.css"],
 })
 export class PagesComponent implements OnInit {
-  dataSource: any;
+  dataSource = [];
   isVisible: boolean = false;
   title: string = "";
   screenWidth = "60vw";
@@ -29,16 +28,7 @@ export class PagesComponent implements OnInit {
 
   bindGrid() {
     var token = this.appService.getToken();
-    this.dataSource = createStore({
-      key: "id",
-      loadUrl: `${environment.apiUrl}${Urls.Page}`,
-      onBeforeSend(method, ajaxOptions) {
-        ajaxOptions.xhrFields = { withCredentials: true };
-        ajaxOptions.headers = {
-          Authorization: `Bearer ${token}`,
-        };
-      },
-    });
+
   }
 
   getById(id) {

@@ -7,8 +7,6 @@ import {
 } from "src/app/services/alert.service";
 import { ConfirmService } from "src/app/services/confirm.service";
 import { Urls } from "src/app/models/consts";
-import CustomStore from "devextreme/data/custom_store";
-import { createStore } from "devextreme-aspnet-data-nojquery";
 import { environment } from "src/environments/environment";
 import { Menu } from "src/app/models/menu";
 
@@ -22,7 +20,7 @@ export class MenusComponent implements OnInit {
   items = [];
   menu: Menu = new Menu();
   screenWidth = "40vw";
-  dataSource: CustomStore;
+  dataSource = [];
   isVisibleMenu: boolean = false;
   isVisibleMenuItems: boolean = false;
   titleMenu: string;
@@ -47,16 +45,7 @@ export class MenusComponent implements OnInit {
 
   bindGrid() {
     var token = this.appService.getToken();
-    this.dataSource = createStore({
-      key: "id",
-      loadUrl: `${environment.apiUrl}${Urls.Menu}`,
-      onBeforeSend(method, ajaxOptions) {
-        ajaxOptions.xhrFields = { withCredentials: true };
-        ajaxOptions.headers = {
-          Authorization: `Bearer ${token}`,
-        };
-      },
-    });
+
   }
 
   getById(id) {
