@@ -13,11 +13,5 @@ namespace Chinook.Api.Controllers
             _menuItemService = menuItemService;
         }
 
-        [HttpGet("GetByMenuId/{id}")]
-        public IActionResult GetByMenuId(int id)
-        {
-            var list = _menuItemService.GetByMenuId(id);
-            return Ok(list);
-        }
     }
 }

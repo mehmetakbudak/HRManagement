@@ -43,7 +43,7 @@ namespace Chinook.Api.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult Post([FromBody] BlogModel model)
+        public IActionResult Post([FromBody] BlogInputModel model)
         {
             var result = _blogService.Post(model);
             return Ok(result);
@@ -51,7 +51,7 @@ namespace Chinook.Api.Controllers
 
         [HttpPut]
         [Authorize]
-        public IActionResult Put([FromBody] BlogModel model)
+        public IActionResult Put([FromBody] BlogInputModel model)
         {
             var result = _blogService.Put(model);
             return Ok(result);

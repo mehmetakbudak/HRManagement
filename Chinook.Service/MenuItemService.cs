@@ -1,5 +1,7 @@
-﻿using Chinook.Data.Repository;
+﻿using Chinook.Data;
+using Chinook.Service.Exceptions;
 using Chinook.Storage.Entities;
+using Chinook.Storage.Enums;
 using Chinook.Storage.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,102 +14,237 @@ namespace Chinook.Service
 {
     public interface IMenuItemService
     {
-        List<MenuItemModel> GetByMenuId(int id);
+        Task<MenuItemModel> GetById(int id);
         Task<ServiceResult> Post(MenuItemModel model);
-        Task<ServiceResult> Put(MenuItemModel model);        
-        ServiceResult Delete(int id);
+        Task<ServiceResult> Put(MenuItemModel model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class MenuItemService : IMenuItemService
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly ChinookContext _context;
 
-        public MenuItemService(IUnitOfWork unitOfWork)
+        public MenuItemService(ChinookContext context)
         {
-            this.unitOfWork = unitOfWork;
+            _context = context;
         }
 
-        public List<MenuItemModel> GetByMenuId(int id)
+        public async Task<MenuItemModel> GetById(int id)
         {
-            throw new NotImplementedException();
+            var menuItem = await _context.MenuItems
+                .Where(x => x.Id == id && !x.Deleted)
+                .Include(x => x.Menu)
+                .Include(x => x.MenuItemAccessRights)
+                .FirstOrDefaultAsync();
+
+            if (menuItem == null)
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
+            }
+
+            var accessRightIds = new List<int>();
+
+            if (menuItem.Menu.Type == MenuType.Admin)
+            {
+                accessRightIds = menuItem.MenuItemAccessRights
+                    .Select(x => x.AccessRightId).ToList();
+            }
+
+            var model = new MenuItemModel
+            {
+                Id = menuItem.Id,
+                Title = menuItem.Title,
+                Url = menuItem.Url,
+                ParentId = menuItem.ParentId,
+                IsActive = menuItem.IsActive,
+                MenuType = menuItem.Menu.Type,
+                DisplayOrder = menuItem.DisplayOrder,
+                AccessRightIds = accessRightIds
+            };
+            return model;
         }
 
         public async Task<ServiceResult> Post(MenuItemModel model)
         {
-            var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            try
-            {
-                var lastMenuItem = await unitOfWork.Repository<MenuItemDmo>()
-                    .GetAll(x => x.ParentId == model.ParentId && x.IsActive && !x.Deleted)
-                    .OrderByDescending(x => x.Order)
-                    .FirstOrDefaultAsync();
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-                var entity = new MenuItemDmo
+            if (!string.IsNullOrEmpty(model.Url))
+            {
+                var isExist = await _context.MenuItems
+                    .AnyAsync(x => !x.Deleted && x.Url == model.Url && x.Menu.Type == model.MenuType);
+
+                if (isExist)
+                {
+                    throw new FoundException("Daha önce aynı url'den kaydedilmiş.");
+                }
+            }
+
+            if (model.MenuType == MenuType.Frontend)
+            {
+                int menuId = 0;
+                var menu = await _context.Menus.FirstOrDefaultAsync(x => x.Type == MenuType.Frontend);
+
+                if (menu == null)
+                {
+                    var newMenu = new MenuDmo
+                    {
+                        Deleted = false,
+                        IsActive = true,
+                        IsDeletable = false,
+                        Name = "Ön Arayüz Menü",
+                        Type = MenuType.Frontend,
+                    };
+                    await _context.Menus.AddAsync(newMenu);
+
+                    await _context.SaveChangesAsync();
+
+                    menuId = newMenu.Id;
+                }
+                else
+                {
+                    menuId = menu.Id;
+                }
+
+                await _context.MenuItems.AddAsync(new MenuItemDmo
                 {
                     Deleted = false,
+                    DisplayOrder = model.DisplayOrder,
                     IsActive = model.IsActive,
-                    MenuId = model.MenuId,
-                    Name = model.Name,
-                    Url = model.Url,
                     ParentId = model.ParentId,
-                    Order = lastMenuItem == null ? 1 : (lastMenuItem.Order + 1)
-                };
-                await unitOfWork.Repository<MenuItemDmo>().Add(entity);
-                await unitOfWork.SaveChanges();
+                    Title = model.Title,
+                    MenuId = menuId,
+                    Url = string.IsNullOrEmpty(model.Url) ? null : model.Url
+
+                });
+                await _context.SaveChangesAsync();
             }
-            catch (Exception ex)
+            else if (model.MenuType == MenuType.Admin)
             {
-                serviceResult.StatusCode = HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
+                int menuId = 0;
+                var menu = await _context.Menus.FirstOrDefaultAsync(x => x.Type == MenuType.Admin);
+
+                if (menu == null)
+                {
+                    var newMenu = new MenuDmo
+                    {
+                        Deleted = false,
+                        IsActive = true,
+                        IsDeletable = false,
+                        Name = "Admin Menü",
+                        Type = MenuType.Admin
+                    };
+                    await _context.Menus.AddAsync(newMenu);
+
+                    await _context.SaveChangesAsync();
+
+                    menuId = newMenu.Id;
+                }
+                else
+                {
+                    menuId = menu.Id;
+                }
+
+                var menuItem = new MenuItemDmo
+                {
+                    Deleted = false,
+                    DisplayOrder = model.DisplayOrder,
+                    IsActive = model.IsActive,
+                    ParentId = model.ParentId,
+                    Title = model.Title,
+                    MenuId = menuId,
+                    Url = model.Url
+                };
+                await _context.MenuItems.AddAsync(menuItem);
+
+                await _context.SaveChangesAsync();
+
+                if (model.AccessRightIds != null && model.AccessRightIds.Count > 0)
+                {
+                    foreach (var accessRightId in model.AccessRightIds)
+                    {
+                        await _context.MenuItemAccessRights.AddAsync(new MenuItemAccessRightDmo
+                        {
+                            AccessRightId = accessRightId,
+                            MenuItemId = menuItem.Id
+                        });
+                    }
+                    await _context.SaveChangesAsync();
+                }
             }
-            return serviceResult;
+            return result;
         }
 
         public async Task<ServiceResult> Put(MenuItemModel model)
         {
-            var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            try
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
+            if (!string.IsNullOrEmpty(model.Url))
             {
-                var menuItem = await unitOfWork.Repository<MenuItemDmo>()
-                    .Get(x => x.Id == model.Id && !x.Deleted && x.IsActive);
+                var isExist = await _context.MenuItems.AnyAsync(x => x.Id != model.Id && !x.Deleted && x.Url == model.Url && x.Menu.Type == model.MenuType);
 
-                if (menuItem != null)
+                if (isExist)
                 {
-                    menuItem.IsActive = model.IsActive;
-                    menuItem.Name = model.Name;
-                    menuItem.Order = model.Order;
-                    menuItem.Url = model.Url;
-                    menuItem.MenuId = model.MenuId;
-
-                    await unitOfWork.SaveChanges();
-                }
-                else
-                {
-                    serviceResult.StatusCode = HttpStatusCode.NotFound;
-                    serviceResult.Message = "Menü elemanı bulunamadı.";
+                    throw new FoundException("Daha önce aynı url'den kaydedilmiş.");
                 }
             }
-            catch (Exception ex)
+
+            var menuItem = await _context.MenuItems
+                .Where(x => x.Id == model.Id && !x.Deleted)
+                .Include(x => x.MenuItemAccessRights)
+                .FirstOrDefaultAsync();
+
+            if (menuItem == null)
             {
-                serviceResult.StatusCode = HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
+                throw new NotFoundException("Kayıt bulunamadı.");
             }
-            return serviceResult;
+            menuItem.Title = model.Title;
+            menuItem.Url = string.IsNullOrEmpty(model.Url) ? null : model.Url;
+            menuItem.ParentId = model.ParentId;
+            menuItem.IsActive = model.IsActive;
+            menuItem.DisplayOrder = model.DisplayOrder;
+
+            var addingList = model.AccessRightIds.Where(x => !menuItem.MenuItemAccessRights.Select(x => x.AccessRightId).Contains(x)).ToList();
+
+            if (addingList != null && addingList != null)
+            {
+                foreach (var accessRightId in addingList)
+                {
+                    await _context.MenuItemAccessRights.AddAsync(new MenuItemAccessRightDmo
+                    {
+                        AccessRightId = accessRightId,
+                        MenuItemId = menuItem.Id
+                    });
+                }
+            }
+
+            var deletingList = menuItem.MenuItemAccessRights.Where(x => !model.AccessRightIds.Contains(x.AccessRightId)).ToList();
+
+            if (deletingList != null && deletingList.Any())
+            {
+                _context.MenuItemAccessRights.RemoveRange(deletingList);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return result;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
-            var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            try
-            {
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            }
-            catch (Exception ex)
+            var menuItem = await _context.MenuItems.FirstOrDefaultAsync(x => x.Id == id && !x.Deleted);
+
+            if (menuItem == null)
             {
-                serviceResult.StatusCode = HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
+                throw new NotFoundException("Kayıt bulunamadı.");
             }
-            return serviceResult;
-        }               
+
+            menuItem.Deleted = true;
+
+            await _context.SaveChangesAsync();
+
+            return result;
+        }
     }
 }

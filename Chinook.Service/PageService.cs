@@ -1,9 +1,9 @@
-﻿using System.Linq;
-using Chinook.Storage.Models;
+﻿using Chinook.Data;
 using Chinook.Storage.Entities;
-using System.Threading.Tasks;
-using Chinook.Data.Repository;
+using Chinook.Storage.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Chinook.Service
 {
@@ -18,23 +18,21 @@ namespace Chinook.Service
 
     public class PageService : IPageService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public PageService(IUnitOfWork unitOfWork)
+        private readonly ChinookContext _context;
+
+        public PageService(ChinookContext context)
         {
-            _unitOfWork = unitOfWork;
+            _context = context;
         }
-       
+
         public IQueryable<PageDmo> Get()
         {
-            return _unitOfWork.Repository<PageDmo>()
-                .GetAll(x => !x.Deleted)
-                .Include(x => x.Menu)
-                .AsQueryable();
+            return _context.Pages.Where(x => !x.Deleted).AsQueryable();
         }
 
         public async Task<PageDmo> GetById(int id)
         {
-            var page = await _unitOfWork.Repository<PageDmo>().Get(x => x.Id == id);
+            var page = await _context.Pages.FirstOrDefaultAsync(x => x.Id == id);
             return page;
         }
 

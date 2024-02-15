@@ -15,6 +15,6 @@ namespace Chinook.Storage.Entities
 
         public bool Deleted { get; set; }
 
-        public virtual ICollection<MenuItemDmo> MenuItems { get; set; }
+        public virtual List<MenuItemDmo> MenuItems { get; set; }
     }
 }

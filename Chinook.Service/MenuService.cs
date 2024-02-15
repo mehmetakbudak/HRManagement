@@ -1,4 +1,4 @@
-﻿using Chinook.Data.Repository;
+﻿using Chinook.Data;
 using Chinook.Storage.Entities;
 using Chinook.Storage.Enums;
 using Chinook.Storage.Models;
@@ -25,21 +25,21 @@ namespace Chinook.Service
 
     public class MenuService : IMenuService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ChinookContext _context;
 
-        public MenuService(IUnitOfWork unitOfWork)
+        public MenuService(ChinookContext context)
         {
-            _unitOfWork = unitOfWork;
+            _context = context;
         }
 
         public IQueryable<MenuModel> Get()
         {
-            var list = _unitOfWork.Repository<MenuDmo>()
-                .GetAll(x => !x.Deleted)
+            var list = _context.Menus
+                .Where(x => !x.Deleted)
                 .Select(x => new MenuModel
                 {
                     Id = x.Id,
-                    Label = x.Name,
+                    Title = x.Name,
                     Type = x.Type,
                     IsActive = x.IsActive,
                     IsDeletable = x.IsDeletable,
@@ -50,13 +50,13 @@ namespace Chinook.Service
 
         public async Task<MenuModel> GetById(int id)
         {
-            var menu = await _unitOfWork.Repository<MenuDmo>()
-                  .GetAll(x => !x.Deleted && x.Id == id)
+            var menu = await _context.Menus
+                  .Where(x => !x.Deleted && x.Id == id)
                   .Include(a => a.MenuItems)
                   .Select(x => new MenuModel
                   {
                       Id = x.Id,
-                      Label = x.Name,
+                      Title = x.Name,
                       Type = x.Type,
                       IsActive = x.IsActive,
                       IsDeletable = x.IsDeletable,
@@ -68,8 +68,8 @@ namespace Chinook.Service
         {
             var model = new MenuTreeModel();
 
-            var menu = await _unitOfWork.Repository<MenuDmo>()
-                  .GetAll(x => !x.Deleted && x.Type == type)
+            var menu = await _context.Menus
+                  .Where(x => !x.Deleted && x.Type == type)
                   .Include(a => a.MenuItems)
                   .FirstOrDefaultAsync();
 
@@ -97,16 +97,16 @@ namespace Chinook.Service
         {
             var menuItems = new List<MenubarModel>();
 
-            var list = await _unitOfWork.Repository<MenuItemDmo>()
-                .GetAll(x => x.Menu.Type == MenuType.Frontend && !x.Deleted && x.IsActive && x.ParentId == parentId)
+            var list = await _context.MenuItems
+                .Where(x => x.Menu.Type == MenuType.Frontend && !x.Deleted && x.IsActive && x.ParentId == parentId)
                 .Include(x => x.Menu)
-                .OrderBy(x => x.Order)
+                .OrderBy(x => x.DisplayOrder)
                 .Select(x => new MenubarModel
                 {
                     Id = x.Id,
-                    Label = x.Name,
+                    Label = x.Title,
                     RouterLink = x.Url,
-                    DisplayOrder = x.Order,
+                    DisplayOrder = x.DisplayOrder,
                     ParentId = x.ParentId,
                     IsActive = x.IsActive
                 }).ToListAsync();
@@ -129,25 +129,26 @@ namespace Chinook.Service
             var list = new List<MenuItemModel>();
 
             var data = menuItems.Where(x => x.MenuId == menuId && x.ParentId == parentId && !x.Deleted)
-                .OrderBy(x => x.Order).ToList();
+                .OrderBy(x => x.DisplayOrder).ToList();
 
             foreach (var item in data)
             {
                 var items = GetSubMenu(menuItems, item.MenuId, item.Id);
+
                 var model = new MenuItemModel
                 {
                     Id = item.Id,
-                    Name = item.Name,
+                    Title = item.Title,
                     IsActive = item.IsActive,
                     MenuId = item.MenuId,
                     ParentId = item.ParentId,
-                    Order = item.Order,
+                    DisplayOrder = item.DisplayOrder,
                     Url = item.Url
                 };
 
                 if (items.Any())
                 {
-                    model.Children = items;
+                    model.Items = items;
                 }
 
                 list.Add(model);
@@ -157,7 +158,7 @@ namespace Chinook.Service
 
         public async Task<List<LookupModel>> GetByLookup()
         {
-            return await _unitOfWork.Repository<MenuDmo>().GetAll(x => x.IsActive && !x.Deleted)
+            return await _context.Menus.Where(x => x.IsActive && !x.Deleted)
                 .Select(a => new LookupModel
                 {
                     Id = a.Id,
@@ -176,11 +177,12 @@ namespace Chinook.Service
                     Deleted = false,
                     IsActive = model.IsActive,
                     IsDeletable = true,
-                    Name = model.Label,
+                    Name = model.Title,
                     Type = MenuType.Other
                 };
-                await _unitOfWork.Repository<MenuDmo>().Add(entity);
-                await _unitOfWork.SaveChanges();
+                await _context.Menus.AddAsync(entity);
+
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -195,18 +197,21 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var menu = await _unitOfWork.Repository<MenuDmo>().Get(x => x.Id == model.Id);
+                var menu = await _context.Menus.FirstOrDefaultAsync(x => x.Id == model.Id);
+
                 if (menu == null)
                 {
                     serviceResult.StatusCode = HttpStatusCode.NotFound;
                     serviceResult.Message = "Menü bulunamadı.";
                     return serviceResult;
                 }
+
                 if (menu.Type == MenuType.Other)
                 {
-                    menu.Name = model.Label;
+                    menu.Name = model.Title;
                     menu.IsActive = model.IsActive;
-                    await _unitOfWork.SaveChanges();
+
+                    await _context.SaveChangesAsync();
                 }
                 else
                 {
@@ -228,8 +233,8 @@ namespace Chinook.Service
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var menu = await _unitOfWork.Repository<MenuDmo>()
-                    .GetAll(x => x.Id == id)
+                var menu = await _context.Menus
+                    .Where(x => x.Id == id)
                     .Include(a => a.MenuItems)
                     .FirstOrDefaultAsync();
 
@@ -246,7 +251,7 @@ namespace Chinook.Service
                     {
                         menuItem.Deleted = true;
                     }
-                    await _unitOfWork.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
                 else
                 {

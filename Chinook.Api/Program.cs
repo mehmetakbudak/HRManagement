@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using Microsoft.IdentityModel.Tokens;
 using Chinook.Service.Extensions;
 using Microsoft.Extensions.Hosting;
+using CMS.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,15 +53,17 @@ builder.Services.AddMvc()
 builder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IBlogCategoryService, BlogCategoryService>();
-builder.Services.AddScoped<INoteCategoryService, NoteCategoryService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<INoteService, NoteService>();
-builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
-builder.Services.AddScoped<IPageService, PageService>();
-builder.Services.AddScoped<ITitleService, TitleService>();
-builder.Services.AddScoped<IProvinceService, ProvinceService>();
 builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+builder.Services.AddScoped<IMenuService, MenuService>();
+builder.Services.AddScoped<IPageService, PageService>();
+builder.Services.AddScoped<IProvinceService, ProvinceService>();
+builder.Services.AddScoped<ITaskCategoryService, TaskCategoryService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ITaskStatusService, TaskStatusService>();
+builder.Services.AddScoped<ITitleService, TitleService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddCors();
 builder.Services.AddControllers(mvcOptions =>
@@ -80,7 +83,7 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-string[] corsDomains = builder.Configuration["CorsDomains:Domains"].Split(",");
+string[] corsDomains = builder.Configuration["CorsDomains"].Split(",");
 app.UseCors(options => options.WithOrigins(corsDomains)
                               .AllowAnyMethod()
                               .AllowCredentials()

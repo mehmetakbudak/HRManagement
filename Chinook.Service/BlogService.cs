@@ -21,21 +21,25 @@ namespace Chinook.Service
     {
         IQueryable<BlogDmo> Get();
         PaginationModel<BlogDmo> GetByFilter(BlogFilterModel model);
-        Task<BlogDetailModel> GetById(int id);
-        Task<ServiceResult> Post(BlogPostModel model);
-        Task<ServiceResult> Put(BlogPutModel model);
-        Task<ServiceResult> Delete(int id);
         Task<List<BlogModel>> GetBlogsByCategoryUrl(string categoryUrl);
+        Task<BlogDetailModel> GetById(int id);
+        Task<BlogDetailOutputModel> GetDetailById(int id);
+        Task<List<MostReadBlogModel>> MostRead(string blogCategoryUrl = null);
+        Task<ServiceResult> Post(BlogInputModel model);
+        Task<ServiceResult> Put(BlogInputModel model);
+        Task<ServiceResult> Seen(int id);   
+        Task<ServiceResult> Delete(int id);
+        Task<List<BlogModel>> GetTagBlogsByUrl(string url);
     }
     public class BlogService : IBlogService
     {
         private readonly ChinookContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IHostingEnvironment _environment;
+        private readonly IWebHostEnvironment _environment;
 
         public BlogService(
             ChinookContext context,
-            IHostingEnvironment environment,
+            IWebHostEnvironment environment,
             IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
@@ -140,9 +144,9 @@ namespace Chinook.Service
             return model;
         }
 
-        public async Task<BlogDetailModel> GetDetailById(int id)
+        public async Task<BlogDetailOutputModel> GetDetailById(int id)
         {
-            BlogDetailModel model = null;
+            BlogDetailOutputModel model = null;
 
             var blog = await _context.Blogs
                 .Where(x => x.Id == id && !x.Deleted && x.Published && x.IsActive)
@@ -164,17 +168,17 @@ namespace Chinook.Service
                 .Include(x => x.Tag)
                 .Select(x => x.Tag).ToListAsync();
 
-            model = new BlogDetailModel
+            model = new BlogDetailOutputModel
             {
+                Id = blog.Id,
+                Url = blog.Url,
                 Content = blog.Content,
                 NumberOfView = blog.NumberOfView,
-                Id = blog.Id,
                 InsertedDate = blog.InsertedDate,
                 Title = blog.Title,
                 ImageUrl = blog.ImageUrl,
                 FullName = $"{blog.User.FirstName} {blog.User.LastName}",
                 CommentCount = commentCount,
-                Url = blog.Url,
                 BlogCategories = blog.SelectedBlogCategories
                                      .Select(x => x.BlogCategory)
                                      .Select(x => new BlogDetailCategoryModel
@@ -222,7 +226,7 @@ namespace Chinook.Service
             return list;
         }
 
-        public async Task<ServiceResult> Post(BlogPostModel model)
+        public async Task<ServiceResult> Post(BlogInputModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
@@ -254,7 +258,7 @@ namespace Chinook.Service
                     Content = model.Content,
                     Deleted = false,
                     Description = model.Content,
-                    DisplayOrder = model.,
+                    DisplayOrder = model.DisplayOrder,
                     InsertedDate = DateTime.Now,
                     IsActive = model.IsActive,
                     Published = model.Published,
@@ -331,7 +335,7 @@ namespace Chinook.Service
             }
         }
 
-        public async Task<ServiceResult> Put(BlogPutModel model)
+        public async Task<ServiceResult> Put(BlogInputModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 

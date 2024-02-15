@@ -86,7 +86,7 @@
     <div class="form-group">
       <label class="form-label">Name</label>
       <input class="w-100" type="text" pInputText formControlName="name"
-        [ngClass]="{ 'is-invalid': submitted && f['name'].errors }">
+        [ngClass]="{ 'ng-invalid ng-dirty': submitted && f['name'].errors }">
       <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
         <div *ngIf="f['name'].errors['required']">Name is required</div>
       </div>
