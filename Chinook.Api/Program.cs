@@ -19,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
 builder.Services.AddDbContext<ChinookContext>(options =>
-                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var appSettingsSection = builder.Configuration.GetSection("Jwt");
 builder.Services.Configure<JwtModel>(appSettingsSection);
@@ -64,6 +64,7 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITaskStatusService, TaskStatusService>();
 builder.Services.AddScoped<ITitleService, TitleService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserTokenService, UserTokenService>();
 
 builder.Services.AddCors();
 builder.Services.AddControllers(mvcOptions =>

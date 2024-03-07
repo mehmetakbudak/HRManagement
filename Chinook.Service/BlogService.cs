@@ -101,7 +101,7 @@ namespace Chinook.Service
                      ImageUrl = x.ImageUrl,
                      Description = x.Description,
                      InsertedDate = x.InsertedDate,
-                     FullName = $"{x.User.FirstName} {x.User.LastName}",
+                     FullName = $"{x.User.Surname} {x.User.Name}",
                      CommentCount = comments.Count(a => a.SourceId == x.Id)
                  }).ToListAsync();
 
@@ -177,7 +177,7 @@ namespace Chinook.Service
                 InsertedDate = blog.InsertedDate,
                 Title = blog.Title,
                 ImageUrl = blog.ImageUrl,
-                FullName = $"{blog.User.FirstName} {blog.User.LastName}",
+                FullName = $"{blog.User.Surname} {blog.User.Name}",
                 CommentCount = commentCount,
                 BlogCategories = blog.SelectedBlogCategories
                                      .Select(x => x.BlogCategory)
@@ -520,7 +520,7 @@ namespace Chinook.Service
                   ImageUrl = x.ImageUrl,
                   Description = x.Description,
                   InsertedDate = x.InsertedDate,
-                  FullName = $"{x.User.FirstName} {x.User.LastName}",
+                  FullName = $"{x.User.Surname} {x.User.Name}",
                   CommentCount = comments.Count(a => a.SourceId == x.Id)
               }).ToListAsync();
 

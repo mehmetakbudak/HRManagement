@@ -4,7 +4,9 @@ namespace Chinook.Storage.Entities
 {
     public class AccessRightDmo : BaseModel
     {
-        public int? ParentId { get; set; }
+        public int AccessRightCategoryId { get; set; }
+
+        public AccessRightCategoryDmo AccessRightCategory { get; set; }
 
         public string Name { get; set; }
 

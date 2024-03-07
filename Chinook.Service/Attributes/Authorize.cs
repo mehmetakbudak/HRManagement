@@ -1,13 +1,12 @@
-﻿using System;
-using System.Configuration;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Text;
-using Chinook.Storage.Models;
+﻿using Chinook.Storage.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Text;
 
 namespace Chinook.Service.Attributes
 {
@@ -17,7 +16,7 @@ namespace Chinook.Service.Attributes
         {
             try
             {
-                var userService = (IUserService)context.HttpContext.RequestServices.GetService(typeof(IUserService));
+                var userTokenService = (IUserTokenService)context.HttpContext.RequestServices.GetService(typeof(IUserTokenService));
                 var configuration = (IConfiguration)context.HttpContext.RequestServices.GetService(typeof(IConfiguration));
 
                 var request = context.HttpContext.Request;
@@ -54,13 +53,13 @@ namespace Chinook.Service.Attributes
                         throw new Exception("Token doğrulanamadı.");
                     }
 
-                    var user = await userService.GetById(userId);
+                    var userToken = await userTokenService.GetByUserId(userId);
 
-                    if (user != null)
+                    if (userToken != null)
                     {
-                        if (!string.IsNullOrEmpty(user.Token))
+                        if (!string.IsNullOrEmpty(userToken.Token))
                         {
-                            if (user.Token.ToLower() != tokenString.ToLower())
+                            if (userToken.Token.ToLower() != tokenString.ToLower())
                             {
                                 throw new Exception("Token süresi dolmuş. Tekrar giriş yapınız.");
                             }
@@ -69,10 +68,10 @@ namespace Chinook.Service.Attributes
                         {
                             throw new Exception("Lütfen giriş yapınız.");
                         }
-                        if (user.TokenExpireDate.HasValue)
+                        if (userToken.TokenExpireDate.HasValue)
                         {
-                            var tokenStartDate = user.TokenExpireDate.Value.AddHours(-2);
-                            var tokenEndDate = user.TokenExpireDate.Value;
+                            var tokenStartDate = userToken.TokenExpireDate.Value.AddHours(-2);
+                            var tokenEndDate = userToken.TokenExpireDate.Value;
 
                             if (!((tokenStartDate <= DateTime.Now) && (tokenEndDate >= DateTime.Now)))
                             {

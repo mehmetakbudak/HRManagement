@@ -1,14 +1,13 @@
 ﻿using Chinook.Storage.Enums;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chinook.Storage.Entities
 {
-    public class UserDmo : BaseModel
+    public class UserDmo : BaseInfoModel
     {
-        public string LastName { get; set; }
+        public string Name { get; set; }
 
-        public string FirstName { get; set; }
+        public string Surname { get; set; }
 
         public int? TitleId { get; set; }
 
@@ -34,11 +33,7 @@ namespace Chinook.Storage.Entities
 
         public string Password { get; set; }
 
-        public UserType UserType { get; set; }
-
-        public string Token { get; set; }
-
-        public DateTime? TokenExpireDate { get; set; }
+        public UserType UserType { get; set; }       
 
         public bool IsActive { get; set; }
 

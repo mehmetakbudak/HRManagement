@@ -61,14 +61,14 @@ namespace Chinook.Service
                     BirthDate = x.BirthDate,
                     CityName = x.City.Name,
                     Email = x.Email,
-                    FirstName = x.FirstName,
+                    FirstName = x.Surname,
                     HireDate = x.HireDate,
                     Id = x.Id,
                     IsActive = x.IsActive,
-                    LastName = x.LastName,
+                    LastName = x.Name,
                     Phone = x.Phone,
                     ProvinceName = x.City.Province.Name,
-                    ReportedUserName = $"{x.ReportedUser.FirstName} {x.ReportedUser.LastName}",
+                    ReportedUserName = $"{x.ReportedUser.Surname} {x.ReportedUser.Name}",
                     TitleName = x.Title.Name
                 });
         }
@@ -86,11 +86,11 @@ namespace Chinook.Service
                     BirthDate = x.BirthDate,
                     CityId = x.CityId,
                     EmailAddress = x.Email,
-                    FirstName = x.FirstName,
+                    FirstName = x.Surname,
                     HireDate = x.HireDate,
                     Id = x.Id,
                     IsActive = x.IsActive,
-                    LastName = x.LastName,
+                    LastName = x.Name,
                     Phone = x.Phone,
                     ProvinceId = x.City.ProvinceId,
                     TitleId = x.TitleId,
@@ -121,46 +121,49 @@ namespace Chinook.Service
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var loginUser = new UserTokenModel();
-
             var user = await _context.Users.FirstOrDefaultAsync(x => x.IsActive && !x.Deleted && x.Email == model.EmailAddress && x.Password == model.Password);
 
             if (user == null)
             {
                 throw new NotFoundException("The email address and password are incorrect.");
             }
+            var userToken = await _context.UserTokens.FirstOrDefaultAsync(x => x.UserId == user.Id);
 
-            bool isCreateToken = false;
-            var token = user.Token;
+            string token = null;
 
-            if (user.TokenExpireDate.HasValue)
+            if (userToken != null)
             {
-                if (!(user.TokenExpireDate >= DateTime.Now))
+                if (userToken.TokenExpireDate < DateTime.Now)
                 {
-                    isCreateToken = true;
+                    token = userToken.Token;
+                }
+                else
+                {
+                    token = NewToken(user.Id.ToString());
+                    userToken.Token = token;
+                    userToken.TokenExpireDate = DateTime.Now.AddHours(2);
+                    await _context.SaveChangesAsync();
                 }
             }
             else
             {
-                isCreateToken = true;
-            }
-            if (isCreateToken)
-            {
                 token = NewToken(user.Id.ToString());
-                user.Token = token;
-                user.TokenExpireDate = DateTime.Now.AddHours(2);
-
+                await _context.UserTokens.AddAsync(new UserTokenDmo
+                {
+                    Token = token,
+                    UserId = user.Id,
+                    TokenExpireDate = DateTime.Now.AddHours(2)
+                });
                 await _context.SaveChangesAsync();
             }
 
-            loginUser = new UserTokenModel
+            serviceResult.Data = new UserTokenModel
             {
                 EmailAddress = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                FirstName = user.Surname,
+                LastName = user.Name,
                 Token = token
             };
-            serviceResult.Data = loginUser;
             return serviceResult;
         }
 
@@ -211,8 +214,8 @@ namespace Chinook.Service
             {
                 Id = user.Id,
                 EmailAddress = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                FirstName = user.Surname,
+                LastName = user.Name,
                 TitleId = user.TitleId,
                 ProvinceId = user.City?.ProvinceId,
                 CityId = user.CityId,
@@ -240,8 +243,8 @@ namespace Chinook.Service
             }
             user.Address = model.Address;
             user.CityId = model.CityId;
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
+            user.Surname = model.FirstName;
+            user.Name = model.LastName;
             user.Phone = model.Phone;
 
             await _context.SaveChangesAsync();
@@ -259,8 +262,8 @@ namespace Chinook.Service
                 throw new NotFoundException("User not found.");
             }
             user.HireDate = model.HireDate;
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
+            user.Surname = model.FirstName;
+            user.Name = model.LastName;
             user.Phone = model.Phone;
             user.BirthDate = model.BirthDate;
             user.CityId = model.CityId;

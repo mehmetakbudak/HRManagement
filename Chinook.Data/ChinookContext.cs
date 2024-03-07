@@ -5,10 +5,9 @@ namespace Chinook.Data
 {
     public class ChinookContext : DbContext
     {
-        public ChinookContext(DbContextOptions<ChinookContext> options) : base(options)
-        {
-        }
+        public ChinookContext(DbContextOptions<ChinookContext> options) : base(options) { }
 
+        public DbSet<AccessRightCategoryDmo> AccessRightCategories { get; set; }
         public DbSet<AccessRightDmo> AccessRights { get; set; }
         public DbSet<AccessRightEndpointDmo> AccessRightEndpoints { get; set; }
         public DbSet<BlogCategoryDmo> BlogCategories { get; set; }
@@ -32,6 +31,7 @@ namespace Chinook.Data
         public DbSet<UserAccessRightDmo> UserAccessRights { get; set; }
         public DbSet<UserDmo> Users { get; set; }
         public DbSet<UserRoleDmo> UserRoles { get; set; }
+        public DbSet<UserTokenDmo> UserTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

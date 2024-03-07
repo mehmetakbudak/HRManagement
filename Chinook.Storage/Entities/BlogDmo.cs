@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chinook.Storage.Entities
 {
@@ -27,7 +25,7 @@ namespace Chinook.Storage.Entities
         public bool Published { get; set; }
 
         public int DisplayOrder { get; set; }
-      
+
         public bool IsActive { get; set; }
 
         public bool Deleted { get; set; }

@@ -51,7 +51,7 @@ namespace Chinook.Service
                     TaskStatusName = $"{x.TaskStatus.Name} ({x.TaskCategory.Name})",
                     UpdatedDate = x.UpdatedDate,
                     AssignUserId = x.AssignUserId,
-                    UserNameSurname = x.AssignUser.FirstName + " " + x.AssignUser.LastName
+                    UserNameSurname = x.AssignUser.Surname + " " + x.AssignUser.Name
                 }).ToListAsync();
 
             return list;
@@ -77,7 +77,7 @@ namespace Chinook.Service
                     TaskStatusName = x.TaskStatus.Name,
                     UpdatedDate = x.UpdatedDate,
                     AssignUserId = x.AssignUserId,
-                    UserNameSurname = x.AssignUser.FirstName + " " + x.AssignUser.LastName
+                    UserNameSurname = x.AssignUser.Surname + " " + x.AssignUser.Name
                 })
                 .OrderByDescending(x => x.Id)
                 .AsQueryable();

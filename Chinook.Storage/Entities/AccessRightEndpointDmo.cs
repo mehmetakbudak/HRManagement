@@ -13,6 +13,10 @@ namespace Chinook.Storage.Entities
         public MethodType Method { get; set; }
 
         public int RouteLevel { get; set; }
+        
+        public bool IsActive { get; set; }
+
+        public bool Deleted { get; set; }
     }
 }
 
